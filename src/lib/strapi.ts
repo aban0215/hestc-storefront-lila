@@ -1,11 +1,11 @@
 import { strapi } from '@strapi/client';
 
 /**
- * Strapi 客户端单例配置
+ * Strapi 客户端
  */
 export const strapiClient = strapi({
     baseURL: `${process.env.NEXT_PUBLIC_STRAPI_API_URL}/api`,
-    auth: process.env.STRAPI_API_TOKEN, // 自动从环境变量读取 Token
+    auth: process.env.STRAPI_API_TOKEN,
 });
 
 /**
@@ -22,7 +22,7 @@ export async function getStrapiData(
         // 合并默认参数：多语言过滤 + 自动填充关联字段
         const queryParams = {
             locale: lang,
-            populate: '*', // 默认获取一层关联，如图片和动态组件
+            populate: '*',
             ...params,
         };
 
@@ -43,7 +43,7 @@ export async function getStrapiSingle(contentType: string, lang: string = 'en') 
     try {
         const response = await strapiClient.single(contentType).get({
             locale: lang,
-            populate: 'deep', // 如果安装了 strapi-plugin-populate-deep，这里非常管用
+            populate: 'deep',
         });
         return response.data;
     } catch (error) {

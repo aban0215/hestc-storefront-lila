@@ -8,6 +8,7 @@ import CartButton from "@modules/layout/components/cart-button"
 import SideMenu from "@modules/layout/components/side-menu"
 import HeaderCountrySelect from "@modules/layout/components/header-country-select"
 import HeaderLanguageSelect from "@modules/layout/components/header-language-select"
+import { User, ShoppingBag } from "@medusajs/icons" // 导入图标
 
 export default async function Nav() {
   const [regions, locales, currentLocale] = await Promise.all([
@@ -40,12 +41,12 @@ export default async function Nav() {
               </LocalizedClientLink>
             </div>
 
-            <div className="flex items-center gap-x-4 h-full flex-1 basis-0 justify-end">
+            <div className="flex items-center gap-x-6 h-full flex-1 basis-0 justify-end">
               {/* 国家和语言选择器 */}
-              <div className="hidden sm:flex items-center gap-x-2">
+              <div className="hidden sm:flex items-center gap-x-4 mr-4">
                 {regions && <HeaderCountrySelect regions={regions} />}
                 {locales && (
-                    <div className="h-4 w-px bg-ui-border-base" />
+                    <div className="h-6 w-px bg-ui-border-base" />
                 )}
                 {locales && (
                     <HeaderLanguageSelect
@@ -55,27 +56,31 @@ export default async function Nav() {
                 )}
               </div>
 
+              {/* 图标导航 */}
               <div className="hidden small:flex items-center gap-x-6 h-full">
                 <LocalizedClientLink
-                    className="hover:text-ui-fg-base"
+                    className="hover:text-ui-fg-base flex items-center justify-center w-8 h-8 rounded-md hover:bg-ui-bg-subtle-hover transition-colors"
                     href="/account"
                     data-testid="nav-account-link"
+                    title="Account" // 添加title属性用于鼠标悬停提示
                 >
-                  Account
+                  <User className="h-5 w-5" />
                 </LocalizedClientLink>
               </div>
 
               <Suspense
                   fallback={
                     <LocalizedClientLink
-                        className="hover:text-ui-fg-base flex gap-2"
+                        className="hover:text-ui-fg-base flex items-center justify-center w-8 h-8 rounded-md hover:bg-ui-bg-subtle-hover transition-colors"
                         href="/cart"
                         data-testid="nav-cart-link"
+                        title="Cart"
                     >
-                      Cart (0)
+                      <ShoppingBag className="h-5 w-5" />
                     </LocalizedClientLink>
                   }
               >
+                {/* 保持CartButton原样，但修改CartDropdown内部使用图标 */}
                 <CartButton />
               </Suspense>
             </div>

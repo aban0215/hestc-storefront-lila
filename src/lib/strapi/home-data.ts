@@ -262,3 +262,187 @@ export async function getBestSellerConfig(locale: string): Promise<BestSellerCon
         return null
     }
 }
+
+
+
+
+// 博客文章类型
+export interface BlogPostData {
+    id: number
+    documentId: string
+    title: string
+    slug: string
+    excerpt: string
+    content: string
+    readTime: number
+    author: string
+    featured: boolean
+    createdAt: string
+    updatedAt: string
+    publishedAt: string
+    locale: string
+    coverImage: StrapiImage
+    category: BlogCategory
+    localizations: any[]
+}
+
+export interface BlogCategory {
+    id: number
+    documentId: string
+    name: string
+    slug: string
+    description: string
+    createdAt: string
+    updatedAt: string
+    publishedAt: string
+    locale: string
+}
+
+// 博客列表响应类型
+export interface BlogPostsResponse {
+    data: BlogPostData[]
+    meta: {
+        pagination: {
+            page: number
+            pageSize: number
+            pageCount: number
+            total: number
+        }
+    }
+}
+
+
+
+
+// 在 getHomeHero 函数后面添加以下函数
+
+// 获取最新的博客文章
+export async function getLatestBlogPost(locale: string): Promise<BlogPostData | null> {
+    try {
+        // 按 publishedAt 降序排序，获取最新的一篇
+        const res = await fetch(
+            `${STRAPI_BASE_URL}/api/lila-blog-posts?populate=*&locale=${locale}&sort[0]=publishedAt:desc&pagination[pageSize]=1`,
+            {
+                next: { revalidate: 3600 } // 1小时缓存
+            }
+        )
+
+        if (!res.ok) {
+            throw new Error(`HTTP error! status: ${res.status}`)
+        }
+
+        const data: BlogPostsResponse = await res.json()
+
+        if (!data.data || data.data.length === 0) {
+            return null
+        }
+
+        return data.data[0]
+    } catch (error) {
+        console.error('获取博客文章失败:', error)
+        return null
+    }
+}
+
+// 获取多篇博客文章（可选，用于未来扩展）
+export async function getFeaturedBlogPosts(locale: string, limit: number = 2): Promise<BlogPostData[]> {
+    try {
+        const res = await fetch(
+            `${STRAPI_BASE_URL}/api/lila-blog-posts?populate=*&locale=${locale}&sort[0]=publishedAt:desc&pagination[pageSize]=${limit}`,
+            {
+                next: { revalidate: 3600 }
+            }
+        )
+
+        if (!res.ok) {
+            throw new Error(`HTTP error! status: ${res.status}`)
+        }
+
+        const data: BlogPostsResponse = await res.json()
+
+        return data.data || []
+    } catch (error) {
+        console.error('获取精选博客文章失败:', error)
+        return []
+    }
+}
+
+
+
+
+export interface BlogModuleSettings {
+    id: number
+    moduleTitle: string
+    moduleDescription?: string
+    showModule: boolean
+    postsPerPage: number
+    showReadTime: boolean
+    showAuthor: boolean
+    showCategory: boolean
+    createdAt: string
+    updatedAt: string
+    publishedAt: string
+    locale: string
+}
+
+// 获取博客模块配置
+export async function getBlogModuleSettings(locale: string): Promise<BlogModuleSettings | null> {
+    try {
+        const res = await fetch(
+            `${STRAPI_BASE_URL}/api/lila-blog-module-setting?populate=*&locale=${locale}`,
+            {
+                next: { revalidate: 3600 }
+            }
+        )
+
+        if (!res.ok) {
+            // 如果接口不存在，返回默认配置
+            if (res.status === 404) {
+                return getDefaultBlogSettings()
+            }
+            throw new Error(`HTTP error! status: ${res.status}`)
+        }
+
+        const data = await res.json()
+
+        if (!data.data) {
+            return getDefaultBlogSettings()
+        }
+
+        return {
+            id: data.data.id,
+            moduleTitle: data.data.moduleTitle,
+            moduleDescription: data.data.moduleDescription,
+            showModule: data.data.showModule ?? true,
+            postsPerPage: data.data.postsPerPage ?? 10,
+            showReadTime: data.data.showReadTime ?? true,
+            showAuthor: data.data.showAuthor ?? true,
+            showCategory: data.data.showCategory ?? true,
+            createdAt: data.data.createdAt,
+            updatedAt: data.data.updatedAt,
+            publishedAt: data.data.publishedAt,
+            locale: data.data.locale
+        }
+    } catch (error) {
+        console.error('获取博客模块配置失败:', error)
+        return getDefaultBlogSettings()
+    }
+}
+
+// 默认配置
+function getDefaultBlogSettings(): BlogModuleSettings {
+    return {
+        id: 0,
+        moduleTitle: "LILA ZEN 运动生活博客",
+        moduleDescription: "分享瑜伽、运动、健康生活的点滴",
+        showModule: true,
+        postsPerPage: 10,
+        showReadTime: true,
+        showAuthor: true,
+        showCategory: true,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        publishedAt: new Date().toISOString(),
+        locale: 'en-US'
+    }
+}

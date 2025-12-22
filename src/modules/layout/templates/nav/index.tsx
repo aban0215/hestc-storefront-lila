@@ -97,17 +97,7 @@ export default async function Nav() {
         <header className="relative h-16 mx-auto border-b duration-200 bg-white border-ui-border-base">
           <nav className="content-container txt-xsmall-plus text-ui-fg-subtle flex items-center justify-between w-full h-full text-small-regular">
 
-            {/* 左侧：SideMenu + Logo */}
             <div className="flex-1 basis-0 h-full flex items-center">
-              {/*<div className="h-full">*/}
-              {/*  <SideMenu*/}
-              {/*      regions={regions}*/}
-              {/*      locales={locales}*/}
-              {/*      currentLocale={currentLocale}*/}
-              {/*  />*/}
-              {/*</div>*/}
-
-              {/* Logo - 在SideMenu旁边 */}
               <div className="ml-4">
                 <LocalizedClientLink href="/" className="flex items-center gap-x-2">
                   {brandData?.logo?.url ? (
@@ -121,8 +111,6 @@ export default async function Nav() {
                         <span className="text-sm font-bold text-gray-600">LZ</span>
                       </div>
                   )}
-
-                  {/* 品牌名称 - 桌面端显示 */}
                   <span className="hidden md:inline txt-compact-large-plus font-semibold text-ui-fg-base">
                   {brandData?.sitename || 'LILA ZEN'}
                 </span>
@@ -130,12 +118,10 @@ export default async function Nav() {
               </div>
             </div>
 
-            {/* 中间：显示Strapi导航菜单 */}
             <div className="hidden lg:flex items-center justify-center flex-1">
               <DesktopNavigation menuData={menuTree} />
             </div>
 
-            {/* 桌面端显示菜单时，隐藏原来的标题 */}
             <div className="lg:hidden flex items-center h-full">
               <LocalizedClientLink
                   href="/"

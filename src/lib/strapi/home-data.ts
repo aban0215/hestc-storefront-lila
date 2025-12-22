@@ -1,0 +1,264 @@
+const STRAPI_BASE_URL = process.env.NEXT_PUBLIC_STRAPI_API_URL || 'http://47.89.151.64:1337'
+
+export interface StrapiImage {
+    id: number
+    url: string
+    alternativeText?: string
+    formats?: {
+        thumbnail?: { url: string }
+        small?: { url: string }
+        medium?: { url: string }
+        large?: { url: string }
+    }
+}
+
+export interface HomeHeroData {
+    id: number
+    title: string
+    subtitle?: string
+    buttonText: string
+    buttonLink: string
+    active: boolean
+    overlayOpacity?: number
+    backgroundImage: StrapiImage
+}
+
+// 获取Hero数据
+export async function getHomeHero(locale: string): Promise<HomeHeroData | null> {
+    try {
+        const res = await fetch(
+            `${STRAPI_BASE_URL}/api/lila-home-hero?populate=*&locale=${locale}`,
+            {
+                next: { revalidate: 3600 } // 1小时缓存
+            }
+        )
+
+        if (!res.ok) {
+            throw new Error(`HTTP error! status: ${res.status}`)
+        }
+
+        const data = await res.json()
+
+        // 如果返回的数据结构有data字段
+        if (!data.data || !data.data.active) {
+            return null
+        }
+
+        return {
+            id: data.data.id,
+            title: data.data.title,
+            subtitle: data.data.subtitle,
+            buttonText: data.data.buttonText,
+            buttonLink: data.data.buttonLink,
+            active: data.data.active,
+            overlayOpacity: data.data.overlayOpacity,
+            backgroundImage: {
+                id: data.data.backgroundImage.id,
+                url: data.data.backgroundImage.url,
+                alternativeText: data.data.backgroundImage.alternativeText,
+                formats: data.data.backgroundImage.formats
+            }
+        }
+    } catch (error) {
+        console.error('获取Hero数据失败:', error)
+        return null
+    }
+}
+
+//获取分类数据
+export interface HomeCategorySectionData {
+    id: number
+    title: string
+    subtitle: string
+    featuredCategories: {
+        id: number
+        name: string
+        slug: string
+        description: string
+        buttonText: string
+        buttonLink: string
+        order: number
+        featured: boolean
+        image: StrapiImage  // 现在包含图片数据了
+    }[]
+}
+
+// 更新getHomeCategorySection函数
+export async function getHomeCategorySection(locale: string): Promise<HomeCategorySectionData | null> {
+    try {
+        const res = await fetch(
+            `${STRAPI_BASE_URL}/api/lila-home-category-section?populate[featuredCategories][populate]=image&locale=${locale}`,
+            {
+                next: { revalidate: 3600 }
+            }
+        )
+
+        if (!res.ok) {
+            throw new Error(`HTTP error! status: ${res.status}`)
+        }
+
+        const data = await res.json()
+
+        if (!data.data) {
+            return null
+        }
+
+        // 处理featuredCategories，确保按order排序
+        const featuredCategories = data.data.featuredCategories
+            ? data.data.featuredCategories.map((cat: any) => ({
+                id: cat.id,
+                name: cat.name,
+                slug: cat.slug,
+                description: cat.description,
+                buttonText: cat.buttonText,
+                buttonLink: cat.buttonLink,
+                order: cat.order,
+                featured: cat.featured,
+                image: {
+                    id: cat.image.id,
+                    url: cat.image.url,
+                    alternativeText: cat.image.alternativeText,
+                    formats: cat.image.formats
+                }
+            })).sort((a: any, b: any) => a.order - b.order)
+            : []
+
+        return {
+            id: data.data.id,
+            title: data.data.title,
+            subtitle: data.data.subtitle,
+            featuredCategories
+        }
+    } catch (error) {
+        console.error('获取品类展示区配置失败:', error)
+        return null
+    }
+}
+
+
+//添加New Arrival相关函数
+
+export interface NewArrivalData {
+    id: number
+    title: string
+    subtitle: string
+    description: string
+    buttonText: string
+    buttonLink: string
+    active: boolean
+    backgroundImage: StrapiImage // 注意：API返回的是数组，但我们只取第一个
+}
+
+// 获取新品宣传数据
+export async function getNewArrivalPromo(locale: string): Promise<NewArrivalData | null> {
+    try {
+        const res = await fetch(
+            `${STRAPI_BASE_URL}/api/lila-home-new-arrival?populate=*&locale=${locale}`,
+            {
+                next: { revalidate: 3600 }
+            }
+        )
+
+        if (!res.ok) {
+            throw new Error(`HTTP error! status: ${res.status}`)
+        }
+
+        const data = await res.json()
+
+        if (!data.data || !data.data.active) {
+            return null
+        }
+
+        // 注意：backgroundImage是一个数组，我们取第一个
+        const backgroundImage = Array.isArray(data.data.backgroundImage)
+            ? data.data.backgroundImage[0]
+            : data.data.backgroundImage
+
+        if (!backgroundImage) {
+            console.warn('New Arrival Promo没有背景图片')
+            return null
+        }
+
+        return {
+            id: data.data.id,
+            title: data.data.title,
+            subtitle: data.data.subtitle,
+            description: data.data.description,
+            buttonText: data.data.buttonText,
+            buttonLink: data.data.buttonLink,
+            active: data.data.active,
+            backgroundImage: {
+                id: backgroundImage.id,
+                url: backgroundImage.url,
+                alternativeText: backgroundImage.alternativeText,
+                formats: backgroundImage.formats
+            }
+        }
+    } catch (error) {
+        console.error('获取新品宣传数据失败:', error)
+        return null
+    }
+}
+
+
+
+export interface BestSellerConfig {
+    id: number
+    title: string
+    subtitle: string
+    displayCount: number
+    buttonText: string
+    buttonLink: string
+    products: {
+        id: number
+        sortOrder: number
+        producthandle: string
+    }[]
+}
+
+// Best Seller 配置数据获取
+export async function getBestSellerConfig(locale: string): Promise<BestSellerConfig | null> {
+    try {
+        const res = await fetch(
+            `${STRAPI_BASE_URL}/api/lila-home-best-seller?populate=*&locale=${locale}`,
+            {
+                next: { revalidate: 3600 }
+            }
+        )
+
+        if (!res.ok) {
+            throw new Error(`HTTP error! status: ${res.status}`)
+        }
+
+        const data = await res.json()
+
+        if (!data.data) {
+            return null
+        }
+
+        // 处理products数组，按sortOrder排序，限制displayCount数量
+        const products = data.data.products
+            ? data.data.products
+                .map((p: any) => ({
+                    id: p.id,
+                    sortOrder: p.sortOrder || 0,
+                    producthandle: p.producthandle
+                }))
+                .sort((a: any, b: any) => (a.sortOrder || 0) - (b.sortOrder || 0))
+                .slice(0, data.data.displayCount || 6) // 限制显示数量
+            : []
+
+        return {
+            id: data.data.id,
+            title: data.data.title,
+            subtitle: data.data.subtitle,
+            displayCount: data.data.displayCount || 6,
+            buttonText: data.data.buttonText,
+            buttonLink: data.data.buttonLink,
+            products
+        }
+    } catch (error) {
+        console.error('获取Best Seller配置失败:', error)
+        return null
+    }
+}

@@ -1,9 +1,12 @@
 import { Metadata } from "next"
 
-import FeaturedProducts from "@modules/home/components/featured-products"
-import Hero from "@modules/home/components/hero"
 import { listCollections } from "@lib/data/collections"
 import { getRegion } from "@lib/data/regions"
+import HeroSection from '../../components/home/hero-section'
+import CategoryShowcase from '../../components/home/category-showcase'
+import NewArrivalPromo from '../../components/home/new-arrival-promo'
+import BestSellers from '../../components/home/best-sellers'
+
 
 export const metadata: Metadata = {
   title: "Medusa Next.js Starter Template",
@@ -20,6 +23,7 @@ export default async function Home(props: {
 
   const region = await getRegion(countryCode)
 
+
   const { collections } = await listCollections({
     fields: "id, handle, title",
   })
@@ -30,11 +34,20 @@ export default async function Home(props: {
 
   return (
     <>
-      <Hero />
-      <div className="py-12">
-        <ul className="flex flex-col gap-x-6">
-          <FeaturedProducts collections={collections} region={region} />
-        </ul>
+      {/*<Hero />*/}
+      {/*<div className="py-12">*/}
+      {/*  <ul className="flex flex-col gap-x-6">*/}
+      {/*    <FeaturedProducts collections={collections} region={region} />*/}
+      {/*  </ul>*/}
+      {/*</div>*/}
+      <div className="min-h-screen">
+        <HeroSection />
+        <CategoryShowcase />
+        <NewArrivalPromo />
+        <BestSellers
+            regionId={region.id}
+        />
+        {/* 其他组件将在后续添加 */}
       </div>
     </>
   )

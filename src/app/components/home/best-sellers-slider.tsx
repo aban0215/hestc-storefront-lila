@@ -1,23 +1,33 @@
 "use client"
 
-import { Swiper, SwiperSlide } from 'swiper/react'
+import React, { useRef, useState } from 'react';
+import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation } from 'swiper/modules'
+import type { Swiper as SwiperType } from 'swiper';
 import LocalizedClientLink from '@modules/common/components/localized-client-link'
 
-// 必须引入 Swiper 样式
+// 必须引入基础样式
 import 'swiper/css'
-import 'swiper/css/navigation'
 
 export default function BestSellersSlider({ products }: { products: any[] }) {
+    // 1. 用于控制按钮逻辑的实例引用
+    const swiperRef = useRef<SwiperType | null>(null);
+    // 用于触发重绘，确保按钮在 Swiper 加载后能感知到实例
+    const [_, setRender] = useState({});
+
+    if (!products || products.length === 0) return null;
+
     return (
         <div className="relative group/section w-full border-y border-gray-100 bg-gray-100">
             <Swiper
+                // 关键点：当 products 变化时重新生成 Swiper 实例
+                key={products.length}
                 modules={[Navigation]}
-                navigation={{
-                    nextEl: ".btn-next-best",
-                    prevEl: ".btn-prev-best",
+                onSwiper={(swiper) => {
+                    swiperRef.current = swiper;
+                    setRender({}); // 强制刷新一次以启用按钮
                 }}
-                loop={true}
+                loop={products.length >= 6}
                 slidesPerView={2}
                 spaceBetween={1}
                 breakpoints={{
@@ -27,8 +37,9 @@ export default function BestSellersSlider({ products }: { products: any[] }) {
                 className="w-full"
             >
                 {products.map((product, index) => (
-                    <SwiperSlide key={`${product.originalHandle}-${index}`} className="bg-white">
-                        <LocalizedClientLink href={product.handle} className="block group">
+                    <SwiperSlide key={`${product.handle}-${index}`} className="bg-white">
+                        {/* 修正 href：确保 handle 路径正确 */}
+                        <LocalizedClientLink href={`/products${product.handle}`} className="block group">
                             <div className="aspect-[3/4] overflow-hidden bg-gray-50">
                                 {product.thumbnail ? (
                                     <img
@@ -57,12 +68,29 @@ export default function BestSellersSlider({ products }: { products: any[] }) {
                 ))}
             </Swiper>
 
-            {/* 左右箭头 - 仅在悬停时显示 */}
-            <button className="btn-prev-best absolute left-4 top-1/2 -translate-y-1/2 z-30 w-10 h-10 bg-white/90 shadow-lg rounded-full flex items-center justify-center text-gray-800 opacity-0 group-hover/section:opacity-100 transition-opacity hover:bg-black hover:text-white">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
+            {/* 左右箭头 - 使用手动 onClick 调用 swiperRef */}
+            <button
+                onClick={(e) => {
+                    e.preventDefault();
+                    swiperRef.current?.slidePrev();
+                }}
+                className="absolute left-4 top-1/2 -translate-y-1/2 z-50 w-10 h-10 bg-white/90 shadow-lg rounded-full flex items-center justify-center text-gray-800 opacity-0 group-hover/section:opacity-100 transition-opacity hover:bg-black hover:text-white"
+            >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
             </button>
-            <button className="btn-next-best absolute right-4 top-1/2 -translate-y-1/2 z-30 w-10 h-10 bg-white/90 shadow-lg rounded-full flex items-center justify-center text-gray-800 opacity-0 group-hover/section:opacity-100 transition-opacity hover:bg-black hover:text-white">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+
+            <button
+                onClick={(e) => {
+                    e.preventDefault();
+                    swiperRef.current?.slideNext();
+                }}
+                className="absolute right-4 top-1/2 -translate-y-1/2 z-50 w-10 h-10 bg-white/90 shadow-lg rounded-full flex items-center justify-center text-gray-800 opacity-0 group-hover/section:opacity-100 transition-opacity hover:bg-black hover:text-white"
+            >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
             </button>
         </div>
     )

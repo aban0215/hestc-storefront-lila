@@ -23,22 +23,25 @@ export default async function BlogShowcase() {
     return (
         <section className="relative w-full overflow-hidden bg-white border-t border-gray-100">
             {/* 1. 模块标题区域 - 优化为非对称艺术风格 */}
-            <div className="container mx-auto px-2 pt-4 pb-0">
-                <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-gray-100 pb-8">
-                    <div className="relative">
-                        <h2 className="text-2xl md:text-4xl font-serif font-bold text-gray-900 tracking-tight relative z-10">
+            <div className="container mx-auto px-4 py-2">
+                <div className="flex flex-col items-center text-center gap-3">
+                    {/* 标题部分：加入进入动画和渐变细节 */}
+                    <div className="relative overflow-hidden group">
+                        <h2 className="text-xl md:text-2xl font-serif font-bold text-gray-900 tracking-[0.15em] transition-all duration-700 ease-out transform translate-y-0 group-hover:-translate-y-1">
                             {settings.moduleTitle}
                         </h2>
-                        {/* 品牌色装饰点或短线 */}
+                        {/* 动态装饰线：中心向两边展开的动效 */}
+                        <div className="w-8 h-[1.5px] bg-pink-600 mx-auto mt-2 transform scale-x-100 transition-transform duration-500 group-hover:scale-x-150"></div>
                     </div>
 
-                    {settings.moduleDescription && (
-                        <div className="max-w-md md:text-right">
-                            <p className="text-gray-400 text-xs md:text-sm font-light leading-relaxed tracking-wide italic">
-                                "{settings.moduleDescription}"
-                            </p>
-                        </div>
-                    )}
+                    {/* 描述部分：字号更小，颜色稍淡，加入淡入动画 */}
+                    {/*{settings.moduleDescription && (*/}
+                    {/*    <div className="max-w-xs animate-in fade-in slide-in-from-bottom-2 duration-1000">*/}
+                    {/*        <p className="text-gray-400 text-[10px] md:text-xs font-light leading-relaxed tracking-[0.1em] italic opacity-80">*/}
+                    {/*            {settings.moduleDescription}*/}
+                    {/*        </p>*/}
+                    {/*    </div>*/}
+                    {/*)}*/}
                 </div>
             </div>
 

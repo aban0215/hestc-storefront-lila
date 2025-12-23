@@ -446,3 +446,150 @@ function getDefaultBlogSettings(): BlogModuleSettings {
         locale: 'en-US'
     }
 }
+
+
+
+
+
+
+
+// --- 类型定义 ---
+
+export interface StrapiImage {
+    id: number;
+    url: string;
+    alternativeText?: string;
+    formats?: any;
+}
+
+export interface ValueProp {
+    id: number;
+    title: string;
+    description: string;
+    icon_code: string;
+}
+
+export interface NavLink {
+    id: number;
+    label: string;
+    url: string;
+    is_external: boolean | null;
+}
+
+export interface NavColumn {
+    id: number;
+    title: string;
+    links: NavLink[];
+}
+
+export interface LegalLink {
+    id: number;
+    label: string;
+    url: string;
+    is_external: boolean | null;
+}
+
+export interface FooterSettingData {
+    id: number;
+    documentId: string;
+    newsletter_title: string;
+    newsletter_description: string;
+    newsletter_placeholder: string;
+    newsletter_button: string;
+    copyright_text: string;
+    value_props: ValueProp[];
+    nav_columns: NavColumn[];
+    legal_links: LegalLink[];
+    payment_icons: StrapiImage[];
+}
+
+/**
+ * 获取 Footer 设置数据
+ * @param locale 语言代码，如 'en-US' 或 'zh-CN'
+ */
+export async function getFooterSetting(locale: string = 'en-US'): Promise<FooterSettingData | null> {
+    try {
+        // 构建深度查询参数，确保抓取嵌套的 nav_columns.links
+        // 这里使用 URLSearchParams 手动构建，避免依赖 qs 库
+        const queryParams = new URLSearchParams({
+            locale: locale,
+            'populate[value_props]': '*',
+            'populate[nav_columns][populate]': 'links',
+            'populate[legal_links]': '*',
+            'populate[payment_icons]': 'true' // Strapi 5 针对 Media 的安全填充
+        });
+
+        const url = `${STRAPI_BASE_URL}/api/lila-footer-setting?${queryParams.toString()}`;
+
+        const res = await fetch(url, {
+            // 设置缓存策略，Next.js App Router 模式
+            next: {
+                revalidate: 3600, // 每小时更新一次
+                tags: ['footer-setting']
+            }
+        });
+
+        if (!res.ok) {
+            throw new Error(`Strapi Fetch Error: ${res.status} ${res.statusText}`);
+        }
+
+        const { data } = await res.json();
+
+        if (!data) return null;
+
+        // 解析并转换数据，确保前端拿到的数据是干净且完整的
+        return {
+            id: data.id,
+            documentId: data.documentId,
+            newsletter_title: data.newsletter_title || "",
+            newsletter_description: data.newsletter_description || "",
+            newsletter_placeholder: data.newsletter_placeholder || "",
+            newsletter_button: data.newsletter_button || "",
+            copyright_text: data.copyright_text || "",
+
+            // 解析价值主张 (Component)
+            value_props: (data.value_props || []).map((v: any) => ({
+                id: v.id,
+                title: v.title,
+                description: v.description,
+                icon_code: v.icon_code
+            })),
+
+            // 解析导航列 (Repeatable Component 嵌套 Link Component)
+            nav_columns: (data.nav_columns || []).map((n: any) => ({
+                id: n.id,
+                title: n.title,
+                links: (n.links || []).map((l: any) => ({
+                    id: l.id,
+                    label: l.label,
+                    url: l.url,
+                    is_external: l.is_external
+                }))
+            })),
+
+            // 解析底部法律链接
+            legal_links: (data.legal_links || []).map((l: any) => ({
+                id: l.id,
+                label: l.label,
+                url: l.url,
+                is_external: l.is_external
+            })),
+
+            // 解析并补全图片 URL
+            payment_icons: (data.payment_icons || []).map((img: any) => ({
+                id: img.id,
+                url: img.url.startsWith('http') ? img.url : `${STRAPI_BASE_URL}${img.url}`,
+                alternativeText: img.alternativeText || "payment method",
+                formats: img.formats
+            }))
+        };
+    } catch (error) {
+        console.error('Failed to fetch footer settings from Strapi:', error);
+        return null;
+    }
+}
+
+
+
+
+

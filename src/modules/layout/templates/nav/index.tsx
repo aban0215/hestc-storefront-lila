@@ -80,14 +80,10 @@ export default async function Nav() {
   return (
       <div className="sticky top-0 inset-x-0 z-50">
         <header className="relative h-24 mx-auto border-b duration-200 bg-white border-ui-border-base">
-          {/* ✅ 整体导航栏改为 items-center，统一垂直居中 */}
           <nav className="content-container flex items-center justify-between w-full h-full py-4">
 
-            {/* 左侧：Logo + 菜单 */}
-            {/* ✅ space-x-12 → space-x-16：增大 Logo 与菜单间距 */}
             <div className="flex items-center space-x-16">
 
-              {/* Logo 容器：也改为 items-center 确保垂直居中 */}
               <div className="flex items-center">
                 <LocalizedClientLink href="/" className="flex items-center">
                   {brandData?.logo?.url ? (
@@ -104,14 +100,12 @@ export default async function Nav() {
                 </LocalizedClientLink>
               </div>
 
-              {/* 菜单栏也改为 items-center */}
               <div className="hidden lg:flex items-center space-x-6">
                 {menuTree.map((item) => (
                     <div key={item.id} className="relative group">
                       <LocalizedClientLink
                           href={`/${item.url}`}
                           className="text-ui-fg-base hover:text-ui-fg-subtle transition-colors font-medium text-[13px] tracking-[0.1em] uppercase leading-none"
-                          // ✅ 移除 pt-2 pb-1（避免菜单项自身偏移）
                       >
                         {item.title}
                       </LocalizedClientLink>
@@ -137,8 +131,6 @@ export default async function Nav() {
               </div>
             </div>
 
-            {/* 右侧：语言/国家 + 用户/购物车 */}
-            {/* ✅ 改为 items-center 对齐图标 */}
             <div className="flex items-center gap-x-4">
               <div className="hidden sm:flex items-center gap-x-4 mr-4">
                 {regions && <HeaderCountrySelect regions={regions} />}

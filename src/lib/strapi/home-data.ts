@@ -18,6 +18,8 @@ export interface HomeHeroData {
     subtitle?: string
     buttonText: string
     buttonLink: string
+    link_type: 'category' | 'collection' | 'product' | 'external'
+    medusa_handle: string
     active: boolean
     overlayOpacity?: number
     backgroundImage: StrapiImage
@@ -29,34 +31,31 @@ export async function getHomeHero(locale: string): Promise<HomeHeroData | null> 
         const res = await fetch(
             `${STRAPI_BASE_URL}/api/lila-home-hero?populate=*&locale=${locale}`,
             {
-                next: { revalidate: 3600 } // 1小时缓存
+                next: { revalidate: 3600 }
             }
         )
 
-        if (!res.ok) {
-            throw new Error(`HTTP error! status: ${res.status}`)
-        }
+        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`)
 
-        const data = await res.json()
+        const response = await res.json()
+        const data = response.data
 
-        // 如果返回的数据结构有data字段
-        if (!data.data || !data.data.active) {
-            return null
-        }
+        if (!data || !data.active) return null
 
         return {
-            id: data.data.id,
-            title: data.data.title,
-            subtitle: data.data.subtitle,
-            buttonText: data.data.buttonText,
-            buttonLink: data.data.buttonLink,
-            active: data.data.active,
-            overlayOpacity: data.data.overlayOpacity,
+            id: data.id,
+            title: data.title,
+            subtitle: data.subtitle,
+            buttonText: data.buttonText,
+            linkType: data.link_type,
+            medusaHandle: data.medusa_handle,
+            active: data.active,
+            overlayOpacity: data.overlayOpacity,
             backgroundImage: {
-                id: data.data.backgroundImage.id,
-                url: data.data.backgroundImage.url,
-                alternativeText: data.data.backgroundImage.alternativeText,
-                formats: data.data.backgroundImage.formats
+                id: data.backgroundImage?.id,
+                url: data.backgroundImage?.url,
+                alternativeText: data.backgroundImage?.alternativeText,
+                formats: data.backgroundImage?.formats
             }
         }
     } catch (error) {
@@ -77,6 +76,8 @@ export interface HomeCategorySectionData {
         description: string
         buttonText: string
         buttonLink: string
+        link_type: 'category' | 'collection' | 'product' | 'external'
+        medusa_handle: string
         order: number
         featured: boolean
         image: StrapiImage  // 现在包含图片数据了
@@ -112,6 +113,8 @@ export async function getHomeCategorySection(locale: string): Promise<HomeCatego
                 description: cat.description,
                 buttonText: cat.buttonText,
                 buttonLink: cat.buttonLink,
+                linkType: cat.link_type,
+                medusaHandle: cat.medusa_handle,
                 order: cat.order,
                 featured: cat.featured,
                 image: {
@@ -145,6 +148,8 @@ export interface NewArrivalData {
     description: string
     buttonText: string
     buttonLink: string
+    link_type: 'category' | 'collection' | 'product' | 'external'
+    medusa_handle: string
     active: boolean
     backgroundImage: StrapiImage // 注意：API返回的是数组，但我们只取第一个
 }
@@ -186,6 +191,8 @@ export async function getNewArrivalPromo(locale: string): Promise<NewArrivalData
             description: data.data.description,
             buttonText: data.data.buttonText,
             buttonLink: data.data.buttonLink,
+            linkType: data.data.link_type,
+            medusaHandle: data.data.medusa_handle,
             active: data.data.active,
             backgroundImage: {
                 id: backgroundImage.id,
@@ -207,6 +214,8 @@ export interface BestSellerConfig {
     title: string
     subtitle: string
     displayCount: number
+    link_type: 'category' | 'collection' | 'product' | 'external'
+    medusa_handle: string
     buttonText: string
     buttonLink: string
     products: {
@@ -255,6 +264,8 @@ export async function getBestSellerConfig(locale: string): Promise<BestSellerCon
             displayCount: data.data.displayCount || 6,
             buttonText: data.data.buttonText,
             buttonLink: data.data.buttonLink,
+            linkType: data.data.link_type,
+            medusaHandle: data.data.medusa_handle,
             products
         }
     } catch (error) {
@@ -276,6 +287,7 @@ export interface BlogPostData {
     content: string
     readTime: number
     author: string
+    link_type: string
     featured: boolean
     createdAt: string
     updatedAt: string

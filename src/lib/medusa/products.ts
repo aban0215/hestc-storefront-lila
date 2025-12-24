@@ -22,7 +22,6 @@ export async function getProductsByHandles(
         if (handles.length === 0) {
             return []
         }
-        console.log('getProductsByHandlescountryCode  ' + countryCode)
         // 清理handles并去重
         const cleanHandles = handles
             .map(h => h.replace(/^\//, ''))

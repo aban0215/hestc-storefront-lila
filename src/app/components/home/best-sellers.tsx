@@ -19,6 +19,27 @@ export default async function BestSellers({ regionId }: BestSellersProps) {
     const localecode = (await getSelectedLocale()) || 'en-US';
     const bestSellerConfig = await getBestSellerConfig(localecode ?? '')
 
+
+    const getHref = () => {
+        const handle = bestSellerConfig.medusaHandle;
+        if (!handle) return "/"; // 兜底返回首页
+
+        switch (bestSellerConfig.linkType) {
+            case 'category':
+                return `/categories/${handle}`;
+            case 'collection':
+                return `/collections/${handle}`;
+            case 'product':
+                return `/products/${handle}`;
+            case 'external':
+                return handle; // 如果是外部链接，handle 直接存放完整的 URL
+            default:
+                return "/";
+        }
+    };
+
+    const targetHref = getHref();
+
     if (!bestSellerConfig) return null;
 
     const productHandles = bestSellerConfig.products.map(p => p.producthandle)
@@ -36,7 +57,7 @@ export default async function BestSellers({ regionId }: BestSellersProps) {
         <section className="bg-white">
             <div className="container mx-auto px-4 py-2 flex justify-center">
                 <LocalizedClientLink
-                    href={bestSellerConfig.buttonLink}
+                    href={targetHref}
                     className="inline-block px-12 py-3 border border-black text-black text-xs font-bold tracking-[0.2em] hover:bg-black hover:text-white transition-all duration-300"
                 >
                     {bestSellerConfig.buttonText.toUpperCase()}

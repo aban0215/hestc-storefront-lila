@@ -7,6 +7,26 @@ export default async function NewArrivalPromo() {
     const localecode = (await getSelectedLocale()) || 'en-US';
     const newArrivalData = await getNewArrivalPromo(localecode)
 
+    const getHref = () => {
+        const handle = newArrivalData.medusaHandle;
+        if (!handle) return "/"; // 兜底返回首页
+
+        switch (newArrivalData.linkType) {
+            case 'category':
+                return `/categories/${handle}`;
+            case 'collection':
+                return `/collections/${handle}`;
+            case 'product':
+                return `/products/${handle}`;
+            case 'external':
+                return handle; // 如果是外部链接，handle 直接存放完整的 URL
+            default:
+                return "/";
+        }
+    };
+
+    const targetHref = getHref();
+
     if (!newArrivalData) {
         return null
     }
@@ -58,10 +78,10 @@ export default async function NewArrivalPromo() {
                         {/* 按钮 - 统一风格：线性边框或实色 */}
                         <div className="flex justify-center">
                             <LocalizedClientLink
-                                href={newArrivalData.buttonLink}
+                                href={targetHref}
                                 className="px-10 py-4 border border-white text-white text-sm font-bold tracking-widest hover:bg-white hover:text-black transition-all duration-300"
                             >
-                                {newArrivalData.buttonText || 'DISCOVER NOW'}
+                                {newArrivalData.buttonText}
                             </LocalizedClientLink>
                         </div>
                     </div>
@@ -69,7 +89,7 @@ export default async function NewArrivalPromo() {
 
                 {/* 全区域点击跳转（可选） */}
                 <LocalizedClientLink
-                    href={newArrivalData.buttonLink}
+                    href={targetHref}
                     className="absolute inset-0 z-10"
                     aria-label={newArrivalData.title}
                 />

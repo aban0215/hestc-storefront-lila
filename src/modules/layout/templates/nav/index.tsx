@@ -82,7 +82,7 @@ export default async function Nav() {
         <header className="relative h-24 mx-auto border-b duration-200 bg-white border-ui-border-base">
           <nav className="content-container flex items-center justify-between w-full h-full py-4">
 
-            <div className="flex items-center space-x-16">
+            <div className="flex items-center space-x-24">
 
               <div className="flex items-center">
                 <LocalizedClientLink href="/" className="flex items-center">

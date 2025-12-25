@@ -37,7 +37,6 @@ const ProductTabs = ({ product, strapiContent }: ProductTabsProps) => {
       label: "Size Guide",
       component: (
           <div className="flex flex-col py-4">
-            <p className="text-ui-fg-subtle text-small-regular mb-4">Click image to enlarge</p>
             <div
                 className="relative w-full aspect-[1245/805] cursor-zoom-in hover:opacity-90 transition-opacity"
                 onClick={() => setIsModalOpen(true)}
@@ -100,16 +99,17 @@ const ProductTabs = ({ product, strapiContent }: ProductTabsProps) => {
   }
 
   // 5. 保养说明保持不变
-  if (strapiContent?.care_instructions) {
-    tabs.push({
-      label: "Care Instructions",
-      component: (
-          <div className="text-small-regular text-ui-fg-subtle py-4 leading-relaxed">
-            <p>{strapiContent.care_instructions}</p>
-          </div>
-      ),
-    })
-  }
+    // 3. 注入保养说明 (Care Instructions)
+    if (strapiContent?.care_instructions) {
+        tabs.push({
+            label: "Care Instructions",
+            component: (
+                <div className="text-small-regular text-ui-fg-subtle py-4 leading-relaxed max-w-full break-words whitespace-pre-line">
+                    <p>{strapiContent.care_instructions}</p>
+                </div>
+            ),
+        })
+    }
 
   return (
       <div className="w-full">

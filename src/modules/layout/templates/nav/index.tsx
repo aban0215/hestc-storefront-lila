@@ -32,9 +32,9 @@ const getMenuHref = (linkType: string, slug: string) => {
 async function getCurrentLocale() {
   try {
     const locale = await getLocale()
-    return locale || 'en'
+    return locale || 'en-US'
   } catch (error) {
-    return 'en'
+    return 'en-US'
   }
 }
 

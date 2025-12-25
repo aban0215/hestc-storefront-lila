@@ -88,7 +88,7 @@ export default async function Nav() {
                 <LocalizedClientLink href="/" className="flex items-center">
                   {brandData?.logo?.url ? (
                       <img
-                          src={`http://47.89.151.64:1337${brandData.logo.url}`}
+                          src={`${brandData.logo.url}`}
                           alt={brandData.sitename || 'Logo'}
                           className="h-20 w-auto"
                       />

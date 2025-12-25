@@ -28,8 +28,8 @@ export default async function BlogDetailPage({
         notFound()
     }
 
-    const baseUrl = process.env.NEXT_PUBLIC_STRAPI_API_URL || 'http://47.89.151.64:1337'
-    const fullImageUrl = post.coverImage.url ? `${baseUrl}${post.coverImage.url}` : null
+    // const baseUrl = process.env.NEXT_PUBLIC_STRAPI_API_URL || 'http://47.89.151.64:1337'
+    const fullImageUrl = post.coverImage.url ? `${post.coverImage.url}` : null
 
     return (
         <article className="min-h-screen bg-white">

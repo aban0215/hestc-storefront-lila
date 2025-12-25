@@ -32,9 +32,9 @@ export default async function NewArrivalPromo() {
     }
 
     // 构建图片URL
-    const imageUrl = `${process.env.NEXT_PUBLIC_STRAPI_API_URL || 'http://47.89.151.64:1337'}${newArrivalData.backgroundImage.url}`
+    const imageUrl = `${newArrivalData.backgroundImage.url}`
     const smallImageUrl = newArrivalData.backgroundImage.formats?.medium?.url
-        ? `${process.env.NEXT_PUBLIC_STRAPI_API_URL || 'http://47.89.151.64:1337'}${newArrivalData.backgroundImage.formats.medium.url}`
+        ? `${newArrivalData.backgroundImage.formats.medium.url}`
         : imageUrl
 
     return (

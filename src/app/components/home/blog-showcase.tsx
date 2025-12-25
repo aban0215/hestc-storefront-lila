@@ -39,7 +39,7 @@ export default async function BlogShowcase() {
     // -----------------------
 
     const imageUrl = blogPost.coverImage?.url
-        ? `${process.env.NEXT_PUBLIC_STRAPI_API_URL || 'http://47.89.151.64:1337'}${blogPost.coverImage.url}`
+        ? `${blogPost.coverImage.url}`
         : null
 
     return (
@@ -113,10 +113,10 @@ export default async function BlogShowcase() {
                 </div>
 
                 {/* 全区域点击感应使用解析后的 targetHref */}
-                <LocalizedClientLink
-                    href={targetHref}
-                    className="absolute inset-0 z-10"
-                />
+                {/*<LocalizedClientLink*/}
+                {/*    href={targetHref}*/}
+                {/*    className="absolute inset-0 z-10"*/}
+                {/*/>*/}
             </div>
         </section>
     )

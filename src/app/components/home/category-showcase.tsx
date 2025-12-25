@@ -29,7 +29,7 @@ export default async function CategoryShowcase() {
         }
     };
 
-    const baseUrl = process.env.NEXT_PUBLIC_STRAPI_API_URL || 'http://47.89.151.64:1337';
+    // const baseUrl = process.env.NEXT_PUBLIC_STRAPI_API_URL || 'http://47.89.151.64:1337';
 
     return (
         <section className="pt-0 bg-white overflow-hidden">
@@ -45,9 +45,9 @@ export default async function CategoryShowcase() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-0 w-full">
                 {sectionData.featuredCategories.map((category) => {
                     const itemHref = getCategoryHref(category);
-                    const imageUrl = `${baseUrl}${category.image.url}`
+                    const imageUrl = `${category.image.url}`
                     const smallImageUrl = category.image.formats?.medium?.url
-                        ? `${baseUrl}${category.image.formats.medium.url}`
+                        ? `${category.image.formats.medium.url}`
                         : imageUrl
 
                     return (

@@ -2,7 +2,7 @@ import { getHomeHero } from '../../../lib/strapi/home-data'
 import LocalizedClientLink from '@modules/common/components/localized-client-link'
 import { getSelectedLocale } from "@lib/data/locales";
 
-export default  async function HeroSection() {
+export default   async function HeroSection() {
     const localecode = (await getSelectedLocale()) || 'en-US';
     const heroData = await getHomeHero(localecode);
     if (!heroData) {
@@ -28,12 +28,12 @@ export default  async function HeroSection() {
 
     const targetHref = getHref();
     // 构建图片URL
-    const baseUrl = process.env.NEXT_PUBLIC_STRAPI_API_URL || 'http://47.89.151.64:1337';
-    const imageUrl = `${baseUrl}${heroData.backgroundImage.url}`
+    //const baseUrl = process.env.NEXT_PUBLIC_STRAPI_API_URL || 'http://47.89.151.64:1337';
+    const imageUrl = `${heroData.backgroundImage.url}`
     const smallImageUrl = heroData.backgroundImage.formats?.medium?.url
-        ? `${baseUrl}${heroData.backgroundImage.formats.medium.url}`
+        ? `${heroData.backgroundImage.formats.medium.url}`
         : imageUrl
-
+    console.log('image :' + imageUrl);
     return (
         <section className="relative h-[600px] md:h-[700px] overflow-hidden">
             {/* 背景图片 */}
@@ -79,6 +79,11 @@ export default  async function HeroSection() {
             </div>
 
             <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-black/20 to-transparent"/>
+
+            <LocalizedClientLink
+                href={targetHref}
+                className="absolute inset-0 z-10"
+            />
         </section>
     )
 }

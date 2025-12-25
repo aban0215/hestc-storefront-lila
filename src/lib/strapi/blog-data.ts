@@ -155,3 +155,46 @@ export {
 } from './home-data'
 
 
+
+
+// 获取博客分类列表
+export async function getBlogCategories(locale: string) {
+    const res = await fetch(
+        `${STRAPI_BASE_URL}/api/lila-blog-categories?locale=${locale}&sort=order:asc`,
+        { next: { revalidate: 3600 } }
+    )
+    const { data } = await res.json()
+    return data || []
+}
+
+// 获取博客文章列表（支持按分类 slug 筛选）
+// src/lib/strapi/blog-data.ts
+
+export async function getBlogPosts(locale: string, categorySlug?: string) {
+    let url = `${STRAPI_BASE_URL}/api/lila-blog-posts?populate=*&locale=${locale}&sort=createdAt:desc`
+
+    if (categorySlug) {
+        url += `&filters[lila_blog_category][slug][$eq]=${categorySlug}`
+    }
+
+    const res = await fetch(url, { next: { revalidate: 3600 } })
+    const response = await res.json()
+
+    // 关键修复：将 data 更改为 post (对应 map 的参数)
+    return response.data.map((post: any) => ({
+        id: post.id,
+        title: post.title,
+        slug: post.slug,
+        excerpt: post.excerpt,
+        readTime: post.readTime,
+        publishedAt: post.publishedAt,
+        coverImage: {
+            url: post.coverImage?.url,
+            alternativeText: post.coverImage?.alternativeText
+        },
+        category: post.lila_blog_category ? {
+            name: post.lila_blog_category.name,
+            slug: post.lila_blog_category.slug
+        } : null
+    }))
+}

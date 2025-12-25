@@ -82,6 +82,9 @@ const HeaderLanguageSelect = ({ locales, currentLocale }: HeaderLanguageSelectPr
         startTransition(async () => {
             await updateLocale(option.code)
             close()
+            if (typeof window !== "undefined") {
+                window.dispatchEvent(new Event("locale-changed"))
+            }
             router.refresh()
         })
     }

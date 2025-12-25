@@ -1,121 +1,128 @@
 "use client"
 
-import Back from "@modules/common/icons/back"
-import FastDelivery from "@modules/common/icons/fast-delivery"
-import Refresh from "@modules/common/icons/refresh"
-
-import Accordion from "./accordion"
 import { HttpTypes } from "@medusajs/types"
+import Accordion from "./accordion"
+import { LilaProductContent } from "../../../../lib/strapi/product-content"
+import Image from "next/image"
+import { XMark } from "@medusajs/icons"
+import { useState, useEffect } from "react"
+import { createPortal } from "react-dom"
 
 type ProductTabsProps = {
   product: HttpTypes.StoreProduct
+  strapiContent?: LilaProductContent | null
 }
 
-const ProductTabs = ({ product }: ProductTabsProps) => {
+const ProductTabs = ({ product, strapiContent }: ProductTabsProps) => {
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  useEffect(() => {
+    if (isModalOpen) {
+      document.body.style.overflow = "hidden"
+    } else {
+      document.body.style.overflow = "unset"
+    }
+  }, [isModalOpen])
+
   const tabs = [
-    {
-      label: "Product Information",
-      component: <ProductInfoTab product={product} />,
-    },
-    {
-      label: "Shipping & Returns",
-      component: <ShippingInfoTab />,
-    },
   ]
 
+  if (strapiContent?.size_guide) {
+    tabs.push({
+      label: "Size Guide",
+      component: (
+          <div className="flex flex-col py-4">
+            <p className="text-ui-fg-subtle text-small-regular mb-4">Click image to enlarge</p>
+            <div
+                className="relative w-full aspect-[1245/805] cursor-zoom-in hover:opacity-90 transition-opacity"
+                onClick={() => setIsModalOpen(true)}
+            >
+              <Image
+                  src={strapiContent.size_guide.url}
+                  alt="Size Guide"
+                  fill
+                  className="object-contain"
+              />
+            </div>
+
+            {isModalOpen && mounted &&
+            createPortal(
+                <div
+                    className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/90 p-4 md:p-10 cursor-zoom-out"
+                    onClick={() => setIsModalOpen(false)}
+                >
+                  <button
+                      className="absolute top-6 right-6 text-white hover:text-ui-fg-subtle transition-colors z-[100000]"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        setIsModalOpen(false)
+                      }}
+                  >
+                    <XMark size={32} />
+                  </button>
+                  <div className="relative w-full h-full max-w-5xl max-h-[90vh]">
+                    <Image
+                        src={strapiContent.size_guide.url}
+                        alt="Size Guide Full"
+                        fill
+                        className="object-contain"
+                        priority
+                    />
+                  </div>
+                </div>,
+                document.body
+            )}
+          </div>
+      ),
+    })
+  }
+
+  // 4. FAQ 逻辑保持不变
+  if (strapiContent?.lilafaqitem && strapiContent.lilafaqitem.length > 0) {
+    tabs.push({
+      label: "FAQ",
+      component: (
+          <div className="flex flex-col py-4 gap-y-6">
+            {strapiContent.lilafaqitem.map((item) => (
+                <div key={item.id} className="text-small-regular">
+                  <p className="font-bold mb-1 text-black">{item.question}</p>
+                  <p className="text-ui-fg-subtle leading-relaxed">{item.answer}</p>
+                </div>
+            ))}
+          </div>
+      ),
+    })
+  }
+
+  // 5. 保养说明保持不变
+  if (strapiContent?.care_instructions) {
+    tabs.push({
+      label: "Care Instructions",
+      component: (
+          <div className="text-small-regular text-ui-fg-subtle py-4 leading-relaxed">
+            <p>{strapiContent.care_instructions}</p>
+          </div>
+      ),
+    })
+  }
+
   return (
-    <div className="w-full">
-      <Accordion type="multiple">
-        {tabs.map((tab, i) => (
-          <Accordion.Item
-            key={i}
-            title={tab.label}
-            headingSize="medium"
-            value={tab.label}
-          >
-            {tab.component}
-          </Accordion.Item>
-        ))}
-      </Accordion>
-    </div>
+      <div className="w-full">
+        <Accordion type="multiple">
+          {tabs.map((tab, i) => (
+              <Accordion.Item key={i} title={tab.label} value={tab.label}>
+                {tab.component}
+              </Accordion.Item>
+          ))}
+        </Accordion>
+      </div>
   )
 }
 
-const ProductInfoTab = ({ product }: ProductTabsProps) => {
-  return (
-    <div className="text-small-regular py-8">
-      <div className="grid grid-cols-2 gap-x-8">
-        <div className="flex flex-col gap-y-4">
-          <div>
-            <span className="font-semibold">Material</span>
-            <p>{product.material ? product.material : "-"}</p>
-          </div>
-          <div>
-            <span className="font-semibold">Country of origin</span>
-            <p>{product.origin_country ? product.origin_country : "-"}</p>
-          </div>
-          <div>
-            <span className="font-semibold">Type</span>
-            <p>{product.type ? product.type.value : "-"}</p>
-          </div>
-        </div>
-        <div className="flex flex-col gap-y-4">
-          <div>
-            <span className="font-semibold">Weight</span>
-            <p>{product.weight ? `${product.weight} g` : "-"}</p>
-          </div>
-          <div>
-            <span className="font-semibold">Dimensions</span>
-            <p>
-              {product.length && product.width && product.height
-                ? `${product.length}L x ${product.width}W x ${product.height}H`
-                : "-"}
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-const ShippingInfoTab = () => {
-  return (
-    <div className="text-small-regular py-8">
-      <div className="grid grid-cols-1 gap-y-8">
-        <div className="flex items-start gap-x-2">
-          <FastDelivery />
-          <div>
-            <span className="font-semibold">Fast delivery</span>
-            <p className="max-w-sm">
-              Your package will arrive in 3-5 business days at your pick up
-              location or in the comfort of your home.
-            </p>
-          </div>
-        </div>
-        <div className="flex items-start gap-x-2">
-          <Refresh />
-          <div>
-            <span className="font-semibold">Simple exchanges</span>
-            <p className="max-w-sm">
-              Is the fit not quite right? No worries - we&apos;ll exchange your
-              product for a new one.
-            </p>
-          </div>
-        </div>
-        <div className="flex items-start gap-x-2">
-          <Back />
-          <div>
-            <span className="font-semibold">Easy returns</span>
-            <p className="max-w-sm">
-              Just return your product and we&apos;ll refund your money. No
-              questions asked – we&apos;ll do our best to make sure your return
-              is hassle-free.
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
-  )
-}
 
 export default ProductTabs

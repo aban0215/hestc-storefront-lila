@@ -4,16 +4,19 @@ import { listProducts } from "@lib/data/products"
 import { getRegion, listRegions } from "@lib/data/regions"
 import ProductTemplate from "@modules/products/templates"
 import { HttpTypes } from "@medusajs/types"
+// 导入我们刚才定义的 Strapi 获取函数
+import { getProductStrapiContent } from "../../../../../lib/strapi/product-content"
 
 type Props = {
   params: Promise<{ countryCode: string; handle: string }>
   searchParams: Promise<{ v_id?: string }>
 }
 
+// ... generateStaticParams 保持不变 ...
 export async function generateStaticParams() {
   try {
     const countryCodes = await listRegions().then((regions) =>
-      regions?.map((r) => r.countries?.map((c) => c.iso_2)).flat()
+        regions?.map((r) => r.countries?.map((c) => c.iso_2)).flat()
     )
 
     if (!countryCodes) {
@@ -35,26 +38,26 @@ export async function generateStaticParams() {
     const countryProducts = await Promise.all(promises)
 
     return countryProducts
-      .flatMap((countryData) =>
-        countryData.products.map((product) => ({
-          countryCode: countryData.country,
-          handle: product.handle,
-        }))
-      )
-      .filter((param) => param.handle)
+        .flatMap((countryData) =>
+            countryData.products.map((product) => ({
+              countryCode: countryData.country,
+              handle: product.handle,
+            }))
+        )
+        .filter((param) => param.handle)
   } catch (error) {
     console.error(
-      `Failed to generate static paths for product pages: ${
-        error instanceof Error ? error.message : "Unknown error"
-      }.`
+        `Failed to generate static paths for product pages: ${
+            error instanceof Error ? error.message : "Unknown error"
+        }.`
     )
     return []
   }
 }
 
 function getImagesForVariant(
-  product: HttpTypes.StoreProduct,
-  selectedVariantId?: string
+    product: HttpTypes.StoreProduct,
+    selectedVariantId?: string
 ) {
   if (!selectedVariantId || !product.variants) {
     return product.images
@@ -100,32 +103,41 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
 
 export default async function ProductPage(props: Props) {
   const params = await props.params
-  const region = await getRegion(params.countryCode)
   const searchParams = await props.searchParams
-
+  const { handle, countryCode } = params
   const selectedVariantId = searchParams.v_id
 
+  // 1. 获取 Region 信息
+  const region = await getRegion(countryCode)
   if (!region) {
     notFound()
   }
 
-  const pricedProduct = await listProducts({
-    countryCode: params.countryCode,
-    queryParams: { handle: params.handle },
-  }).then(({ response }) => response.products[0])
+  // 2. 并行获取 Medusa 商品数据和 Strapi 增强内容
+  // 这种写法比 await 两次更快，因为它同时发起两个网络请求
+  const [medusaData, strapiContent] = await Promise.all([
+    listProducts({
+      countryCode: countryCode,
+      queryParams: { handle: handle },
+    }).then(({ response }) => response.products[0]),
+    getProductStrapiContent(handle)
+  ])
 
-  const images = getImagesForVariant(pricedProduct, selectedVariantId)
-
-  if (!pricedProduct) {
+  // 3. 基础校验
+  if (!medusaData) {
     notFound()
   }
 
+  // 4. 处理变体图片逻辑
+  const images = getImagesForVariant(medusaData, selectedVariantId)
+
   return (
-    <ProductTemplate
-      product={pricedProduct}
-      region={region}
-      countryCode={params.countryCode}
-      images={images}
-    />
+      <ProductTemplate
+          product={medusaData}
+          strapiContent={strapiContent} // 将 Strapi 内容传递给模板
+          region={region}
+          countryCode={countryCode}
+          images={images}
+      />
   )
 }

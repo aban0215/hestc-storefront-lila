@@ -15,22 +15,22 @@ type PaginatedProductsParams = {
 }
 
 export default async function PaginatedProducts({
-  sortBy,
-  page,
-  collectionId,
-  categoryId,
-  productsIds,
-  countryCode,
-}: {
+                                                  sortBy,
+                                                  page,
+                                                  collectionId,
+                                                  categoryId,
+                                                  productsIds,
+                                                  countryCode,
+                                                }: {
   sortBy?: SortOptions
   page: number
   collectionId?: string
-  categoryId?: string
+  categoryId?: string | string[] // 修改点 1: 类型适配，允许传入数组
   productsIds?: string[]
   countryCode: string
 }) {
   const queryParams: PaginatedProductsParams = {
-    limit: 12,
+    limit: PRODUCT_LIMIT,
   }
 
   if (collectionId) {
@@ -38,7 +38,12 @@ export default async function PaginatedProducts({
   }
 
   if (categoryId) {
-    queryParams["category_id"] = [categoryId]
+    // 修改点 2: 逻辑判断
+    // 如果 categoryId 已经是数组（来自我们的递归函数），直接赋值
+    // 如果是字符串，则按原逻辑包装成数组，确保向下兼容
+    queryParams["category_id"] = Array.isArray(categoryId)
+        ? categoryId
+        : [categoryId]
   }
 
   if (productsIds) {
@@ -67,26 +72,26 @@ export default async function PaginatedProducts({
   const totalPages = Math.ceil(count / PRODUCT_LIMIT)
 
   return (
-    <>
-      <ul
-        className="grid grid-cols-2 w-full small:grid-cols-3 medium:grid-cols-4 gap-x-6 gap-y-8"
-        data-testid="products-list"
-      >
-        {products.map((p) => {
-          return (
-            <li key={p.id}>
-              <ProductPreview product={p} region={region} />
-            </li>
-          )
-        })}
-      </ul>
-      {totalPages > 1 && (
-        <Pagination
-          data-testid="product-pagination"
-          page={page}
-          totalPages={totalPages}
-        />
-      )}
-    </>
+      <>
+        <ul
+            className="grid grid-cols-2 w-full small:grid-cols-3 medium:grid-cols-4 gap-x-6 gap-y-8"
+            data-testid="products-list"
+        >
+          {products.map((p) => {
+            return (
+                <li key={p.id}>
+                  <ProductPreview product={p} region={region} />
+                </li>
+            )
+          })}
+        </ul>
+        {totalPages > 1 && (
+            <Pagination
+                data-testid="product-pagination"
+                page={page}
+                totalPages={totalPages}
+            />
+        )}
+      </>
   )
 }

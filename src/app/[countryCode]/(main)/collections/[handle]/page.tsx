@@ -71,20 +71,25 @@ export default async function CollectionPage(props: Props) {
   const params = await props.params
   const { sortBy, page } = searchParams
 
-  const collection = await getCollectionByHandle(params.handle).then(
-    (collection: StoreCollection) => collection
-  )
+  // 并行获取当前集合数据和所有集合列表
+  const [collection, { collections }] = await Promise.all([
+    getCollectionByHandle(params.handle),
+    listCollections({
+      limit: 100, // 确保获取到所有集合
+    }),
+  ])
 
   if (!collection) {
     notFound()
   }
 
   return (
-    <CollectionTemplate
-      collection={collection}
-      page={page}
-      sortBy={sortBy}
-      countryCode={params.countryCode}
-    />
+      <CollectionTemplate
+          collection={collection}
+          collections={collections} // 传入所有集合
+          page={page}
+          sortBy={sortBy}
+          countryCode={params.countryCode}
+      />
   )
 }

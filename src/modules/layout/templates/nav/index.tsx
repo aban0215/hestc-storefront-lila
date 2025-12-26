@@ -2,14 +2,15 @@ import { Suspense } from "react"
 import { listRegions } from "@lib/data/regions"
 import { listLocales } from "@lib/data/locales"
 import { getLocale } from "@lib/data/locale-actions"
-import { StoreRegion } from "@medusajs/types"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import CartButton from "@modules/layout/components/cart-button"
 import HeaderCountrySelect from "@modules/layout/components/header-country-select"
 import HeaderLanguageSelect from "@modules/layout/components/header-language-select"
 import { User, ShoppingBag } from "@medusajs/icons"
 import ActiveRegion from "@modules/layout/templates/nav/active-region";
-// --- 工具函数 ---
+import NavContainer from "@modules/layout/templates/nav/nav-container";
+
+
 const getMenuHref = (linkType: string, slug: string) => {
   if (!slug) return "/"
   const cleanSlug = slug.trim().toLowerCase().replace(/\s+/g, "-").replace(/^\//, "")
@@ -64,9 +65,7 @@ function buildMenuTree(items: any[]) {
 
 // --- 主组件 ---
 export default async function Nav() {
-  // 1. 获取当前 Locale。在切换后，这个值会反映最新的 URL 路径
   const currentLocale = await getCurrentLocale()
-
   const [regions, locales, brandData, menuData] = await Promise.all([
     listRegions(),
     listLocales(),
@@ -76,54 +75,93 @@ export default async function Nav() {
 
   const menuTree = buildMenuTree(menuData)
   const baseUrl = process.env.NEXT_PUBLIC_STRAPI_API_URL || "http://47.89.151.64:1337"
-
-  // 2. 动态解析显示文字。如果 currentLocale 是 "us" 或 "en-us"
-  // 直接通过 locale 解析是最稳妥的，因为它直接反映了当前的上下文
-  const localeParts = currentLocale.toUpperCase().split('-')
-  const displayLang = localeParts[0]
-  const displayCountry = localeParts[1] || localeParts[0]
+  const logoUrl = brandData?.logo?.url ? `${brandData.logo.url.startsWith('http') ? '' : baseUrl}${brandData.logo.url}` : null
 
   return (
-      <div className="sticky top-0 inset-x-0 z-50">
-        <header className="relative h-20 mx-auto border-b duration-300 bg-white/80 backdrop-blur-md border-gray-100 group/nav">
-          <nav className="content-container flex items-center justify-between w-full h-full">
+      // 移除滚动位移逻辑，保持 sticky 即可
+      <div className="sticky top-0 inset-x-0 z-[999]">
+        <header className="relative bg-white/90 backdrop-blur-md border-b border-gray-100 shadow-sm">
+          <nav className="content-container mx-auto relative">
 
-            <div className="flex items-center h-full gap-x-36">
-              {/* Logo */}
-              <div className="flex items-center">
-                <LocalizedClientLink href="/" className="flex items-center transition-transform duration-300 active:scale-95">
-                  {brandData?.logo?.url ? (
+            {/* 第一行：功能区 + Sitename (放大) */}
+            <div className="flex justify-between items-center h-[60px]">
+              {/* 左侧占位 */}
+              <div className="w-48 flex-shrink-0" />
+
+              {/* 中间：Sitename (字体放大 50%) */}
+              <div className="flex-1 text-center">
+                <LocalizedClientLink href="/" className="text-[30px] font-semibold tracking-[0.4em] uppercase text-gray-900 hover:text-pink-600 transition-colors">
+                  {brandData?.sitename || "LILA ZEN"}
+                </LocalizedClientLink>
+              </div>
+
+              {/* 右侧：功能按钮组 */}
+              <div className="w-48 flex justify-end items-center gap-x-6">
+                {/* 1. 国家/语言选择器 - 强制不换行 */}
+                <div className="relative group flex items-center whitespace-nowrap">
+                  <button className="text-gray-700 hover:text-pink-600 transition-all flex items-center gap-x-1">
+                    <ActiveRegion />
+                  </button>
+                  <div className="absolute top-full right-0 pt-3 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-[110]">
+                    <div className="w-48 bg-white border shadow-xl rounded-xl p-4">
+                      <HeaderCountrySelect regions={regions} />
+                      <div className="mt-4 pt-4 border-t border-gray-50">
+                        <HeaderLanguageSelect locales={locales} currentLocale={currentLocale} />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 2. 用户图标 */}
+                <LocalizedClientLink href="/account" className="text-gray-700 hover:text-pink-600 flex items-center">
+                  <User size={20} strokeWidth={1.5} />
+                </LocalizedClientLink>
+
+                {/* 3. 购物车图标 - 视觉对齐修正 */}
+                <Suspense fallback={<ShoppingBag size={20} />}>
+                  <div className="flex items-center translate-y-[2.5px]">
+                    <CartButton />
+                  </div>
+                </Suspense>
+              </div>
+            </div>
+
+            {/* 第二行：主菜单栏 */}
+            <div className="relative flex items-center justify-center h-[50px] border-t border-gray-50/80">
+              {/* 跨行大 Logo */}
+              <div className="absolute left-0 -top-[60px] z-[120]">
+                <LocalizedClientLink href="/" className="active:scale-95 transition-transform block">
+                  {logoUrl ? (
                       <img
-                          src={`${brandData.logo.url.startsWith('http') ? '' : baseUrl}${brandData.logo.url}`}
-                          alt={brandData.sitename || 'Logo'}
-                          className="h-14 w-auto object-contain"
+                          src={logoUrl}
+                          alt="Logo"
+                          className="h-24 w-auto object-contain drop-shadow-[0_2px_12px_rgba(0,0,0,0.06)]"
                       />
                   ) : (
-                      <div className="h-10 px-3 bg-black rounded flex items-center justify-center font-bold text-white tracking-widest uppercase">LZ</div>
+                      <div className="h-20 w-20 bg-black text-white flex items-center justify-center font-bold text-2xl">LZ</div>
                   )}
                 </LocalizedClientLink>
               </div>
 
-              {/* 菜单 */}
-              <div className="hidden lg:flex items-center h-full">
+              {/* 中间菜单 */}
+              <div className="hidden lg:flex items-center gap-x-12">
                 {menuTree.map((item) => (
-                    <div key={item.id} className="relative group h-full flex items-center px-4 text-[12px] tracking-[0.15em] font-semibold uppercase">
-                      <LocalizedClientLink
-                          href={getMenuHref(item.link_type, item.slug)}
-                          className="relative py-2 text-ui-fg-base transition-all"
-                      >
+                    <div key={item.id} className="relative group flex items-center h-[50px] px-2 text-[11px] tracking-[0.25em] font-bold uppercase">
+                      <LocalizedClientLink href={getMenuHref(item.link_type, item.slug)} className="relative py-1 text-gray-800">
                         {item.title}
-                        <span className="absolute bottom-0 left-0 w-0 h-[1.5px] bg-pink-600 transition-all duration-300 group-hover:w-full" />
+                        <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-pink-600 transition-all duration-300 group-hover:w-full" />
                       </LocalizedClientLink>
 
+                      {/* 子菜单动效 */}
                       {item.children && item.children.length > 0 && (
-                          <div className="absolute top-full left-0 pt-2 opacity-0 invisible translate-y-2 group-hover:opacity-100 group-hover:visible group-hover:translate-y-0 transition-all duration-300 ease-out z-50">
-                            <div className="w-56 bg-white border border-gray-100 shadow-[0_10px_40px_rgba(0,0,0,0.08)] py-3 rounded-sm">
+                          <div className="absolute top-full left-1/2 -translate-x-1/2 pt-2 opacity-0 invisible translate-y-2 group-hover:opacity-100 group-hover:visible group-hover:translate-y-0 transition-all duration-300 z-[120]">
+                            <div className="absolute -top-2 left-0 right-0 h-2 bg-transparent" />
+                            <div className="w-52 bg-white border border-gray-100 shadow-2xl py-4 rounded-lg overflow-hidden">
                               {item.children.map((child: any) => (
                                   <LocalizedClientLink
                                       key={child.id}
                                       href={getMenuHref(child.link_type, child.slug)}
-                                      className="block px-6 py-2.5 text-[10px] tracking-[0.12em] text-gray-500 hover:text-pink-600 hover:bg-pink-50/30 transition-all"
+                                      className="block px-8 py-3 text-[10px] tracking-[0.2em] text-gray-500 hover:text-pink-600 hover:bg-pink-50/20 transition-all"
                                   >
                                     {child.title}
                                   </LocalizedClientLink>
@@ -133,68 +171,6 @@ export default async function Nav() {
                       )}
                     </div>
                 ))}
-              </div>
-            </div>
-
-            {/* 右侧工具栏 */}
-            <div className="flex items-center gap-x-6">
-              <div className="hidden sm:flex items-center h-full">
-                <div className="relative group h-full flex items-center">
-                  {/* 动态显示的按钮 */}
-                  <button className="p-2 hover:bg-gray-50 rounded-full transition-all text-gray-700 hover:text-pink-600 flex items-center gap-x-2">
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="18" height="18"
-                        viewBox="0 0 24 24"
-                        fill="none" stroke="currentColor"
-                        strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"
-                    >
-                      <circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
-                    </svg>
-                    <ActiveRegion />
-                  </button>
-
-                  {/* 悬停弹窗 */}
-                  <div className="absolute top-full right-0 pt-2 opacity-0 invisible translate-y-2 group-hover:opacity-100 group-hover:visible group-hover:translate-y-0 transition-all duration-300 ease-out z-[60]">
-                    <div className="w-64 bg-white border border-gray-100 shadow-[0_15px_50px_rgba(0,0,0,0.15)] rounded-xl p-6">
-                      <div className="flex flex-col gap-y-6 text-left">
-                        <div>
-                          <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400 mb-3 border-b border-gray-50 pb-2">Shipping To</p>
-                          <div className="px-1">
-                            {regions && <HeaderCountrySelect regions={regions} />}
-                          </div>
-                        </div>
-                        <div>
-                          <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400 mb-3 border-b border-gray-50 pb-2">Language</p>
-                          <div className="px-1 text-black font-medium">
-                            {locales && (
-                                <HeaderLanguageSelect
-                                    locales={locales}
-                                    currentLocale={currentLocale}
-                                />
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* 用户及购物车 */}
-              <div className="flex items-center gap-x-4">
-                <LocalizedClientLink
-                    className="p-2 hover:bg-gray-50 rounded-full transition-all text-gray-700 hover:text-pink-600"
-                    href="/account"
-                >
-                  <User size={20} strokeWidth={1} />
-                </LocalizedClientLink>
-
-                <Suspense fallback={<ShoppingBag size={20} strokeWidth={1} />}>
-                  <div className="p-2 hover:bg-gray-50 rounded-full transition-all text-gray-700 hover:text-pink-600">
-                    <CartButton />
-                  </div>
-                </Suspense>
               </div>
             </div>
           </nav>

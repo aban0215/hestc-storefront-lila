@@ -38,9 +38,6 @@ export default async function PaginatedProducts({
   }
 
   if (categoryId) {
-    // 修改点 2: 逻辑判断
-    // 如果 categoryId 已经是数组（来自我们的递归函数），直接赋值
-    // 如果是字符串，则按原逻辑包装成数组，确保向下兼容
     queryParams["category_id"] = Array.isArray(categoryId)
         ? categoryId
         : [categoryId]
@@ -71,27 +68,41 @@ export default async function PaginatedProducts({
 
   const totalPages = Math.ceil(count / PRODUCT_LIMIT)
 
-  return (
-      <>
-        <ul
-            className="grid grid-cols-2 w-full small:grid-cols-3 medium:grid-cols-4 gap-x-6 gap-y-8"
-            data-testid="products-list"
-        >
-          {products.map((p) => {
-            return (
-                <li key={p.id}>
-                  <ProductPreview product={p} region={region} />
-                </li>
-            )
-          })}
-        </ul>
-        {totalPages > 1 && (
-            <Pagination
-                data-testid="product-pagination"
-                page={page}
-                totalPages={totalPages}
-            />
-        )}
-      </>
-  )
+    return (
+        <>
+            {/* 每行显示5个商品，无间隙平铺 */}
+            <ul
+                className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 w-full"
+                data-testid="products-list"
+            >
+                {products.map((p) => {
+                    return (
+                        <li
+                            key={p.id}
+                            className="relative border-r border-b border-gray-100 hover:bg-gray-50/30 transition-colors duration-200"
+                        >
+                            {/* 商品项容器 */}
+                            <div className="p-4 h-full flex flex-col">
+                                <ProductPreview product={p} region={region} />
+                            </div>
+
+                            {/* 悬停效果 */}
+                            <div className="absolute inset-0 border-2 border-transparent group-hover:border-gray-200 pointer-events-none transition-colors duration-200" />
+                        </li>
+                    )
+                })}
+            </ul>
+
+            {/* 分页组件 - 添加内边距 */}
+            {totalPages > 1 && (
+                <div className="mt-12 pb-12 px-4">
+                    <Pagination
+                        data-testid="product-pagination"
+                        page={page}
+                        totalPages={totalPages}
+                    />
+                </div>
+            )}
+        </>
+    )
 }

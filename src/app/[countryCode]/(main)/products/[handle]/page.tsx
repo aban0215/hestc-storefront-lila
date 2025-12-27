@@ -4,7 +4,6 @@ import { listProducts } from "@lib/data/products"
 import { getRegion, listRegions } from "@lib/data/regions"
 import ProductTemplate from "@modules/products/templates"
 import { HttpTypes } from "@medusajs/types"
-// 导入我们刚才定义的 Strapi 获取函数
 import { getProductStrapiContent } from "../../../../../lib/strapi/product-content"
 
 type Props = {
@@ -12,7 +11,6 @@ type Props = {
   searchParams: Promise<{ v_id?: string }>
 }
 
-// ... generateStaticParams 保持不变 ...
 export async function generateStaticParams() {
   try {
     const countryCodes = await listRegions().then((regions) =>

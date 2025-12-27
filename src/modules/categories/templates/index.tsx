@@ -39,7 +39,7 @@ export default function CategoryTemplate({
     getParents(category)
 
     return (
-        <div className="w-full" data-testid="category-container">
+        <div className="w-full overflow-x-hidden" data-testid="category-container">
             {/* 顶部区域 */}
             <div className="w-full border-b border-gray-100 bg-white relative z-50">
                 <div className="relative py-8 px-4">
@@ -76,12 +76,6 @@ export default function CategoryTemplate({
                             >
                                 {category.name}
                             </h1>
-
-                            {/*{category.description && (*/}
-                            {/*    <p className="mt-3 text-base text-gray-600 max-w-2xl mx-auto">*/}
-                            {/*        {category.description}*/}
-                            {/*    </p>*/}
-                            {/*)}*/}
                         </div>
 
                         {/* 右侧容器 - 包含子分类和排序 */}

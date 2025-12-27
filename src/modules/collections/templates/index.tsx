@@ -23,7 +23,7 @@ export default function CollectionTemplate({
     const sort = sortBy || "created_at"
 
     return (
-        <div className="w-full">
+        <div className="w-full overflow-x-hidden">
             {/* 顶部区域 - 确保 z-50 */}
             <div className="w-full border-b border-gray-100 bg-white relative z-50">
                 <div className="relative flex items-center justify-center py-8 px-4">

@@ -3,7 +3,6 @@
 import { useState } from "react"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 
-// 在这里定义链接跳转逻辑，或者从外部工具类 import 进来
 const getMenuHref = (linkType: string, slug: string) => {
     if (!slug) return "/"
     const cleanSlug = slug.trim().toLowerCase().replace(/\s+/g, "-").replace(/^\//, "")
@@ -41,7 +40,6 @@ export default function NavLinks({ menuTree }: { menuTree: any[] }) {
                 ))}
             </div>
 
-            {/* 滑出面板部分 */}
             <div
                 className={`absolute top-full bg-white border-b border-gray-100 shadow-xl transition-all duration-500 ease-in-out overflow-hidden z-[120] ${
                     activeId ? "max-h-[400px] opacity-100" : "max-h-0 opacity-0"
@@ -54,7 +52,6 @@ export default function NavLinks({ menuTree }: { menuTree: any[] }) {
                     width: "100vw"
                 }}
             >
-                {/* 内部容器依然使用 content-container 确保文字和菜单项与上方导航对齐 */}
                 <div className="content-container mx-auto py-10 px-4">
                     {menuTree.map((item) => (
                         <div
@@ -63,7 +60,6 @@ export default function NavLinks({ menuTree }: { menuTree: any[] }) {
                                 activeId === item.id ? "flex opacity-100" : "hidden opacity-0"
                             }`}
                         >
-                            {/* ... 子菜单项内容保持不变 ... */}
                             {item.children?.map((child: any) => (
                                 <LocalizedClientLink
                                     key={child.id}

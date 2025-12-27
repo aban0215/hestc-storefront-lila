@@ -651,3 +651,79 @@ export async function getLilaPageBySlug(slug: string, locale: string) {
         return null;
     }
 }
+
+
+
+
+
+// 类型定义
+type StrapiMedia = {
+    id: number;
+    name: string;
+    url: string;
+    alternativeText?: string;
+    formats?: {
+        thumbnail?: { url: string };
+        small?: { url: string };
+        medium?: { url: string };
+        large?: { url: string };
+    };
+};
+
+type SocialMediaLink = {
+    id: number;
+    platform: string;
+    url: string;
+    sortOrder: number;
+    medialogo: StrapiMedia[] | null;
+};
+
+type FooterBottomSettings = {
+    id: number;
+    copyrightText: string;
+    paymentIcons: StrapiMedia[];
+    socialMediaLinks: SocialMediaLink[];
+    createdAt: string;
+    updatedAt: string;
+    publishedAt: string;
+};
+
+export async function getFooterBottomSettings(): Promise<FooterBottomSettings | null> {
+    try {
+        const query = new URLSearchParams({
+            'populate[paymentIcons]': 'true',
+            'populate[socialMediaLinks][populate][medialogo]': 'true'
+        }).toString();
+
+        const url = `http://47.89.151.64:1337/api/footer-bottom-setting?${query}`;
+
+        const res = await fetch(url, {
+            next: { revalidate: 3600 },
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+
+        if (!res.ok) {
+            console.error(`获取底部配置失败: ${res.status} ${res.statusText}`);
+            return null;
+        }
+
+        const { data } = await res.json();
+
+        // 数据转换处理
+        const processedData = {
+            ...data,
+            // 确保socialMediaLinks中的medialogo是数组格式
+            socialMediaLinks: data.socialMediaLinks?.map((link: any) => ({
+                ...link,
+                medialogo: link.medialogo || []
+            })) || []
+        };
+
+        return processedData;
+    } catch (error) {
+        console.error('获取底部配置失败:', error);
+        return null;
+    }
+}

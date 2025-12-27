@@ -18,11 +18,12 @@ export default function NavLinks({ menuTree }: { menuTree: any[] }) {
     const [activeId, setActiveId] = useState<number | null>(null)
 
     return (
+        /* 修改点：添加 hidden lg:flex，确保在手机端完全隐藏且不占据空间 */
         <div
-            className="relative flex items-center justify-center h-[50px] border-t border-gray-50/80"
+            className="hidden lg:flex relative items-center justify-center h-[50px] border-t border-gray-50/80"
             onMouseLeave={() => setActiveId(null)}
         >
-            <div className="hidden lg:flex items-center gap-x-12">
+            <div className="flex items-center gap-x-12">
                 {menuTree.map((item) => (
                     <div
                         key={item.id}
@@ -67,9 +68,9 @@ export default function NavLinks({ menuTree }: { menuTree: any[] }) {
                                     className="group flex flex-col items-center min-w-[100px]"
                                     onClick={() => setActiveId(null)}
                                 >
-                        <span className="text-[10px] tracking-[0.2em] text-gray-500 group-hover:text-pink-600 transition-colors uppercase font-medium">
-                            {child.title}
-                        </span>
+                                    <span className="text-[10px] tracking-[0.2em] text-gray-500 group-hover:text-pink-600 transition-colors uppercase font-medium">
+                                        {child.title}
+                                    </span>
                                     <div className="mt-2 w-0 h-[1px] bg-pink-400 group-hover:w-full transition-all duration-300" />
                                 </LocalizedClientLink>
                             ))}

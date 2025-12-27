@@ -2,7 +2,7 @@ import { getHomeHero } from '../../../lib/strapi/home-data'
 import LocalizedClientLink from '@modules/common/components/localized-client-link'
 import { getSelectedLocale } from "@lib/data/locales";
 
-export default   async function HeroSection() {
+export default async function HeroSection() {
     const localecode = (await getSelectedLocale()) || 'en-US';
     const heroData = await getHomeHero(localecode);
     if (!heroData) {
@@ -10,7 +10,7 @@ export default   async function HeroSection() {
     }
     const getHref = () => {
         const handle = heroData.medusaHandle;
-        if (!handle) return "/"; // 兜底返回首页
+        if (!handle) return "/";
 
         switch (heroData.linkType) {
             case 'category':
@@ -20,28 +20,28 @@ export default   async function HeroSection() {
             case 'product':
                 return `/products/${handle}`;
             case 'external':
-                return handle; // 如果是外部链接，handle 直接存放完整的 URL
+                return handle;
             default:
                 return "/";
         }
     };
 
     const targetHref = getHref();
-    // 构建图片URL
-    //const baseUrl = process.env.NEXT_PUBLIC_STRAPI_API_URL || 'http://47.89.151.64:1337';
     const imageUrl = `${heroData.backgroundImage.url}`
     const smallImageUrl = heroData.backgroundImage.formats?.medium?.url
         ? `${heroData.backgroundImage.formats.medium.url}`
         : imageUrl
-    console.log('image :' + imageUrl);
+
     return (
-        <section className="relative h-[600px] md:h-[700px] overflow-hidden">
+        /* 修改点：调整高度，手机端 60vh 左右更合适 */
+        <section className="relative h-[60vh] min-h-[400px] md:h-[700px] overflow-hidden">
             {/* 背景图片 */}
             <div className="absolute inset-0">
                 <img
                     src={imageUrl}
                     alt={heroData.backgroundImage.alternativeText || heroData.title}
-                    className="w-full h-full object-cover"
+                    /* 修改点：确保图片始终居中 */
+                    className="w-full h-full object-cover object-center"
                     sizes="100vw"
                     srcSet={`${smallImageUrl} 1000w, ${imageUrl} 2000w`}
                     loading="eager"
@@ -56,18 +56,20 @@ export default   async function HeroSection() {
             {/* 内容层 */}
             <div className="relative h-full flex items-center">
                 <div className="container mx-auto px-4">
-                    <div className="max-w-2xl">
-                        <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif font-bold text-white mb-4 leading-tight">
+                    {/* 修改点：手机端文字居中 (text-center)，PC端保持靠左 (md:text-left) */}
+                    <div className="max-w-2xl text-center md:text-left mx-auto md:mx-0">
+                        {/* 修改点：手机端标题字号缩小 (text-3xl) */}
+                        <h1 className="text-3xl md:text-5xl lg:text-6xl font-serif font-bold text-white mb-4 leading-tight">
                             {heroData.title}
                         </h1>
 
                         {heroData.subtitle && (
-                            <p className="text-xl md:text-2xl text-white/90 mb-8">
+                            /* 修改点：手机端字号缩小 (text-lg) */
+                            <p className="text-lg md:text-2xl text-white/90 mb-8">
                                 {heroData.subtitle}
                             </p>
                         )}
 
-                        {/* 使用动态生成的 targetHref */}
                         <LocalizedClientLink
                             href={targetHref}
                             className="inline-flex items-center justify-center px-8 py-3 text-base font-medium text-white bg-pink-600 hover:bg-pink-700 rounded-md transition-colors"

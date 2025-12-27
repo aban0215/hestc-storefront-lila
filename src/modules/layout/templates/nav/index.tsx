@@ -8,20 +8,9 @@ import HeaderCountrySelect from "@modules/layout/components/header-country-selec
 import HeaderLanguageSelect from "@modules/layout/components/header-language-select"
 import { User, ShoppingBag } from "@medusajs/icons"
 import ActiveRegion from "@modules/layout/templates/nav/active-region";
-import NavContainer from "@modules/layout/templates/nav/nav-container";
 import NavLinks from "@modules/layout/templates/nav/NavLinks";
-
-
-const getMenuHref = (linkType: string, slug: string) => {
-  if (!slug) return "/"
-  const cleanSlug = slug.trim().toLowerCase().replace(/\s+/g, "-").replace(/^\//, "")
-  switch (linkType) {
-    case "category": return `/categories/${cleanSlug}`
-    case "collection": return `/collections/${cleanSlug}`
-    case "blog": return `/blog`
-    default: return `/${cleanSlug}`
-  }
-}
+// 引入你刚创建的移动端组件
+import MobileMenu from "@modules/layout/templates/nav/mobile-menu";
 
 async function getCurrentLocale() {
   try {
@@ -30,7 +19,6 @@ async function getCurrentLocale() {
   } catch (error) { return 'en-US' }
 }
 
-// 核心优化：增加 cache: 'no-store' 确保数据实时性
 async function getBrandData(locale: string) {
   try {
     const res = await fetch(
@@ -64,7 +52,6 @@ function buildMenuTree(items: any[]) {
   }))
 }
 
-// --- 主组件 ---
 export default async function Nav() {
   const currentLocale = await getCurrentLocale()
   const [regions, locales, brandData, menuData] = await Promise.all([
@@ -79,27 +66,33 @@ export default async function Nav() {
   const logoUrl = brandData?.logo?.url ? `${brandData.logo.url.startsWith('http') ? '' : baseUrl}${brandData.logo.url}` : null
 
   return (
-      // 移除滚动位移逻辑，保持 sticky 即可
       <div className="sticky top-0 inset-x-0 z-[999]">
         <header className="relative bg-white backdrop-blur-md border-b border-gray-100 shadow-sm">
-          <nav className="content-container mx-auto relative">
+          <nav className="content-container mx-auto relative px-4 lg:px-0">
 
-            {/* 第一行：功能区 + Sitename (放大) */}
+            {/* 第一行：功能区 + Sitename */}
             <div className="flex justify-between items-center h-[60px]">
-              {/* 左侧占位 */}
-              <div className="w-48 flex-shrink-0" />
 
-              {/* 中间：Sitename (字体放大 50%) */}
-              <div className="flex-1 text-center">
-                <LocalizedClientLink href="/" className="text-[30px] font-semibold tracking-[0.4em] uppercase text-gray-900 hover:text-pink-600 transition-colors">
+              {/* 左侧：PC端是占位，手机端是汉堡菜单 */}
+              <div className="flex-1 lg:w-48 lg:flex-none">
+                <div className="lg:hidden">
+                  <MobileMenu menuTree={menuTree} brandData={brandData} />
+                </div>
+                <div className="hidden lg:block w-48" />
+              </div>
+
+              {/* 中间：Sitename (手机端缩小字体以适配) */}
+              <div className="flex-[2] lg:flex-1 text-center">
+                <LocalizedClientLink href="/" className="text-[20px] md:text-[24px] lg:text-[30px] font-semibold tracking-[0.2em] lg:tracking-[0.4em] uppercase text-gray-900 hover:text-pink-600 transition-colors whitespace-nowrap">
                   {brandData?.sitename || "LILA ZEN"}
                 </LocalizedClientLink>
               </div>
 
               {/* 右侧：功能按钮组 */}
-              <div className="w-48 flex justify-end items-center gap-x-6">
-                {/* 1. 国家/语言选择器 - 强制不换行 */}
-                <div className="relative group flex items-center whitespace-nowrap">
+              <div className="flex-1 lg:w-48 lg:flex-none flex justify-end items-center gap-x-4 lg:gap-x-6">
+
+                {/* 1. 国家/语言选择器 - 仅在 PC 端显示 */}
+                <div className="hidden lg:block relative group flex items-center whitespace-nowrap">
                   <button className="text-gray-700 hover:text-pink-600 transition-all flex items-center gap-x-1">
                     <ActiveRegion />
                   </button>
@@ -113,12 +106,12 @@ export default async function Nav() {
                   </div>
                 </div>
 
-                {/* 2. 用户图标 */}
+                {/* 2. 用户图标 - 手机端也保留，或可根据需求隐藏 */}
                 <LocalizedClientLink href="/account" className="text-gray-700 hover:text-pink-600 flex items-center">
                   <User size={20} strokeWidth={1.5} />
                 </LocalizedClientLink>
 
-                {/* 3. 购物车图标 - 视觉对齐修正 */}
+                {/* 3. 购物车图标 */}
                 <Suspense fallback={<ShoppingBag size={20} />}>
                   <div className="flex items-center translate-y-[2.5px]">
                     <CartButton />
@@ -127,9 +120,9 @@ export default async function Nav() {
               </div>
             </div>
 
-            {/* 第二行：主菜单栏 */}
-            <div className="relative">
-              {/* 跨行大 Logo 保持在这里，因为它需要相对父级定位 */}
+            {/* 第二行：主菜单栏 - 仅在 PC 端 (lg以上) 显示 */}
+            <div className="hidden lg:block relative">
+              {/* 跨行大 Logo */}
               <div className="absolute left-0 -top-[60px] z-[130] pointer-events-auto">
                 <LocalizedClientLink href="/" className="active:scale-95 transition-transform block">
                   {logoUrl ? (

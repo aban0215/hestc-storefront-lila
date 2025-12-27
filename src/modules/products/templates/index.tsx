@@ -11,6 +11,7 @@ import { HttpTypes } from "@medusajs/types"
 import ProductActionsWrapper from "./product-actions-wrapper"
 import { LilaProductContent } from "../../../lib/strapi/product-content"
 import ReactMarkdown from "react-markdown"
+import SizeGuideModal from "@modules/products/components/size-guide-modal"
 
 type ProductTemplateProps = {
     product: HttpTypes.StoreProduct
@@ -32,67 +33,44 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
     }
 
     return (
-        <>
-            <div
-                className="content-container flex flex-col small:flex-row small:items-start py-6 relative gap-x-12"
-                data-testid="product-container"
-            >
-                {/* 左侧：商品核心信息 - 降低置顶偏移量，取消移动端冗余 padding */}
-                <div className="flex flex-col small:sticky small:top-24 small:py-0 small:max-w-[280px] w-full py-4 gap-y-8">
-                    <div className="pb-4 border-b border-gray-100">
-                        <ProductInfo product={product} />
-                    </div>
-                    <ProductTabs product={product} strapiContent={strapiContent} />
-                </div>
+        <div className="relative overflow-x-hidden w-full">
+            {/* 【第一部分：核心购买区】 左右结构 */}
+            <div className="content-container flex flex-col small:flex-row small:items-start py-8 relative gap-x-16">
 
-                {/* 中间：主展示区 */}
+                {/* A. 左侧：Medusa 商品图集 (占据 60% 左右宽度) */}
                 <div className="block w-full relative flex-1">
-                    {/* 商品图集 */}
-                    <div className="rounded-xl overflow-hidden shadow-sm">
+                    <div className="rounded-2xl overflow-hidden shadow-sm">
                         <ImageGallery images={images} />
                     </div>
-
-                    {/* Strapi 品牌故事区 - 优化排版 */}
-                    {strapiContent && (
-                        <div className="mt-16 pt-16 border-t border-gray-100 animate-in fade-in slide-in-from-bottom-4 duration-1000">
-                            {strapiContent.story_title && (
-                                <div className="mb-10 text-center">
-                                    <h2 className="text-2xl md:text-4xl font-serif font-bold text-gray-900 inline-block relative tracking-tight">
-                                        {strapiContent.story_title}
-                                        <span className="absolute -bottom-2 left-1/4 right-1/4 h-1 bg-gradient-to-r from-transparent via-gray-400 to-transparent opacity-50"></span>
-                                    </h2>
-                                </div>
-                            )}
-
-                            <div className="prose prose-slate max-w-none
-                prose-headings:font-serif prose-headings:font-semibold
-                prose-p:text-gray-600 prose-p:leading-relaxed prose-p:text-lg
-                prose-img:rounded-2xl prose-img:shadow-lg prose-img:mx-auto prose-img:my-12
-                strapi-markdown"
-                            >
-                                <ReactMarkdown
-                                    components={{
-                                        // 优化渲染后的图片样式
-                                        img: ({ node, ...props }) => (
-                                            <img
-                                                {...props}
-                                                className="w-full max-w-4xl hover:scale-[1.01] transition-transform duration-500"
-                                                loading="lazy"
-                                            />
-                                        ),
-                                    }}
-                                >
-                                    {strapiContent.story_content}
-                                </ReactMarkdown>
-                            </div>
-                        </div>
-                    )}
                 </div>
 
-                {/* 右侧：购买决策区 - 保持与左侧视觉高度一致 */}
-                <div className="flex flex-col small:sticky small:top-24 small:py-0 small:max-w-[320px] w-full py-8 gap-y-12">
-                    <div className="p-6 bg-gray-50 rounded-2xl border border-gray-100 shadow-sm">
+                {/* B. 右侧：混合信息流 (Sticky 固态挂起) */}
+                <div className="flex flex-col small:sticky small:top-24 small:max-w-[380px] w-full py-2 gap-y-10">
+
+                    {/* 1. Medusa 标题 & 价格 + Strapi Slogan */}
+                    <div className="pb-8 border-b border-gray-100">
+                        <ProductInfo product={product} />
+                        {/*{strapiContent?.story_title && (*/}
+                        {/*    <div className="mt-6 flex items-start gap-x-2">*/}
+                        {/*        <span className="text-pink-600 text-lg font-serif">“</span>*/}
+                        {/*        <p className="text-sm italic text-gray-500 font-serif leading-relaxed pt-1">*/}
+                        {/*            {strapiContent.story_title}*/}
+                        {/*        </p>*/}
+                        {/*    </div>*/}
+                        {/*)}*/}
+                    </div>
+
+                    {/* 2. 购买操作区域 (Medusa 规格 + Strapi SizeGuide) */}
+                    <div className="flex flex-col gap-y-6">
+                        {/* Size Guide 弹出按钮 */}
+                        {strapiContent?.size_guide && (
+                            <div className="flex justify-end -mb-4">
+                                <SizeGuideModal sizeGuide={strapiContent.size_guide} />
+                            </div>
+                        )}
+
                         <ProductOnboardingCta />
+
                         <Suspense
                             fallback={
                                 <ProductActions
@@ -106,24 +84,72 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
                         </Suspense>
                     </div>
 
+                    {/* 3. 混合信息面板 (Medusa Description + Strapi FAQ/Care) */}
+                    <div className="pt-4">
+                        <ProductTabs product={product} strapiContent={strapiContent} />
+                    </div>
                 </div>
             </div>
 
-            {/* 相关商品推荐 - 增加背景区分度 */}
-            <div className="bg-gray-50 w-full mt-20 py-20">
-                <div
-                    className="content-container"
-                    data-testid="related-products-container"
-                >
-                    <div className="flex items-center justify-between mb-8">
-                        <h3 className="text-2xl font-bold">You might also like</h3>
+            {/* 【第二部分：Strapi 品牌叙事区】 位于下方，全宽沉浸式 */}
+            {strapiContent?.story_content && (
+                // <div className="w-full mt-32 border-t border-gray-100 bg-white overflow-hidden">
+                <div className="w-full mt-32 border-t border-gray-100 bg-white overflow-x-hidden">
+                    <div className="max-w-4xl mx-auto py-24 px-6">
+                        {/* 装饰性标题 */}
+                        <div className="flex flex-col items-center mb-20 text-center">
+                            {/*<span className="text-[10px] tracking-[0.5em] uppercase text-gray-400 mb-4 font-bold">Behind The Piece</span>*/}
+                            <h2 className="text-4xl md:text-5xl font-serif text-gray-900 tracking-tight italic">
+                                {strapiContent.story_title}
+                            </h2>
+                            <div className="mt-8 w-20 h-[1px] bg-pink-100"></div>
+                        </div>
+
+                        {/* 富文本内容：通过 ReactMarkdown 渲染 Strapi 的故事和图片 */}
+                        <div className="prose prose-slate prose-xl max-w-none
+                            prose-p:text-gray-600 prose-p:leading-[2.2] prose-p:font-light prose-p:mb-12
+                            prose-headings:font-serif prose-headings:text-gray-900
+                            strapi-markdown"
+                        >
+                            <ReactMarkdown
+                                components={{
+                                    p: "div", // 核心：解决 <div> 不能嵌套在 <p> 里的 Hydration 错误
+                                    img: ({ node, ...props }) => (
+                                        <div className="my-24 -mx-4 md:-mx-20 relative group">
+                                            <img
+                                                {...props}
+                                                className="w-full rounded-3xl shadow-[0_30px_60px_rgba(0,0,0,0.1)] hover:scale-[1.02] transition-transform duration-[1.2s] ease-out"
+                                                loading="lazy"
+                                            />
+                                            {/*{props.alt && (*/}
+                                            {/*    <p className="mt-6 text-center text-[10px] tracking-[0.3em] uppercase text-gray-400">*/}
+                                            {/*        — {props.alt} —*/}
+                                            {/*    </p>*/}
+                                            {/*)}*/}
+                                        </div>
+                                    ),
+                                }}
+                            >
+                                {strapiContent.story_content}
+                            </ReactMarkdown>
+                        </div>
                     </div>
+                </div>
+            )}
+
+            {/* 【第三部分：相关推荐】 */}
+            <div className="bg-gray-50 w-full py-32 border-t border-gray-100">
+                <div className="content-container">
+                    {/*<div className="flex flex-col items-center mb-16">*/}
+                    {/*    <span className="text-[10px] tracking-[0.4em] uppercase text-gray-400 mb-4 font-semibold">Discovery</span>*/}
+                    {/*    <h3 className="text-3xl font-serif text-gray-900">Recommended For You</h3>*/}
+                    {/*</div>*/}
                     <Suspense fallback={<SkeletonRelatedProducts />}>
                         <RelatedProducts product={product} countryCode={countryCode} />
                     </Suspense>
                 </div>
             </div>
-        </>
+        </div>
     )
 }
 

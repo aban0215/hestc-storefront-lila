@@ -2,6 +2,19 @@
 @import "tailwindcss/components";
 @import "tailwindcss/utilities";
 
+
+/* 1. 移除 html, body 的 overflow 限制 */
+html, body {
+  overflow-x: visible; /* 恢复默认 */
+  width: 100%;
+}
+
+/* 2. 只在最外层 main 容器上加限制 */
+main {
+  overflow-x: clip; /* 使用 clip 而不是 hidden，它对 sticky 更友好 */
+}
+
+
 @layer utilities {
   /* Chrome, Safari and Opera */
   .no-scrollbar::-webkit-scrollbar {
@@ -48,6 +61,8 @@
     -webkit-appearance: none;
   }
 }
+
+
 
 @layer components {
   .content-container {

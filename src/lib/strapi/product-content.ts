@@ -25,7 +25,7 @@ export interface LilaProductContent {
     documentId: string
     medusa_handle: string
     story_title: string
-    story_content: string // 注意：这是 Markdown 格式，前端需要解析渲染
+    story_content: string
     video_url: string | null
     care_instructions: string | null
     locale: string

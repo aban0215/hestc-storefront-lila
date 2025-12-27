@@ -81,7 +81,7 @@ export default async function Nav() {
   return (
       // 移除滚动位移逻辑，保持 sticky 即可
       <div className="sticky top-0 inset-x-0 z-[999]">
-        <header className="relative bg-white/90 backdrop-blur-md border-b border-gray-100 shadow-sm">
+        <header className="relative bg-white backdrop-blur-md border-b border-gray-100 shadow-sm">
           <nav className="content-container mx-auto relative">
 
             {/* 第一行：功能区 + Sitename (放大) */}

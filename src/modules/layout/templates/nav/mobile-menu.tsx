@@ -190,6 +190,28 @@ export default function MobileMenu({
     .mobile-preference-container [data-headlessui-state="open"] {
         width: 100% !important;
     }
+    
+    .mobile-preference-container [id^="headlessui-popover-panel"] {
+        position: relative !important; /* 改为相对定位，这是修复微信点击的关键 */
+        width: 100% !important;
+        top: 0 !important;
+        margin-top: 5px !important;
+        box-shadow: none !important;
+        display: block !important; /* 确保微信能渲染出高度 */
+        z-index: 10 !important;
+    }
+
+    /* 修复微信中按钮点击时的蓝色高亮遮挡问题 */
+    .mobile-preference-container button {
+        -webkit-tap-highlight-color: transparent;
+        outline: none !important;
+    }
+
+    /* 针对微信滚动容器的层级修正 */
+    .mobile-preference-container {
+        isolation: isolate;
+        z-index: 1;
+    }
 `}</style>
         </>
     )

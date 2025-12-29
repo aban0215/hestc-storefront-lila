@@ -1,14 +1,15 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Menu, X, ChevronRight } from "lucide-react"
+import { Menu, X, ChevronRight, Globe } from "lucide-react"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import { usePathname } from "next/navigation"
+import HeaderCountrySelect from "@modules/layout/components/header-country-select"
+import HeaderLanguageSelect from "@modules/layout/components/header-language-select"
 
 // 统一路径处理函数，与 PC 端逻辑对齐
 const getMenuHref = (linkType: string, slug: string) => {
     if (!slug) return "/"
-    // 清洗 slug：去空格、转小写、空格转中划线、移除首部斜杠
     const cleanSlug = slug.trim().toLowerCase().replace(/\s+/g, "-").replace(/^\//, "")
 
     switch (linkType) {
@@ -19,24 +20,35 @@ const getMenuHref = (linkType: string, slug: string) => {
     }
 }
 
-export default function MobileMenu({ menuTree, brandData }: { menuTree: any[], brandData: any }) {
+interface MobileMenuProps {
+    menuTree: any[]
+    brandData: any
+    regions: any
+    locales: any
+    currentLocale: string
+}
+
+export default function MobileMenu({
+                                       menuTree,
+                                       brandData,
+                                       regions,
+                                       locales,
+                                       currentLocale
+                                   }: MobileMenuProps) {
     const [isOpen, setIsOpen] = useState(false)
     const [openSubMenu, setOpenSubMenu] = useState<number | string | null>(null)
     const [isMounted, setIsMounted] = useState(false)
     const pathname = usePathname()
 
-    // 挂载逻辑
     useEffect(() => {
         setIsMounted(true)
     }, [])
 
-    // 路由变化时自动关闭菜单
     useEffect(() => {
         setIsOpen(false)
         setOpenSubMenu(null)
     }, [pathname])
 
-    // 锁定背景滚动
     useEffect(() => {
         if (isOpen) {
             document.body.style.overflow = 'hidden'
@@ -69,12 +81,11 @@ export default function MobileMenu({ menuTree, brandData }: { menuTree: any[], b
                 onClick={() => setIsOpen(false)}
             />
 
-            {/* 侧边抽屉容器 */}
+            {/* 侧边抽屉 */}
             <div className={`fixed inset-y-0 left-0 z-[10000] w-[85%] max-w-[320px] bg-white shadow-2xl transform transition-transform duration-300 ease-in-out ${
                 isOpen ? "translate-x-0" : "-translate-x-full"
             }`}>
 
-                {/* 容器使用 h-[100dvh] 确保全屏高度 */}
                 <div className="flex flex-col h-[100dvh] bg-white overflow-hidden overscroll-none">
 
                     {/* Header - 固定高度 */}
@@ -87,7 +98,7 @@ export default function MobileMenu({ menuTree, brandData }: { menuTree: any[], b
                         </button>
                     </div>
 
-                    {/* 菜单滚动区 */}
+                    {/* 1. 菜单滚动区 */}
                     <div className="flex-1 overflow-y-auto px-4 py-6 bg-white custom-scrollbar">
                         {menuTree?.map((item: any) => {
                             const hasChildren = item.children && item.children.length > 0;
@@ -144,9 +155,26 @@ export default function MobileMenu({ menuTree, brandData }: { menuTree: any[], b
                         })}
                     </div>
 
-                    {/* Footer - 版权信息 */}
-                    <div className="p-6 border-t border-gray-50 flex-shrink-0 bg-white">
-                        <div className="text-[10px] text-gray-400 uppercase tracking-widest text-center">
+                    {/* 2. 底部选择器区域 (Preferences) */}
+                    <div className="p-6 bg-gray-50 border-t border-gray-100 flex-shrink-0">
+                        <div className="flex items-center gap-x-2 mb-4 text-gray-500">
+                            <Globe size={14} strokeWidth={2} />
+                            <span className="text-[10px] uppercase tracking-[0.2em] font-bold">Shipping & Language</span>
+                        </div>
+
+                        <div className="space-y-3">
+                            {/* 国家选择卡片 */}
+                            <div className="bg-white rounded-xl p-1 shadow-sm border border-gray-200/50">
+                                <HeaderCountrySelect regions={regions} />
+                            </div>
+                            {/* 语言选择卡片 */}
+                            <div className="bg-white rounded-xl p-1 shadow-sm border border-gray-200/50">
+                                <HeaderLanguageSelect locales={locales} currentLocale={currentLocale} />
+                            </div>
+                        </div>
+
+                        {/* 版权信息 */}
+                        <div className="mt-8 text-[9px] text-gray-400 uppercase tracking-[0.2em] text-center">
                             © {new Date().getFullYear()} {brandData?.sitename || "Lila Zen"}
                         </div>
                     </div>

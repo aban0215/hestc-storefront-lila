@@ -66,14 +66,14 @@ export default async function Nav() {
   const logoUrl = brandData?.logo?.url ? `${brandData.logo.url.startsWith('http') ? '' : baseUrl}${brandData.logo.url}` : null
 
   return (
-      <div className="sticky top-0 inset-x-0 z-[999]">
-        <header className="relative bg-white backdrop-blur-md border-b border-gray-100 shadow-sm">
-          <nav className="content-container mx-auto relative px-4 lg:px-0">
-
+      // 这里的 z-index 必须高于页面所有内容（通常首页 banner 是 z-10 或 z-20）
+      <div className="sticky top-0 inset-x-0 z-[100] w-full">
+        <header className="relative bg-white/90 backdrop-blur-md border-b border-gray-100 shadow-sm">
+          <nav className="content-container mx-auto relative px-4 lg:px-0 h-[60px] lg:h-auto">
             {/* 第一行：功能区 + Sitename */}
             <div className="flex justify-between items-center h-[60px]">
 
-              {/* 左侧：PC端是占位，手机端是汉堡菜单 */}
+              {/* 左侧：手机端汉堡菜单 */}
               <div className="flex-1 lg:w-48 lg:flex-none">
                 <div className="lg:hidden">
                   <MobileMenu menuTree={menuTree} brandData={brandData} />
@@ -81,18 +81,16 @@ export default async function Nav() {
                 <div className="hidden lg:block w-48" />
               </div>
 
-              {/* 中间：Sitename (手机端缩小字体以适配) */}
+              {/* 中间：Logo/Sitename */}
               <div className="flex-[2] lg:flex-1 text-center">
-                <LocalizedClientLink href="/" className="text-[20px] md:text-[24px] lg:text-[30px] font-semibold tracking-[0.2em] lg:tracking-[0.4em] uppercase text-gray-900 hover:text-pink-600 transition-colors whitespace-nowrap">
+                <LocalizedClientLink href="/" className="text-[18px] md:text-[24px] lg:text-[30px] font-semibold tracking-[0.15em] lg:tracking-[0.4em] uppercase text-gray-900 hover:text-pink-600 transition-colors whitespace-nowrap">
                   {brandData?.sitename || "LILA ZEN"}
                 </LocalizedClientLink>
               </div>
 
-              {/* 右侧：功能按钮组 */}
-              <div className="flex-1 lg:w-48 lg:flex-none flex justify-end items-center gap-x-4 lg:gap-x-6">
-
-                {/* 1. 国家/语言选择器 - 仅在 PC 端显示 */}
-                <div className="hidden lg:block relative group flex items-center whitespace-nowrap">
+              {/* 右侧：功能按钮 */}
+              <div className="flex-1 lg:w-48 lg:flex-none flex justify-end items-center gap-x-3 lg:gap-x-6">
+                <div className="hidden lg:block relative group flex items-center">
                   <button className="text-gray-700 hover:text-pink-600 transition-all flex items-center gap-x-1">
                     <ActiveRegion />
                   </button>
@@ -106,37 +104,29 @@ export default async function Nav() {
                   </div>
                 </div>
 
-                {/* 2. 用户图标 - 手机端也保留，或可根据需求隐藏 */}
-                <LocalizedClientLink href="/account" className="text-gray-700 hover:text-pink-600 flex items-center">
+                <LocalizedClientLink href="/account" className="text-gray-700 hover:text-pink-600">
                   <User size={20} strokeWidth={1.5} />
                 </LocalizedClientLink>
 
-                {/* 3. 购物车图标 */}
                 <Suspense fallback={<ShoppingBag size={20} />}>
-                  <div className="flex items-center translate-y-[2.5px]">
+                  <div className="flex items-center">
                     <CartButton />
                   </div>
                 </Suspense>
               </div>
             </div>
 
-            {/* 第二行：主菜单栏 - 仅在 PC 端 (lg以上) 显示 */}
+            {/* 第二行：PC 菜单 */}
             <div className="hidden lg:block relative">
-              {/* 跨行大 Logo */}
-              <div className="absolute left-0 -top-[60px] z-[130] pointer-events-auto">
+              <div className="absolute left-0 -top-[60px] z-[130]">
                 <LocalizedClientLink href="/" className="active:scale-95 transition-transform block">
-                  {logoUrl ? (
-                      <img src={logoUrl} alt="Logo" className="h-24 w-auto object-contain drop-shadow-[0_2px_12px_rgba(0,0,0,0.06)]" />
-                  ) : (
-                      <div className="h-20 w-20 bg-black text-white flex items-center justify-center font-bold text-2xl">LZ</div>
+                  {logoUrl && (
+                      <img src={logoUrl} alt="Logo" className="h-24 w-auto object-contain" />
                   )}
                 </LocalizedClientLink>
               </div>
-
-              {/* 渲染抽离出的菜单组件 */}
               <NavLinks menuTree={menuTree} />
             </div>
-
           </nav>
         </header>
       </div>

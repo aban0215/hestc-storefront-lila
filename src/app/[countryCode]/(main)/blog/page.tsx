@@ -1,16 +1,65 @@
+// app/[countryCode]/blog/page.tsx
+
+import { Metadata } from "next"
 import { getBlogPosts, getBlogCategories } from "@lib/strapi/blog-data"
 import { getSelectedLocale } from "@lib/data/locales"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
+import { getBaseURL } from "@lib/util/env"
+
+type Props = {
+    params: { countryCode: string }
+    searchParams: { category?: string }
+}
+
+/**
+ * 获取博客列表页专用 SEO 补丁
+ */
+async function getBlogArchiveSeo() {
+    const STRAPI_URL = "http://47.89.151.64:1337"
+    const query = `${STRAPI_URL}/api/lila-seo-extensions?filters[key][$eq]=blog-key&locale=en-US&populate[lilaSeo][populate]=shareImage`
+    try {
+        const res = await fetch(query, { next: { revalidate: 3600 } })
+        const { data } = await res.json()
+        return data?.[0]?.lilaSeo?.[0] || null
+    } catch (e) {
+        return null
+    }
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+    const { countryCode } = params
+
+    // 1. 获取 SEO 补丁
+    const seo = await getBlogArchiveSeo()
+
+    // 2. 锁定 Canonical (指向美国站博客首页)
+    const baseUrl = getBaseURL()
+    const canonicalUrl = `${baseUrl}/us/blog`
+
+    return {
+        title: seo?.metaTitle || "Lila Journal | Blog",
+        description: seo?.metaDescription,
+        keywords: seo?.keywords,
+        alternates: {
+            canonical: canonicalUrl,
+        },
+        openGraph: {
+            title: seo?.metaTitle,
+            description: seo?.metaDescription,
+            url: canonicalUrl,
+            images: seo?.shareImage?.[0]?.url ? [seo.shareImage[0].url] : [],
+        },
+    }
+}
 
 export default async function BlogArchivePage({
                                                   params,
                                                   searchParams,
-                                              }: {
-    params: { countryCode: string }
-    searchParams: { category?: string }
-}) {
+                                              }: Props) {
     const { countryCode } = params
     const { category: activeCategorySlug } = searchParams
+
+    // 注意：这里业务内容的展示依然遵循用户选择的语言 locale
     const locale = (await getSelectedLocale()) || 'en-US'
 
     // 并行获取分类和文章
@@ -18,8 +67,6 @@ export default async function BlogArchivePage({
         getBlogCategories(locale),
         getBlogPosts(locale, activeCategorySlug)
     ])
-
-    // const baseUrl = process.env.NEXT_PUBLIC_STRAPI_API_URL || 'http://47.89.151.64:1337'
 
     return (
         <div className="container mx-auto px-4 py-12">
@@ -71,7 +118,6 @@ export default async function BlogArchivePage({
                                     href={`/blog/${post.slug}`}
                                     className="group flex flex-col"
                                 >
-                                    {/* 封面图 */}
                                     <div className="aspect-[16/10] overflow-hidden bg-gray-100 mb-4">
                                         <img
                                             src={`${post.coverImage.url}`}
@@ -80,7 +126,6 @@ export default async function BlogArchivePage({
                                         />
                                     </div>
 
-                                    {/* 文章信息 */}
                                     <div className="flex items-center gap-3 mb-2 text-[10px] uppercase tracking-widest font-bold text-pink-600">
                                         <span>{post.category?.name}</span>
                                         <span className="text-gray-300">•</span>

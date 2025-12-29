@@ -72,3 +72,26 @@ export async function getProductStrapiContent(handle: string): Promise<LilaProdu
         return null
     }
 }
+
+
+
+
+/**
+ * 获取商品 SEO 补丁
+ * 强制使用 locale=en-US 以实现单中心索引
+ */
+export async function getProductSeo(handle: string) {
+    const STRAPI_URL = "http://47.89.151.64:1337";
+    const query = `${STRAPI_URL}/api/lila-product-contents?filters[medusa_handle][$eq]=${handle}&locale=en-US&populate[productSeo][populate]=shareImage`;
+
+    try {
+        const res = await fetch(query, { next: { revalidate: 3600 } });
+        const { data } = await res.json();
+
+        // 返回第一个匹配商品的第一个 SEO 对象
+        return data?.[0]?.productSeo?.[0] || null;
+    } catch (error) {
+        console.error("Failed to fetch product SEO:", error);
+        return null;
+    }
+}

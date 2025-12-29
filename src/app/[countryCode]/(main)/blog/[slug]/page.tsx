@@ -1,57 +1,75 @@
-import { getBlogPostBySlug } from "@lib/strapi/blog-data"
-import { getSelectedLocale } from "@lib/data/locales"
+import { Metadata } from "next"
 import { notFound } from "next/navigation"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
+import { getBlogPostBySlug } from "@lib/strapi/blog-data"
+import { getSelectedLocale } from "@lib/data/locales"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
-import { ChevronLeft } from "lucide-react" // 假设你使用了 lucide-react
+import { getBaseURL } from "@lib/util/env"
 
-export default async function BlogDetailPage({
-                                                 params
-                                             }: {
-    params: Promise<{ slug: string, countryCode: string }> // 修改为 Promise 类型
-}) {
-    // 关键修复：在使用 slug 之前必须先 await params
-    const resolvedParams = await params
-    const { slug } = resolvedParams
+type Props = {
+    params: Promise<{ slug: string; countryCode: string }>
+}
 
+/**
+ * 为 Metadata 专门获取 SEO 数据
+ * 强制使用 en-US，实现单中心索引
+ */
+export async function generateMetadata(props: Props): Promise<Metadata> {
+    const { slug } = await props.params
+
+    // 强制请求英文版 SEO 内容
+    const postEn = await getBlogPostBySlug(slug, "en-US")
+
+    if (!postEn) {
+        return { title: "Blog Post Not Found" }
+    }
+
+    const baseUrl = getBaseURL()
+    const mainCountry = "us"
+    // 锁定 Canonical URL，无论在哪个语言环境下，都指向美国站版本
+    const canonicalUrl = `${baseUrl}/${mainCountry}/blog/${slug}`
+
+    return {
+        title: postEn.blogSeo?.metaTitle || postEn.title,
+        description: postEn.blogSeo?.metaDescription || postEn.excerpt,
+        keywords: postEn.blogSeo?.keywords,
+        alternates: {
+            canonical: canonicalUrl,
+        },
+        openGraph: {
+            title: postEn.blogSeo?.metaTitle || postEn.title,
+            description: postEn.blogSeo?.metaDescription || postEn.excerpt,
+            url: canonicalUrl,
+            images: postEn.blogSeo?.shareImage ? [postEn.blogSeo.shareImage] : (postEn.coverImage.url ? [postEn.coverImage.url] : []),
+        },
+        twitter: {
+            card: "summary_large_image",
+            title: postEn.blogSeo?.metaTitle || postEn.title,
+            description: postEn.blogSeo?.metaDescription || postEn.excerpt,
+            images: postEn.blogSeo?.shareImage ? [postEn.blogSeo.shareImage] : (postEn.coverImage.url ? [postEn.coverImage.url] : []),
+        }
+    }
+}
+
+export default async function BlogDetailPage(props: Props) {
+    const { slug, countryCode } = await props.params
+
+    // 根据当前站点的语言环境获取内容（用于页面渲染显示）
     const locale = (await getSelectedLocale()) || 'en-US'
-    console.log("slugslugslug" + slug)
-    // 1. 获取数据
-    // 注意：如果你的 Strapi 里的 slug 是 "/yogaposttitle"，
-    // 而 URL 传过来的是 "yogaposttitle"，记得在这里补上斜杠进行匹配
     const post = await getBlogPostBySlug(slug, locale)
-    console.log("slugslugslug" + post)
 
     if (!post) {
-        // 如果还是 404，请检查 getBlogPostBySlug 里的查询逻辑是否匹配了 "/"
         notFound()
     }
 
-    // const baseUrl = process.env.NEXT_PUBLIC_STRAPI_API_URL || 'http://47.89.151.64:1337'
-    const fullImageUrl = post.coverImage.url ? `${post.coverImage.url}` : null
+    const fullImageUrl = post.coverImage.url || null
 
     return (
         <article className="min-h-screen bg-white">
-            {/* --- 顶部导航/面包屑 --- */}
-            {/*<nav className="container mx-auto px-4 py-6">*/}
-            {/*    <LocalizedClientLink*/}
-            {/*        href="/blog"*/}
-            {/*        className="inline-flex items-center text-sm text-gray-500 hover:text-black transition-colors group"*/}
-            {/*    >*/}
-            {/*        <ChevronLeft className="w-4 h-4 mr-1 transition-transform group-hover:-translate-x-1" />*/}
-            {/*        Back to Blog*/}
-            {/*    </LocalizedClientLink>*/}
-            {/*</nav>*/}
-
             {/* --- Hero 头部区域 --- */}
             <header className="container mx-auto px-4 mb-12">
-                <div className="max-w-4xl mx-auto text-center mb-10">
-                    {/*{post.category && (*/}
-                    {/*    <span className="inline-block px-3 py-1 border border-pink-600 text-pink-600 text-xs font-bold tracking-widest uppercase mb-4">*/}
-                    {/*        {post.category.name}*/}
-                    {/*    </span>*/}
-                    {/*)}*/}
+                <div className="max-w-4xl mx-auto text-center mt-12 mb-10">
                     <h1 className="text-4xl md:text-6xl font-serif font-bold text-gray-900 mb-6 leading-tight">
                         {post.title}
                     </h1>
@@ -84,7 +102,6 @@ export default async function BlogDetailPage({
             {/* --- 正文区域 --- */}
             <div className="container mx-auto px-4 pb-20">
                 <div className="max-w-3xl mx-auto">
-                    {/* 使用 ReactMarkdown 解析内容 */}
                     <div className="prose prose-lg prose-pink max-w-none
                         prose-headings:font-serif prose-headings:font-bold
                         prose-p:text-gray-700 prose-p:leading-relaxed
@@ -94,11 +111,8 @@ export default async function BlogDetailPage({
                         </ReactMarkdown>
                     </div>
 
-                    {/* --- 底部装饰/分享 --- */}
-                    <div className="mt-16 pt-8 border-t border-gray-100 flex justify-between items-center">
-                        <div className="flex gap-4">
-                            {/* 这里可以放社交分享按钮 */}
-                        </div>
+                    {/* --- 底部导航 --- */}
+                    <div className="mt-16 pt-8 border-t border-gray-100 flex justify-end items-center">
                         <LocalizedClientLink
                             href="/blog"
                             className="text-sm font-bold tracking-widest uppercase border-b-2 border-pink-600 pb-1"

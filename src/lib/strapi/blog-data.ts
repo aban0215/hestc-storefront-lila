@@ -2,84 +2,83 @@ const STRAPI_BASE_URL = process.env.NEXT_PUBLIC_STRAPI_API_URL || 'http://47.89.
 
 export interface BlogModuleSettings {
     id: number
-    // 模块信息
     moduleTitle: string
     moduleDescription?: string
     showModule: boolean
-
-    // 按钮文本
     readButtonText: string
     viewAllButtonText: string
-
-    // 标签文本
     tagsLabel: string
     readTimeLabel: string
     authorLabel: string
     publishedLabel: string
-
-    // 显示控制
     showReadTime: boolean
     showAuthor: boolean
     showCategory: boolean
     showTags: boolean
     showPublishDate: boolean
-
-    // 系统字段
     createdAt: string
     updatedAt: string
     publishedAt: string
     locale: string
 }
 
+export interface BlogPostDetailData {
+    id: number;
+    title: string;
+    slug: string;
+    excerpt: string;
+    content: string;
+    author?: string;
+    readTime: number;
+    publishedAt: string;
+    linkType: string;
+    medusaHandle: string;
+    coverImage: {
+        url: string;
+        alternativeText: string;
+    };
+    category?: {
+        id: number;
+        name: string;
+        slug: string;
+    };
+    // 新增 SEO 字段映射
+    blogSeo?: {
+        metaTitle?: string;
+        metaDescription?: string;
+        keywords?: string;
+        shareImage?: string;
+    };
+}
 
 // 获取博客模块配置
-export async function getBlogModuleSettings(locale: string): Promise<BlogModuleSettings> {
+export async function getBlogModuleSettings(locale: string): Promise<BlogModuleSettings | undefined> {
     try {
         const res = await fetch(
             `${STRAPI_BASE_URL}/api/lila-blog-module-setting?populate=*&locale=${locale}`,
-            {
-                next: { revalidate: 3600 }
-            }
+            { next: { revalidate: 3600 } }
         )
 
-        if (!res.ok) {
-            // 如果接口不存在，返回默认配置
-            if (res.status === 404) {
-                console.log('博客模块配置接口未找到，使用默认配置')
-            }
-            throw new Error(`HTTP error! status: ${res.status}`)
-        }
-
+        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`)
         const data = await res.json()
-
-        if (!data.data) {
-            console.log('博客模块配置接口未找到，使用默认配置')
-        }
+        if (!data.data) return undefined
 
         return {
             id: data.data.id,
             moduleTitle: data.data.moduleTitle,
             moduleDescription: data.data.moduleDescription,
             showModule: data.data.showModule ?? true,
-
-            // 按钮文本
             readButtonText: data.data.readButtonText || 'Read Full Article',
             viewAllButtonText: data.data.viewAllButtonText || 'View All Articles',
-
-            // 标签文本
             tagsLabel: data.data.tagsLabel || 'Tags:',
             readTimeLabel: data.data.readTimeLabel || 'min read',
             authorLabel: data.data.authorLabel || 'By',
             publishedLabel: data.data.publishedLabel || 'Published on',
-
-            // 显示控制
             showReadTime: data.data.showReadTime ?? true,
             showAuthor: data.data.showAuthor ?? true,
             showCategory: data.data.showCategory ?? true,
             showTags: data.data.showTags ?? true,
             showPublishDate: data.data.showPublishDate ?? true,
-
-            // 系统字段
             createdAt: data.data.createdAt,
             updatedAt: data.data.updatedAt,
             publishedAt: data.data.publishedAt,
@@ -90,46 +89,31 @@ export async function getBlogModuleSettings(locale: string): Promise<BlogModuleS
     }
 }
 
-
-// 定义详情页所需的数据类型
-export interface BlogPostDetailData extends BlogPostData {
-    content: string;
-    author?: string;
-}
-
-// 根据 slug 获取博客详情
+// 根据 slug 获取博客详情 (含 SEO 增强)
 export async function getBlogPostBySlug(slug: string, locale: string): Promise<BlogPostDetailData | null> {
     try {
-        // 关键：在 Strapi 5 中，我们使用 filters 来匹配 slug
-        // 注意：如果你填写的 slug 带有 "/"，请求时需要处理或确保匹配
-        const res = await fetch(
-            `${STRAPI_BASE_URL}/api/lila-blog-posts?filters[slug][$eq]=${slug}&populate=*&locale=${locale}`,
-            {
-                next: { revalidate: 3600 }
-            }
-        )
-
+        // 调整后的 populate 逻辑：针对 blogSeo 组件及 shareImage 进行深度下钻
+        const populateQuery = "populate[coverImage]=true&populate[lila_blog_category]=true&populate[blogSeo][populate]=shareImage"
+        const url = `${STRAPI_BASE_URL}/api/lila-blog-posts?filters[slug][$eq]=${slug}&${populateQuery}&locale=${locale}`
+        console.log('**********' + url)
+        const res = await fetch(url, { next: { revalidate: 3600 } })
         if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`)
 
         const response = await res.json()
-
-        // Strapi 5 返回的是数组，取第一个
         const data = response.data?.[0]
-
         if (!data) return null
 
-        // 统一数据映射逻辑
         return {
             id: data.id,
             title: data.title,
             slug: data.slug,
             excerpt: data.excerpt,
-            content: data.content, // 详情页需要的正文
+            content: data.content,
             author: data.author,
             readTime: data.readTime,
             publishedAt: data.publishedAt,
             linkType: data.link_type || 'blog',
-            medusaHandle: data.medusa_handle || data.slug.replace(/^\//, ''), // 去掉开头的斜杠
+            medusaHandle: data.medusa_handle || data.slug.replace(/^\//, ''),
             coverImage: {
                 url: data.coverImage?.url,
                 alternativeText: data.coverImage?.alternativeText || data.title
@@ -138,6 +122,13 @@ export async function getBlogPostBySlug(slug: string, locale: string): Promise<B
                 id: data.category.id,
                 name: data.category.name,
                 slug: data.category.slug
+            } : undefined,
+            // 映射 SEO 组件数据
+            blogSeo: data.blogSeo?.[0] ? {
+                metaTitle: data.blogSeo[0].metaTitle,
+                metaDescription: data.blogSeo[0].metaDescription,
+                keywords: data.blogSeo[0].keywords,
+                shareImage: data.blogSeo[0].shareImage?.[0]?.url
             } : undefined
         }
     } catch (error) {
@@ -145,17 +136,6 @@ export async function getBlogPostBySlug(slug: string, locale: string): Promise<B
         return null
     }
 }
-
-// 导出已有的博客相关函数
-export {
-    getLatestBlogPost,
-    getFeaturedBlogPosts,
-    BlogPostData,
-    BlogCategory
-} from './home-data'
-
-
-
 
 // 获取博客分类列表
 export async function getBlogCategories(locale: string) {
@@ -167,9 +147,7 @@ export async function getBlogCategories(locale: string) {
     return data || []
 }
 
-// 获取博客文章列表（支持按分类 slug 筛选）
-// src/lib/strapi/blog-data.ts
-
+// 获取博客文章列表
 export async function getBlogPosts(locale: string, categorySlug?: string) {
     let url = `${STRAPI_BASE_URL}/api/lila-blog-posts?populate=*&locale=${locale}&sort=createdAt:desc`
 
@@ -180,7 +158,6 @@ export async function getBlogPosts(locale: string, categorySlug?: string) {
     const res = await fetch(url, { next: { revalidate: 3600 } })
     const response = await res.json()
 
-    // 关键修复：将 data 更改为 post (对应 map 的参数)
     return response.data.map((post: any) => ({
         id: post.id,
         title: post.title,
@@ -198,3 +175,9 @@ export async function getBlogPosts(locale: string, categorySlug?: string) {
         } : null
     }))
 }
+
+// 导出相关辅助函数
+export {
+    getLatestBlogPost,
+    getFeaturedBlogPosts
+} from './home-data'

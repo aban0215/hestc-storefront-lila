@@ -99,6 +99,9 @@ const HeaderLanguageSelect = ({ locales, currentLocale }: HeaderLanguageSelectPr
                 >
                     <Popover.Button
                         ref={buttonRef}
+                        onClick={(e) => {
+                            e.stopPropagation(); // 阻止事件向上传递给 MobileMenu 的滚动层
+                        }}
                         className={`flex items-center gap-x-2 text-ui-fg-subtle hover:text-ui-fg-base transition-all py-1.5 px-3 rounded-md min-w-[100px] outline-none ${
                             open ? 'bg-ui-bg-subtle-hover text-ui-fg-base' : ''
                         }`}

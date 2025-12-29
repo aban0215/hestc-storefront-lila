@@ -1,7 +1,7 @@
 "use client"
 
 import { Popover, Transition } from "@headlessui/react"
-import { Fragment, useEffect, useMemo, useState, useRef } from "react"
+import { Fragment, useEffect, useMemo, useState, useRef, useCallback } from "react"
 import ReactCountryFlag from "react-country-flag"
 import { useParams, usePathname } from "next/navigation"
 import { updateRegion } from "@lib/data/cart"
@@ -18,12 +18,13 @@ type HeaderCountrySelectProps = {
     regions: HttpTypes.StoreRegion[] | null
 }
 
+// 全局缓存
+const flagCache = new Map<string, 'loading' | 'loaded' | 'error'>();
+
 const HeaderCountrySelect = ({ regions }: HeaderCountrySelectProps) => {
     const [current, setCurrent] = useState<CountryOption | undefined>(undefined)
     const { countryCode } = useParams()
     const currentPath = usePathname().split(`/${countryCode}`)[1]
-
-    // 用于悬停控制的 Ref
     const buttonRef = useRef<HTMLButtonElement>(null)
     const timeoutRef = useRef<NodeJS.Timeout | null>(null)
 
@@ -37,15 +38,62 @@ const HeaderCountrySelect = ({ regions }: HeaderCountrySelectProps) => {
                 }))
             })
             .flat()
+            .filter(Boolean) // 过滤掉 undefined/null
             .sort((a, b) => (a?.label ?? "").localeCompare(b?.label ?? ""))
     }, [regions])
 
+    // 预加载国旗
+    const preloadFlag = useCallback((countryCode: string) => {
+        if (!countryCode || flagCache.has(countryCode)) return;
+
+        flagCache.set(countryCode, 'loading');
+        const code = countryCode.toLowerCase();
+
+        // 创建隐藏的 img 元素来预加载
+        const img = new Image();
+        img.src = `https://flagcdn.com/w40/${code}.png`;
+
+        img.onload = () => {
+            flagCache.set(countryCode, 'loaded');
+        };
+        img.onerror = () => {
+            flagCache.set(countryCode, 'error');
+        };
+    }, []);
+
+    // 设置当前选项并预加载
     useEffect(() => {
-        if (countryCode && options) {
-            const option = options.find((o) => o?.country === countryCode)
-            setCurrent(option)
+        if (!options || options.length === 0) {
+            return;
         }
-    }, [options, countryCode])
+
+        let selectedOption: CountryOption | undefined;
+
+        // 根据 countryCode 查找或使用默认
+        if (countryCode) {
+            selectedOption = options.find((o) => o?.country === countryCode);
+        }
+
+        // 如果没有找到匹配的，使用第一个选项
+        if (!selectedOption && options.length > 0) {
+            selectedOption = options[0];
+        }
+
+        if (selectedOption) {
+            setCurrent(selectedOption);
+            // 预加载当前国旗
+            preloadFlag(selectedOption.country);
+
+            // 预加载所有其他国旗（延迟执行，避免阻塞渲染）
+            setTimeout(() => {
+                options.forEach(option => {
+                    if (option?.country && option.country !== selectedOption?.country) {
+                        preloadFlag(option.country);
+                    }
+                });
+            }, 100);
+        }
+    }, [options, countryCode, preloadFlag]);
 
     // 处理鼠标移入：清除关闭定时器并打开菜单
     const handleMouseEnter = (open: boolean) => {
@@ -77,6 +125,9 @@ const HeaderCountrySelect = ({ regions }: HeaderCountrySelectProps) => {
                 >
                     <Popover.Button
                         ref={buttonRef}
+                        onClick={(e) => {
+                            e.stopPropagation(); // 阻止事件向上传递给 MobileMenu 的滚动层
+                        }}
                         className={`flex items-center gap-x-2 text-ui-fg-subtle hover:text-ui-fg-base transition-all py-1.5 px-3 rounded-md min-w-[70px] outline-none w-full justify-start ${
                             open ? 'bg-ui-bg-subtle-hover text-ui-fg-base' : ''
                         }`}

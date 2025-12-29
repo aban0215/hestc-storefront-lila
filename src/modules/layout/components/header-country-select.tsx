@@ -20,6 +20,7 @@ type HeaderCountrySelectProps = {
 
 const HeaderCountrySelect = ({ regions }: HeaderCountrySelectProps) => {
     const [current, setCurrent] = useState<CountryOption | undefined>(undefined)
+    const [isUpdating, setIsUpdating] = useState(false)
     const { countryCode } = useParams()
     const currentPath = usePathname().split(`/${countryCode}`)[1]
     const buttonRef = useRef<HTMLButtonElement>(null)
@@ -46,40 +47,16 @@ const HeaderCountrySelect = ({ regions }: HeaderCountrySelectProps) => {
         if (selected) setCurrent(selected)
     }, [options, countryCode])
 
-    // 处理悬停逻辑（仅针对有鼠标的设备）
-    const handleMouseEnter = (open: boolean) => {
-        if (window.matchMedia("(pointer: fine)").matches) {
-            if (timeoutRef.current) clearTimeout(timeoutRef.current)
-            if (!open) buttonRef.current?.click()
-        }
-    }
-
-    const handleMouseLeave = (open: boolean, close: () => void) => {
-        if (window.matchMedia("(pointer: fine)").matches) {
-            timeoutRef.current = setTimeout(() => {
-                if (open) close()
-            }, 200)
-        }
-    }
-
-    const handleChange = (option: CountryOption, close: () => void) => {
-        close()
-        updateRegion(option.country, currentPath)
-    }
-
-    // 核心修复：固定比例的国旗渲染器
+    // 核心修复：固定比例的国旗渲染器，带有骨架屏占位
     const FlagIcon = ({ code }: { code: string }) => (
         <div
             className="relative flex-shrink-0 bg-ui-bg-subtle rounded-[2px] overflow-hidden"
             style={{
                 width: '20px',
                 height: '15px',
-                aspectRatio: '4/3' // 强制比例
             }}
         >
-            {/* 骨架屏占位图层：在图片加载前显示灰色块 */}
             <div className="absolute inset-0 bg-gray-200 animate-pulse" />
-
             <ReactCountryFlag
                 svg
                 countryCode={code}
@@ -96,6 +73,38 @@ const HeaderCountrySelect = ({ regions }: HeaderCountrySelectProps) => {
         </div>
     )
 
+    // 仅针对有鼠标的设备执行悬停逻辑
+    const handleMouseEnter = (open: boolean) => {
+        if (typeof window !== 'undefined' && window.matchMedia("(pointer: fine)").matches) {
+            if (timeoutRef.current) clearTimeout(timeoutRef.current)
+            if (!open) buttonRef.current?.click()
+        }
+    }
+
+    const handleMouseLeave = (open: boolean, close: () => void) => {
+        if (typeof window !== 'undefined' && window.matchMedia("(pointer: fine)").matches) {
+            timeoutRef.current = setTimeout(() => {
+                if (open) close()
+            }, 200)
+        }
+    }
+
+    // 针对 UC 浏览器进行稳定性处理，不使用 useTransition
+    const handleChange = async (option: CountryOption, close: () => void) => {
+        if (isUpdating) return
+
+        setIsUpdating(true)
+        try {
+            close()
+            // updateRegion 通常涉及路由跳转或全局状态变更
+            await updateRegion(option.country, currentPath)
+        } catch (error) {
+            console.error("Failed to update region:", error)
+        } finally {
+            setIsUpdating(false)
+        }
+    }
+
     return (
         <Popover className="relative inline-block">
             {({ open, close }) => (
@@ -106,6 +115,10 @@ const HeaderCountrySelect = ({ regions }: HeaderCountrySelectProps) => {
                 >
                     <Popover.Button
                         ref={buttonRef}
+                        // 阻止冒泡，防止触发父级（如 MobileMenu）多余逻辑
+                        onClick={(e) => {
+                            e.stopPropagation()
+                        }}
                         className={`flex items-center gap-x-2 text-ui-fg-subtle hover:text-ui-fg-base transition-all py-1.5 px-3 rounded-md outline-none min-w-[80px] ${
                             open ? 'bg-ui-bg-subtle-hover text-ui-fg-base' : ''
                         }`}
@@ -114,7 +127,7 @@ const HeaderCountrySelect = ({ regions }: HeaderCountrySelectProps) => {
                         <span className="text-sm font-bold uppercase tabular-nums">
                             {current?.country || "Select"}
                         </span>
-                        <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${open ? 'rotate-180' : ''}`} />
+                        <ChevronDown className={`h-4 w-4 ml-auto transition-transform duration-200 ${open ? 'rotate-180' : ''}`} />
                     </Popover.Button>
 
                     <Transition
@@ -129,26 +142,32 @@ const HeaderCountrySelect = ({ regions }: HeaderCountrySelectProps) => {
                         <Popover.Panel
                             className="absolute right-0 z-[100] mt-2 w-[240px] origin-top-right overflow-hidden bg-white rounded-lg shadow-xl ring-1 ring-black/5 focus:outline-none"
                         >
+                            {/* 隐形连接层 */}
                             <div className="absolute -top-2 h-2 w-full bg-transparent" />
+
                             <div className="max-h-[60vh] overflow-y-auto overscroll-contain">
-                                <div className="sticky top-0 z-10 px-4 py-2 text-[10px] font-bold uppercase tracking-widest text-ui-fg-muted border-b bg-gray-50/95 backdrop-blur-sm">
+                                <div className="sticky top-0 z-10 px-4 py-2.5 text-[10px] font-bold uppercase tracking-widest text-ui-fg-muted border-b bg-gray-50/95 backdrop-blur-sm">
                                     Shipping to
                                 </div>
                                 <div className="p-1">
                                     {options?.map((option) => (
                                         <button
                                             key={option.country}
-                                            onClick={() => handleChange(option, close)}
-                                            className={`flex items-center w-full px-3 py-2.5 text-sm rounded-md transition-colors ${
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                handleChange(option, close);
+                                            }}
+                                            disabled={isUpdating}
+                                            className={`flex items-center w-full px-3 py-2.5 text-sm rounded-md transition-all ${
                                                 current?.country === option.country
                                                     ? "bg-ui-bg-base-pressed text-ui-fg-base font-semibold"
                                                     : "text-ui-fg-subtle hover:bg-ui-bg-base-hover hover:text-ui-fg-base"
-                                            }`}
+                                            } ${isUpdating ? "opacity-50 cursor-not-allowed" : ""}`}
                                         >
                                             <FlagIcon code={option.country} />
                                             <span className="ml-3 truncate text-left flex-1">{option.label}</span>
                                             {current?.country === option.country && (
-                                                <div className="w-1.5 h-1.5 rounded-full bg-ui-fg-interactive" />
+                                                <div className="ml-2 w-1.5 h-1.5 rounded-full bg-ui-fg-interactive" />
                                             )}
                                         </button>
                                     ))}

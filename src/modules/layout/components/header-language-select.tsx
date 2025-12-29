@@ -1,7 +1,7 @@
 "use client"
 
 import { Popover, Transition } from "@headlessui/react"
-import { Fragment, useEffect, useMemo, useState, useTransition, useRef } from "react"
+import { Fragment, useEffect, useMemo, useState, useRef } from "react"
 import ReactCountryFlag from "react-country-flag"
 import { useRouter } from "next/navigation"
 import { updateLocale } from "@lib/data/locale-actions"
@@ -42,7 +42,8 @@ type HeaderLanguageSelectProps = {
 
 const HeaderLanguageSelect = ({ locales, currentLocale }: HeaderLanguageSelectProps) => {
     const [current, setCurrent] = useState<{ code: string; name: string; countryCode: string; localizedName: string } | null>(null)
-    const [isPending, startTransition] = useTransition()
+    // 放弃 useTransition，改为手动 loading 以兼容 UC 浏览器内核
+    const [isUpdating, setIsUpdating] = useState(false)
     const router = useRouter()
 
     const buttonRef = useRef<HTMLButtonElement>(null)
@@ -67,7 +68,6 @@ const HeaderLanguageSelect = ({ locales, currentLocale }: HeaderLanguageSelectPr
         }
     }, [options, currentLocale])
 
-    // 核心修复：固定比例的语言/国旗渲染器，防止跳动
     const FlagIcon = ({ code }: { code: string }) => (
         <div
             className="relative flex-shrink-0 bg-ui-bg-subtle rounded-[2px] overflow-hidden"
@@ -76,9 +76,7 @@ const HeaderLanguageSelect = ({ locales, currentLocale }: HeaderLanguageSelectPr
                 height: '15px',
             }}
         >
-            {/* 骨架屏占位图层 */}
             <div className="absolute inset-0 bg-gray-200 animate-pulse" />
-
             <ReactCountryFlag
                 svg
                 countryCode={code}
@@ -96,30 +94,41 @@ const HeaderLanguageSelect = ({ locales, currentLocale }: HeaderLanguageSelectPr
     )
 
     const handleMouseEnter = (open: boolean) => {
-        // 仅在有鼠标的设备上启用悬停
-        if (window.matchMedia("(pointer: fine)").matches) {
+        if (typeof window !== 'undefined' && window.matchMedia("(pointer: fine)").matches) {
             if (timeoutRef.current) clearTimeout(timeoutRef.current)
             if (!open) buttonRef.current?.click()
         }
     }
 
     const handleMouseLeave = (open: boolean, close: () => void) => {
-        if (window.matchMedia("(pointer: fine)").matches) {
+        if (typeof window !== 'undefined' && window.matchMedia("(pointer: fine)").matches) {
             timeoutRef.current = setTimeout(() => {
                 if (open) close()
             }, 200)
         }
     }
 
-    const handleChange = (option: any, close: () => void) => {
-        startTransition(async () => {
+    // 修复 UC 浏览器下 startTransition 导致的崩溃问题
+    const handleChange = async (option: any, close: () => void) => {
+        if (isUpdating) return
+
+        setIsUpdating(true)
+        try {
             await updateLocale(option.code)
             close()
+
+            // 触发自定义事件
             if (typeof window !== "undefined") {
                 window.dispatchEvent(new Event("locale-changed"))
             }
+
+            // 使用标准 refresh
             router.refresh()
-        })
+        } catch (error) {
+            console.error("Failed to update locale:", error)
+        } finally {
+            setIsUpdating(false)
+        }
     }
 
     return (
@@ -132,6 +141,10 @@ const HeaderLanguageSelect = ({ locales, currentLocale }: HeaderLanguageSelectPr
                 >
                     <Popover.Button
                         ref={buttonRef}
+                        // 彻底阻止冒泡，解决 UC 浏览器在移动端菜单内的干扰
+                        onClick={(e) => {
+                            e.stopPropagation()
+                        }}
                         className={`flex items-center gap-x-2 text-ui-fg-subtle hover:text-ui-fg-base transition-all py-1.5 px-3 rounded-md min-w-[100px] outline-none ${
                             open ? 'bg-ui-bg-subtle-hover text-ui-fg-base' : ''
                         }`}
@@ -151,6 +164,7 @@ const HeaderLanguageSelect = ({ locales, currentLocale }: HeaderLanguageSelectPr
 
                     <Transition
                         as={Fragment}
+                        // 如果在移动端 UC 依然觉得“跳”，可以将 duration 设为 0 或者完全移除 Transition
                         enter="transition duration-100 ease-out"
                         enterFrom="opacity-0 scale-95"
                         enterTo="opacity-100 scale-100"
@@ -161,7 +175,6 @@ const HeaderLanguageSelect = ({ locales, currentLocale }: HeaderLanguageSelectPr
                         <Popover.Panel
                             className="absolute right-0 z-[100] mt-2 w-[240px] origin-top-right overflow-hidden bg-white rounded-lg shadow-xl ring-1 ring-black/5 focus:outline-none"
                         >
-                            {/* 解决 PC 端滑动间隙问题 */}
                             <div className="absolute -top-2 h-2 w-full bg-transparent" />
 
                             <div className="max-h-80 overflow-y-auto overscroll-contain">
@@ -172,13 +185,16 @@ const HeaderLanguageSelect = ({ locales, currentLocale }: HeaderLanguageSelectPr
                                     {options.map((option) => (
                                         <button
                                             key={option.code}
-                                            onClick={() => handleChange(option, close)}
-                                            disabled={isPending}
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                handleChange(option, close);
+                                            }}
+                                            disabled={isUpdating}
                                             className={`flex items-center w-full px-3 py-2.5 text-sm rounded-md transition-all ${
                                                 current?.code === option.code
                                                     ? "bg-ui-bg-base-pressed text-ui-fg-base font-semibold"
                                                     : "text-ui-fg-subtle hover:bg-ui-bg-base-hover hover:text-ui-fg-base"
-                                            } ${isPending ? "opacity-50 cursor-not-allowed" : ""}`}
+                                            } ${isUpdating ? "opacity-50 cursor-not-allowed" : ""}`}
                                         >
                                             <FlagIcon code={option.countryCode} />
                                             <span className="ml-3 truncate text-left flex-1">{option.localizedName}</span>

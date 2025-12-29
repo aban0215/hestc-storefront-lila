@@ -96,17 +96,19 @@ export default function MobileMenu({
                     </div>
 
                     {/* Preferences Footer */}
-                    <div className="p-5 bg-gray-50/80 border-t border-gray-100 flex-shrink-0">
+                    <div className="p-5 bg-gray-50/80 border-t border-gray-100 flex-shrink-0 max-h-[40vh] overflow-y-auto custom-scrollbar">
                         <div className="flex items-center gap-x-2 mb-4 text-gray-500 px-1">
                             <Globe size={13} strokeWidth={2} />
                             <span className="text-[10px] uppercase tracking-[0.15em] font-bold">Preferences</span>
                         </div>
 
                         <div className="space-y-2 mobile-preference-container">
-                            <div className="relative bg-white rounded-xl shadow-sm border border-gray-200/50 min-h-[48px] flex items-center overflow-visible">
+                            {/* 国家选择 */}
+                            <div className="relative bg-white rounded-xl shadow-sm border border-gray-200/50 min-h-[48px] flex items-center">
                                 <HeaderCountrySelect regions={regions} />
                             </div>
-                            <div className="relative bg-white rounded-xl shadow-sm border border-gray-200/50 min-h-[48px] flex items-center overflow-visible">
+                            {/* 语言选择 */}
+                            <div className="relative bg-white rounded-xl shadow-sm border border-gray-200/50 min-h-[48px] flex items-center">
                                 <HeaderLanguageSelect locales={locales} currentLocale={currentLocale} />
                             </div>
                         </div>
@@ -119,59 +121,76 @@ export default function MobileMenu({
             </div>
 
             <style jsx global>{`
-                /* 统一按钮内部样式 */
-                .mobile-preference-container button {
-                    width: 100% !important;
-                    height: 48px !important;
-                    display: flex !important;
-                    align-items: center !important;
-                    justify-content: flex-start !important;
-                    padding: 0 16px !important;
-                    background: transparent !important;
-                    border: none !important;
-                    font-size: 11px !important;
-                    font-weight: 600 !important;
-                    color: #1f2937 !important;
-                    text-transform: uppercase !important;
-                }
+    /* 1. 统一 Preferences 区域滚动条样式 */
+    .custom-scrollbar::-webkit-scrollbar {
+        width: 3px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        background-color: #e5e7eb;
+        border-radius: 10px;
+    }
 
-                /* 修正 Popover 面板在移动端抽屉内的定位：强制相对于外层卡片 */
-                .mobile-preference-container [data-headlessui-state="open"] + div,
-                .mobile-preference-container div[id^="headlessui-popover-panel"] {
-                    position: absolute !important;
-                    left: 0 !important;
-                    top: 100% !important;
-                    width: 100% !important;
-                    min-width: 100% !important;
-                    margin-top: 4px !important;
-                    transform: none !important;
-                    z-index: 99999 !important;
-                }
+    /* 2. 统一按钮基础样式：确保文字、国旗对齐 */
+    .mobile-preference-container button {
+        width: 100% !important;
+        height: 48px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: flex-start !important;
+        padding: 0 16px !important;
+        background: transparent !important;
+        border: none !important;
+        font-size: 11px !important;
+        font-weight: 600 !important;
+        color: #1f2937 !important;
+        text-transform: uppercase !important;
+    }
 
-                /* 旗帜微调 */
-                .mobile-preference-container img {
-                    margin-right: 12px !important;
-                    flex-shrink: 0;
-                }
-                
-                .mobile-preference-container .custom-scrollbar::-webkit-scrollbar {
-                        width: 4px;
-                    }
-                    .mobile-preference-container .custom-scrollbar::-webkit-scrollbar-thumb {
-                        background-color: #e5e7eb;
-                        border-radius: 10px;
-                    }
-                
-                    /* 修复手机端点击穿透和滚动锁定问题 */
-                    .mobile-preference-container [role="listbox"],
-                    .mobile-preference-container div[id^="headlessui-popover-panel"] {
-                        /* 使用 max-vh 防止超出手机屏幕 */
-                        max-height: 40vh !important; 
-                        overflow-y: auto !important;
-                        -webkit-overflow-scrolling: touch;
-                    }
-    
-            `}</style>
+    /* 3. 核心：强制 Popover 面板 100% 宽度对齐 */
+    /* 我们需要覆盖 Headless UI 自动生成的样式 */
+    .mobile-preference-container div[id^="headlessui-popover-panel"] {
+        position: relative !important; /* 改为相对定位，让它撑开父容器并触发 footer 滚动条 */
+        top: 0 !important;
+        left: 0 !important;
+        /* 关键：强制 100% 宽度并取消任何偏移 */
+        width: 100% !important; 
+        min-width: 100% !important;
+        margin-top: 4px !important;
+        margin-bottom: 8px !important;
+        transform: none !important;
+        z-index: 100 !important;
+        /* 视觉优化 */
+        background-color: #f9fafb !important; /* 浅灰色背景与白色卡片区分 */
+        border-radius: 8px !important;
+        box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.05) !important;
+        border: 1px solid #f3f4f6 !important;
+        max-height: 250px !important; 
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    /* 4. 强制面板内的按钮也 100% 铺满，确保点击区域一致 */
+    .mobile-preference-container div[id^="headlessui-popover-panel"] button {
+        width: 100% !important;
+        padding: 12px 16px !important;
+        border-bottom: 1px solid #f3f4f6 !important;
+    }
+    .mobile-preference-container div[id^="headlessui-popover-panel"] button:last-child {
+        border-bottom: none !important;
+    }
+
+    /* 5. 旗帜和图标间距微调 */
+    .mobile-preference-container img, 
+    .mobile-preference-container .react-country-flag {
+        margin-right: 12px !important;
+        flex-shrink: 0;
+    }
+
+    /* 6. 解决 Headless UI 默认的弹出层宽度限制 */
+    .mobile-preference-container [data-headlessui-state="open"] {
+        width: 100% !important;
+    }
+`}</style>
         </>
     )
 }

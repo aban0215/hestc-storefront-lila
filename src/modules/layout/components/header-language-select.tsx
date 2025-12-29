@@ -8,6 +8,7 @@ import { updateLocale } from "@lib/data/locale-actions"
 import { Locale } from "@lib/data/locales"
 import { ChevronDown } from "@medusajs/icons"
 
+// 提取国家代码逻辑
 const getCountryCodeFromLocale = (localeCode: string): string => {
     try {
         const locale = new Intl.Locale(localeCode)
@@ -20,6 +21,7 @@ const getCountryCodeFromLocale = (localeCode: string): string => {
     }
 }
 
+// 提取本地化语言名称
 const getLocalizedLanguageName = (
     code: string,
     fallbackName: string,
@@ -65,17 +67,48 @@ const HeaderLanguageSelect = ({ locales, currentLocale }: HeaderLanguageSelectPr
         }
     }, [options, currentLocale])
 
+    // 核心修复：固定比例的语言/国旗渲染器，防止跳动
+    const FlagIcon = ({ code }: { code: string }) => (
+        <div
+            className="relative flex-shrink-0 bg-ui-bg-subtle rounded-[2px] overflow-hidden"
+            style={{
+                width: '20px',
+                height: '15px',
+            }}
+        >
+            {/* 骨架屏占位图层 */}
+            <div className="absolute inset-0 bg-gray-200 animate-pulse" />
+
+            <ReactCountryFlag
+                svg
+                countryCode={code}
+                style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover',
+                    display: 'block'
+                }}
+            />
+        </div>
+    )
+
     const handleMouseEnter = (open: boolean) => {
-        if (timeoutRef.current) clearTimeout(timeoutRef.current)
-        if (!open) {
-            buttonRef.current?.click()
+        // 仅在有鼠标的设备上启用悬停
+        if (window.matchMedia("(pointer: fine)").matches) {
+            if (timeoutRef.current) clearTimeout(timeoutRef.current)
+            if (!open) buttonRef.current?.click()
         }
     }
 
     const handleMouseLeave = (open: boolean, close: () => void) => {
-        timeoutRef.current = setTimeout(() => {
-            if (open) close()
-        }, 150)
+        if (window.matchMedia("(pointer: fine)").matches) {
+            timeoutRef.current = setTimeout(() => {
+                if (open) close()
+            }, 200)
+        }
     }
 
     const handleChange = (option: any, close: () => void) => {
@@ -99,21 +132,14 @@ const HeaderLanguageSelect = ({ locales, currentLocale }: HeaderLanguageSelectPr
                 >
                     <Popover.Button
                         ref={buttonRef}
-                        onClick={(e) => {
-                            e.stopPropagation(); // 阻止事件向上传递给 MobileMenu 的滚动层
-                        }}
                         className={`flex items-center gap-x-2 text-ui-fg-subtle hover:text-ui-fg-base transition-all py-1.5 px-3 rounded-md min-w-[100px] outline-none ${
                             open ? 'bg-ui-bg-subtle-hover text-ui-fg-base' : ''
                         }`}
                     >
                         {current ? (
                             <>
-                                <ReactCountryFlag
-                                    svg
-                                    style={{ width: "18px", height: "18px", borderRadius: "2px" }}
-                                    countryCode={current.countryCode}
-                                />
-                                <span className="text-sm font-medium whitespace-nowrap">
+                                <FlagIcon code={current.countryCode} />
+                                <span className="text-sm font-bold whitespace-nowrap">
                                     {current.localizedName.split(' ')[0]}
                                 </span>
                             </>
@@ -125,23 +151,21 @@ const HeaderLanguageSelect = ({ locales, currentLocale }: HeaderLanguageSelectPr
 
                     <Transition
                         as={Fragment}
-                        show={open}
                         enter="transition duration-100 ease-out"
-                        enterFrom="transform opacity-0 scale-95"
-                        enterTo="transform opacity-100 scale-100"
+                        enterFrom="opacity-0 scale-95"
+                        enterTo="opacity-100 scale-100"
                         leave="transition duration-75 ease-in"
-                        leaveFrom="transform opacity-100 scale-100"
-                        leaveTo="transform opacity-0 scale-95"
+                        leaveFrom="opacity-100 scale-100"
+                        leaveTo="opacity-0 scale-95"
                     >
                         <Popover.Panel
-                            static
-                            className="absolute right-0 z-50 mt-1.5 w-max min-w-full origin-top-right overflow-hidden bg-white rounded-lg shadow-xl ring-1 ring-black ring-opacity-5 focus:outline-none"
+                            className="absolute right-0 z-[100] mt-2 w-[240px] origin-top-right overflow-hidden bg-white rounded-lg shadow-xl ring-1 ring-black/5 focus:outline-none"
                         >
-                            {/* 隐形连接层：让鼠标从按钮滑动到菜单时不会断开 */}
-                            <div className="absolute -top-2 left-0 right-0 h-2 bg-transparent" />
+                            {/* 解决 PC 端滑动间隙问题 */}
+                            <div className="absolute -top-2 h-2 w-full bg-transparent" />
 
-                            <div className="max-h-80 overflow-y-auto">
-                                <div className="px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-ui-fg-muted border-b bg-ui-bg-subtle/50">
+                            <div className="max-h-80 overflow-y-auto overscroll-contain">
+                                <div className="sticky top-0 z-10 px-4 py-2.5 text-[10px] font-bold uppercase tracking-widest text-ui-fg-muted border-b bg-gray-50/95 backdrop-blur-sm">
                                     Select Language
                                 </div>
                                 <div className="p-1">
@@ -150,20 +174,16 @@ const HeaderLanguageSelect = ({ locales, currentLocale }: HeaderLanguageSelectPr
                                             key={option.code}
                                             onClick={() => handleChange(option, close)}
                                             disabled={isPending}
-                                            className={`flex items-center w-full px-3 py-2.5 text-sm rounded-md transition-colors ${
+                                            className={`flex items-center w-full px-3 py-2.5 text-sm rounded-md transition-all ${
                                                 current?.code === option.code
-                                                    ? "bg-ui-bg-base-pressed text-ui-fg-base font-medium"
+                                                    ? "bg-ui-bg-base-pressed text-ui-fg-base font-semibold"
                                                     : "text-ui-fg-subtle hover:bg-ui-bg-base-hover hover:text-ui-fg-base"
                                             } ${isPending ? "opacity-50 cursor-not-allowed" : ""}`}
                                         >
-                                            <ReactCountryFlag
-                                                svg
-                                                style={{ width: "18px", height: "18px", marginRight: "10px", flexShrink: 0, borderRadius: "2px" }}
-                                                countryCode={option.countryCode}
-                                            />
-                                            <span className="truncate pr-4">{option.localizedName}</span>
+                                            <FlagIcon code={option.countryCode} />
+                                            <span className="ml-3 truncate text-left flex-1">{option.localizedName}</span>
                                             {current?.code === option.code && (
-                                                <div className="ml-auto w-1.5 h-1.5 rounded-full bg-ui-fg-interactive" />
+                                                <div className="ml-2 w-1.5 h-1.5 rounded-full bg-ui-fg-interactive" />
                                             )}
                                         </button>
                                     ))}

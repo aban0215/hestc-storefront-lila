@@ -75,49 +75,28 @@ const HeaderCountrySelect = ({ regions }: HeaderCountrySelectProps) => {
                     onMouseEnter={() => handleMouseEnter(open)}
                     onMouseLeave={() => handleMouseLeave(open, close)}
                 >
-                    <Popover.Panel
-                        static
-                        className="absolute right-0 z-[100] mt-1.5 w-max min-w-full origin-top-right overflow-hidden bg-white rounded-lg shadow-xl ring-1 ring-black ring-opacity-5 focus:outline-none"
+                    <Popover.Button
+                        ref={buttonRef}
+                        className={`flex items-center gap-x-2 text-ui-fg-subtle hover:text-ui-fg-base transition-all py-1.5 px-3 rounded-md min-w-[70px] outline-none w-full justify-start ${
+                            open ? 'bg-ui-bg-subtle-hover text-ui-fg-base' : ''
+                        }`}
                     >
-                        {/* 隐形连接层 */}
-                        <div className="absolute -top-2 left-0 right-0 h-2 bg-transparent" />
-
-                        {/* 核心修改点：限制最大高度并允许内部滚动 */}
-                        <div className="max-h-[300px] overflow-y-auto overscroll-contain custom-scrollbar">
-                            <div className="px-4 py-2 text-[10px] font-bold uppercase tracking-wider text-ui-fg-muted border-b bg-ui-bg-subtle/50 sticky top-0 bg-white z-10">
-                                Select Country/Region
-                            </div>
-                            <div className="p-1">
-                                {options?.map((option, index) => (
-                                    <button
-                                        key={index}
-                                        onClick={() => handleChange(option!, close)}
-                                        className={`flex items-center w-full px-3 py-2.5 text-sm rounded-md transition-colors ${
-                                            current?.country === option?.country
-                                                ? "bg-ui-bg-base-pressed text-ui-fg-base font-medium"
-                                                : "text-ui-fg-subtle hover:bg-ui-bg-base-hover hover:text-ui-fg-base"
-                                        }`}
-                                    >
-                                        <ReactCountryFlag
-                                            svg
-                                            style={{
-                                                width: "18px",
-                                                height: "18px",
-                                                marginRight: "10px",
-                                                flexShrink: 0,
-                                                borderRadius: "2px"
-                                            }}
-                                            countryCode={option?.country ?? ""}
-                                        />
-                                        <span className="truncate pr-4">{option?.label}</span>
-                                        {current?.country === option?.country && (
-                                            <div className="ml-auto w-1.5 h-1.5 rounded-full bg-ui-fg-interactive" />
-                                        )}
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-                    </Popover.Panel>
+                        {current ? (
+                            <>
+                                <ReactCountryFlag
+                                    svg
+                                    style={{ width: "18px", height: "18px", borderRadius: "2px" }}
+                                    countryCode={current.country}
+                                />
+                                <span className="text-sm font-medium whitespace-nowrap uppercase">
+                {current.country} {/* 这里建议用 label 显示全名，或保留 current.country 显示简写 */}
+            </span>
+                            </>
+                        ) : (
+                            <span className="text-sm font-medium">Country</span>
+                        )}
+                        <ChevronDown className={`h-4 w-4 ml-auto transition-transform duration-200 ${open ? 'rotate-180' : ''}`} />
+                    </Popover.Button>
 
                     <Transition
                         as={Fragment}

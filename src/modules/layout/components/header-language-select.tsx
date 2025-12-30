@@ -42,7 +42,6 @@ type HeaderLanguageSelectProps = {
 
 const HeaderLanguageSelect = ({ locales, currentLocale }: HeaderLanguageSelectProps) => {
     const [current, setCurrent] = useState<{ code: string; name: string; countryCode: string; localizedName: string } | null>(null)
-    // 放弃 useTransition，改为手动 loading 以兼容 UC 浏览器内核
     const [isUpdating, setIsUpdating] = useState(false)
     const router = useRouter()
 
@@ -108,7 +107,6 @@ const HeaderLanguageSelect = ({ locales, currentLocale }: HeaderLanguageSelectPr
         }
     }
 
-    // 修复 UC 浏览器下 startTransition 导致的崩溃问题
     const handleChange = async (option: any, close: () => void) => {
         if (isUpdating) return
 
@@ -117,12 +115,10 @@ const HeaderLanguageSelect = ({ locales, currentLocale }: HeaderLanguageSelectPr
             await updateLocale(option.code)
             close()
 
-            // 触发自定义事件
             if (typeof window !== "undefined") {
                 window.dispatchEvent(new Event("locale-changed"))
             }
 
-            // 使用标准 refresh
             router.refresh()
         } catch (error) {
             console.error("Failed to update locale:", error)
@@ -132,20 +128,19 @@ const HeaderLanguageSelect = ({ locales, currentLocale }: HeaderLanguageSelectPr
     }
 
     return (
-        <Popover className="relative inline-block">
+        <Popover className="relative inline-block w-full sm:w-auto">
             {({ open, close }) => (
                 <div
-                    className="relative"
+                    className="relative w-full"
                     onMouseEnter={() => handleMouseEnter(open)}
                     onMouseLeave={() => handleMouseLeave(open, close)}
                 >
                     <Popover.Button
                         ref={buttonRef}
-                        // 彻底阻止冒泡，解决 UC 浏览器在移动端菜单内的干扰
                         onClick={(e) => {
                             e.stopPropagation()
                         }}
-                        className={`flex items-center gap-x-2 text-ui-fg-subtle hover:text-ui-fg-base transition-all py-1.5 px-3 rounded-md min-w-[100px] outline-none ${
+                        className={`flex items-center gap-x-2 text-ui-fg-subtle hover:text-ui-fg-base transition-all py-1.5 px-3 rounded-md w-full sm:min-w-[100px] outline-none ${
                             open ? 'bg-ui-bg-subtle-hover text-ui-fg-base' : ''
                         }`}
                     >
@@ -164,24 +159,35 @@ const HeaderLanguageSelect = ({ locales, currentLocale }: HeaderLanguageSelectPr
 
                     <Transition
                         as={Fragment}
-                        // 如果在移动端 UC 依然觉得“跳”，可以将 duration 设为 0 或者完全移除 Transition
                         enter="transition duration-100 ease-out"
-                        enterFrom="opacity-0 scale-95"
-                        enterTo="opacity-100 scale-100"
+                        enterFrom="opacity-0 translate-y-[-8px]"
+                        enterTo="opacity-100 translate-y-0"
                         leave="transition duration-75 ease-in"
-                        leaveFrom="opacity-100 scale-100"
-                        leaveTo="opacity-0 scale-95"
+                        leaveFrom="opacity-100 translate-y-0"
+                        leaveTo="opacity-0 translate-y-[-8px]"
                     >
                         <Popover.Panel
-                            className="absolute right-0 z-[100] mt-2 w-[240px] origin-top-right overflow-hidden bg-white rounded-lg shadow-xl ring-1 ring-black/5 focus:outline-none"
+                            /**
+                             * 核心修改：
+                             * 1. relative sm:absolute -> 移动端撑开容器，PC端悬浮。
+                             * 2. w-full sm:w-[240px] -> 移动端宽度自适应。
+                             * 3. 移除 overflow-hidden -> 防止阴影或内容被切断。
+                             */
+                            className="relative sm:absolute right-0 z-[110] mt-2 w-full sm:w-[240px] origin-top-right bg-white rounded-lg shadow-xl ring-1 ring-black/5 focus:outline-none"
                         >
-                            <div className="absolute -top-2 h-2 w-full bg-transparent" />
+                            {/* PC端连接层 */}
+                            <div className="hidden sm:block absolute -top-2 h-2 w-full bg-transparent" />
 
-                            <div className="max-h-80 overflow-y-auto overscroll-contain">
+                            <div className="flex flex-col w-full">
                                 <div className="sticky top-0 z-10 px-4 py-2.5 text-[10px] font-bold uppercase tracking-widest text-ui-fg-muted border-b bg-gray-50/95 backdrop-blur-sm">
                                     Select Language
                                 </div>
-                                <div className="p-1">
+
+                                {/* 滚动列表高度限制 */}
+                                <div
+                                    className="max-h-[240px] sm:max-h-80 overflow-y-auto overscroll-contain p-1 custom-scrollbar"
+                                    style={{ WebkitOverflowScrolling: 'touch' }}
+                                >
                                     {options.map((option) => (
                                         <button
                                             key={option.code}

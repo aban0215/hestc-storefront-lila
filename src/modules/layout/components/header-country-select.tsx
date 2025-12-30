@@ -126,8 +126,8 @@ const HeaderCountrySelect = ({ regions }: HeaderCountrySelectProps) => {
                     >
                         {current && <FlagIcon code={current.country} />}
                         <span className="text-sm font-bold uppercase tabular-nums">
-              {current?.country || "Select"}
-            </span>
+                            {current?.country || "Select"}
+                        </span>
                         <ChevronDown
                             className={`h-4 w-4 ml-auto transition-transform duration-200 ${
                                 open ? "rotate-180" : ""
@@ -146,24 +146,29 @@ const HeaderCountrySelect = ({ regions }: HeaderCountrySelectProps) => {
                     >
                         <Popover.Panel
                             /**
-                             * 核心修复：
-                             * 1. sm:absolute: 仅在桌面端悬浮
-                             * 2. relative: 在移动端作为文档流的一部分，撑开 MobileMenu
-                             * 3. max-md:w-full: 移动端宽度撑满
+                             * 核心修复逻辑：
+                             * 1. relative sm:absolute -> 手机端相对定位（撑开菜单），PC端绝对定位（悬浮）。
+                             * 2. left-0 right-0 -> 手机端全宽显示，防止偏出屏幕。
+                             * 3. 去掉 overflow-hidden -> 保证内部自定义滚动条不被切断。
                              */
-                            className="relative sm:absolute right-0 z-[110] mt-2 w-full sm:w-[240px] origin-top-right bg-white rounded-lg shadow-xl ring-1 ring-black/5 focus:outline-none"
+                            className="relative sm:absolute left-0 right-0 sm:left-auto sm:right-0 z-[110] mt-2 w-full sm:w-[240px] origin-top bg-white rounded-lg shadow-xl ring-1 ring-black/5 focus:outline-none"
                         >
-                            {/* 仅在桌面端显示的隐形连接层 */}
+                            {/* 仅在桌面端显示的连接层 */}
                             <div className="hidden sm:block absolute -top-2 h-2 w-full bg-transparent" />
 
-                            <div className="flex flex-col">
-                                {/* 粘性标题 */}
+                            <div className="flex flex-col w-full">
                                 <div className="sticky top-0 z-10 px-4 py-2.5 text-[10px] font-bold uppercase tracking-widest text-ui-fg-muted border-b bg-gray-50/95 backdrop-blur-sm">
                                     Shipping to
                                 </div>
 
-                                {/* 滚动列表容器：设置明确的最大高度，解决显示不全问题 */}
-                                <div className="max-h-[280px] sm:max-h-[40vh] overflow-y-auto overscroll-contain p-1 custom-scrollbar">
+                                {/* 滚动容器：
+                                   1. max-h-[240px] -> 严格限制高度，确保在手机菜单中不会顶到底部。
+                                   2. -webkit-overflow-scrolling: touch -> 确保 iOS 滚动丝滑。
+                                */}
+                                <div
+                                    className="max-h-[240px] sm:max-h-[40vh] overflow-y-auto overscroll-contain p-1 custom-scrollbar"
+                                    style={{ WebkitOverflowScrolling: 'touch' }}
+                                >
                                     {options?.map((option) => (
                                         <button
                                             key={option.country}
@@ -180,8 +185,8 @@ const HeaderCountrySelect = ({ regions }: HeaderCountrySelectProps) => {
                                         >
                                             <FlagIcon code={option.country} />
                                             <span className="ml-3 truncate text-left flex-1">
-                        {option.label}
-                      </span>
+                                                {option.label}
+                                            </span>
                                             {current?.country === option.country && (
                                                 <div className="ml-2 w-1.5 h-1.5 rounded-full bg-ui-fg-interactive" />
                                             )}

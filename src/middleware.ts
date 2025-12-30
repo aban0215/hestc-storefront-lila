@@ -63,25 +63,21 @@ async function getCountryCode(
     regionMap: Map<string, HttpTypes.StoreRegion | number>
 ) {
   try {
-    let countryCode
-
-    const vercelCountryCode = request.headers
-        .get("x-vercel-ip-country")
-        ?.toLowerCase()
-
     const urlCountryCode = request.nextUrl.pathname.split("/")[1]?.toLowerCase()
 
+    // 优先级 1: 如果 URL 已经有了合法国家码，保持现状
     if (urlCountryCode && regionMap.has(urlCountryCode)) {
-      countryCode = urlCountryCode
-    } else if (vercelCountryCode && regionMap.has(vercelCountryCode)) {
-      countryCode = vercelCountryCode
-    } else if (regionMap.has(DEFAULT_REGION)) {
-      countryCode = DEFAULT_REGION
-    } else if (regionMap.keys().next().value) {
-      countryCode = regionMap.keys().next().value
+      return urlCountryCode
     }
 
-    return countryCode
+    // 优先级 2: 核心修改 - 只要 URL 没国家码，默认强制给 DEFAULT_REGION (us)
+    // 这样就阻止了自动根据 IP 重定向
+    if (regionMap.has(DEFAULT_REGION)) {
+      return DEFAULT_REGION
+    }
+
+    // 优先级 3: 兜底逻辑
+    return regionMap.keys().next().value
   } catch (error) {
     if (process.env.NODE_ENV === "development") {
       console.error("Middleware.ts: Error getting the country code.", error)
@@ -89,97 +85,67 @@ async function getCountryCode(
   }
 }
 
+
 export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname
   const userAgent = request.headers.get("user-agent") || ""
-
-  // 1. 爬虫识别逻辑
   const isBot = /googlebot|bingbot|baiduspider|twitterbot|facebookexternalhit/i.test(userAgent)
 
   let cacheIdCookie = request.cookies.get("_medusa_cache_id")
   let cacheId = cacheIdCookie?.value || crypto.randomUUID()
 
   try {
-    // 2. 获取 Region 地图数据
     const regionMap = await getRegionMap(cacheId)
+    if (!regionMap || regionMap.size === 0) return NextResponse.next()
 
-    // 如果获取不到 regionMap，直接放行，避免 500
-    if (!regionMap || regionMap.size === 0) {
-      console.error("Middleware: No regions found in Medusa.")
-      return NextResponse.next()
-    }
-
-    // 3. 获取并校验国家码
+    // 1. 获取目标国家码 (此时如果不带路径，这里返回的是 'us')
     let countryCode = await getCountryCode(request, regionMap)
 
-    // --- 核心修改：国家码合法性校验与 US 兜底 ---
-    // 获取 Vercel 检测到的真实国家
+    // 2. 识别 Vercel IP 真实国家 (用于给 Banner 判断)
     const vercelDetectedCountry = request.headers.get("x-vercel-ip-country")?.toLowerCase()
-
-    // 如果 getCountryCode 返回的国家不在 regionMap 中，或者无法识别，统一使用 'us'
-    if (!countryCode || !regionMap.has(countryCode)) {
-      countryCode = 'us'
-    }
-    // -----------------------------------------
 
     const urlCountryCode = pathname.split("/")[1]?.toLowerCase()
     const urlHasCountryCode = urlCountryCode && regionMap.has(urlCountryCode)
 
-    // 4. 针对爬虫的特殊处理
-    if (isBot && urlHasCountryCode) {
-      return NextResponse.next()
-    }
+    if (isBot && urlHasCountryCode) return NextResponse.next()
 
-    // 5. 处理正常用户的 Cookie 和逻辑
+    // 情况 A: URL 已经有国家码了
     if (urlHasCountryCode) {
       const response = NextResponse.next()
-
-      if (!cacheIdCookie) {
-        response.cookies.set("_medusa_cache_id", cacheId, {
-          maxAge: 60 * 60 * 24,
-        })
-      }
-
-      // 将检测到的国家注入 Header（给 Banner 组件使用）
-      // 如果检测到的国家不在配置内，这里也建议传 'us' 或保持原样供 UI 判断
       if (vercelDetectedCountry) {
+        // 即使在 /us，也要把真实的 'cn' 传给前端用于显示 Banner
         response.headers.set("x-detected-country", vercelDetectedCountry)
       }
-
-      // 关键：同时注入当前合法的 countryCode 到 Request Header，方便 Server Components (如 Layout) 获取
       response.headers.set("x-current-country", urlCountryCode)
-
       return response
     }
 
-    // 6. 检查是否为静态资源
+    // 排除静态资源
     if (pathname.includes(".") || pathname.startsWith("/api/")) {
       return NextResponse.next()
     }
 
-    // 7. 重定向逻辑：当 URL 没有任何合法国家代码时
-    const redirectPath = pathname === "/" ? "" : pathname
-    const queryString = request.nextUrl.search ? request.nextUrl.search : ""
-
-    if (!urlHasCountryCode && countryCode) {
+    // 情况 B: URL 没有国家码，执行重定向到 /us
+    if (countryCode) {
+      const redirectPath = pathname === "/" ? "" : pathname
+      const queryString = request.nextUrl.search ? request.nextUrl.search : ""
       const redirectUrl = `${request.nextUrl.origin}/${countryCode}${redirectPath}${queryString}`
+
       const response = NextResponse.redirect(redirectUrl, 307)
 
-      response.cookies.set("_medusa_cache_id", cacheId, {
-        maxAge: 60 * 60 * 24,
-      })
-
+      // 注意：重定向响应也可以携带 Header 给后续页面使用
+      if (vercelDetectedCountry) {
+        response.headers.set("x-detected-country", vercelDetectedCountry)
+      }
       return response
     }
-
   } catch (error) {
-    // 容错处理：如果中间件执行报错（如后端 500），直接放行，不影响用户访问首页
     console.error("Middleware Error:", error)
     return NextResponse.next()
   }
-
   return NextResponse.next()
 }
+
 
 
 export const config = {

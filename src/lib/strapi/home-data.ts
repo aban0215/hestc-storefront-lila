@@ -87,13 +87,19 @@ export interface HomeCategorySectionData {
 // 更新getHomeCategorySection函数
 export async function getHomeCategorySection(locale: string): Promise<HomeCategorySectionData | null> {
     try {
+
+        const apiUrl = `${STRAPI_BASE_URL}/api/lila-home-category-section?populate[featuredCategories][populate]=image&locale=${locale}`;
+
+        // 2. 打印访问的 URL
+        console.log("Fetching Strapi Category Section from:", apiUrl);
+
         const res = await fetch(
             `${STRAPI_BASE_URL}/api/lila-home-category-section?populate[featuredCategories][populate]=image&locale=${locale}`,
             {
                 next: { revalidate: 3600 }
             }
         )
-
+        console.log()
         if (!res.ok) {
             throw new Error(`HTTP error! status: ${res.status}`)
         }

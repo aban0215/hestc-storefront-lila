@@ -58,6 +58,9 @@ async function getRegionMap(cacheId: string) {
   return regionMapCache.regionMap
 }
 
+/**
+ * 获取目标国家码逻辑
+ */
 async function getCountryCode(
     request: NextRequest,
     regionMap: Map<string, HttpTypes.StoreRegion | number>
@@ -65,18 +68,17 @@ async function getCountryCode(
   try {
     const urlCountryCode = request.nextUrl.pathname.split("/")[1]?.toLowerCase()
 
-    // 优先级 1: 如果 URL 已经有了合法国家码，保持现状
+    // 1. 如果 URL 中已经有合法国家码，直接使用它
     if (urlCountryCode && regionMap.has(urlCountryCode)) {
       return urlCountryCode
     }
 
-    // 优先级 2: 核心修改 - 只要 URL 没国家码，默认强制给 DEFAULT_REGION (us)
-    // 这样就阻止了自动根据 IP 重定向
+    // 2. 核心逻辑：当 URL 没国家码时，无视 IP 识别，强制默认跳转到 DEFAULT_REGION (us)
     if (regionMap.has(DEFAULT_REGION)) {
       return DEFAULT_REGION
     }
 
-    // 优先级 3: 兜底逻辑
+    // 3. 兜底逻辑
     return regionMap.keys().next().value
   } catch (error) {
     if (process.env.NODE_ENV === "development") {
@@ -84,7 +86,6 @@ async function getCountryCode(
     }
   }
 }
-
 
 export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname
@@ -98,42 +99,50 @@ export async function middleware(request: NextRequest) {
     const regionMap = await getRegionMap(cacheId)
     if (!regionMap || regionMap.size === 0) return NextResponse.next()
 
-    // 1. 获取目标国家码 (此时如果不带路径，这里返回的是 'us')
-    let countryCode = await getCountryCode(request, regionMap)
-
-    // 2. 识别 Vercel IP 真实国家 (用于给 Banner 判断)
-    const vercelDetectedCountry = request.headers.get("x-vercel-ip-country")?.toLowerCase()
-
+    // 获取当前 URL 里的第一个 segment (国家码)
     const urlCountryCode = pathname.split("/")[1]?.toLowerCase()
     const urlHasCountryCode = urlCountryCode && regionMap.has(urlCountryCode)
 
+    // 识别 Vercel IP 真实国家 (始终获取，传给前端 Banner 使用)
+    const vercelDetectedCountry = request.headers.get("x-vercel-ip-country")?.toLowerCase()
+
+    // 情况 1: 用户访问了一个无效的国家码 (例如 /cn 但后端没配 cn)
+    // 逻辑：将其重定向到默认的 /us
+    if (urlCountryCode && !regionMap.has(urlCountryCode)) {
+      const redirectPath = pathname.replace(`/${urlCountryCode}`, "") || ""
+      const queryString = request.nextUrl.search || ""
+      const redirectUrl = `${request.nextUrl.origin}/${DEFAULT_REGION}${redirectPath}${queryString}`
+      return NextResponse.redirect(redirectUrl, 307)
+    }
+
+    // 针对爬虫的特殊处理
     if (isBot && urlHasCountryCode) return NextResponse.next()
 
-    // 情况 A: URL 已经有国家码了
+    // 情况 2: URL 已经有合法的国家码了
     if (urlHasCountryCode) {
       const response = NextResponse.next()
+      // 将识别出的真实 IP 国家存入 Header，供 UI 弹出提示使用
       if (vercelDetectedCountry) {
-        // 即使在 /us，也要把真实的 'cn' 传给前端用于显示 Banner
         response.headers.set("x-detected-country", vercelDetectedCountry)
       }
       response.headers.set("x-current-country", urlCountryCode)
       return response
     }
 
-    // 排除静态资源
+    // 排除静态资源和 API
     if (pathname.includes(".") || pathname.startsWith("/api/")) {
       return NextResponse.next()
     }
 
-    // 情况 B: URL 没有国家码，执行重定向到 /us
-    if (countryCode) {
+    // 情况 3: URL 完全没有国家码 (例如直接访问域名)
+    // 逻辑：重定向到默认国家 /us
+    let targetCountry = await getCountryCode(request, regionMap)
+    if (targetCountry) {
       const redirectPath = pathname === "/" ? "" : pathname
       const queryString = request.nextUrl.search ? request.nextUrl.search : ""
-      const redirectUrl = `${request.nextUrl.origin}/${countryCode}${redirectPath}${queryString}`
+      const redirectUrl = `${request.nextUrl.origin}/${targetCountry}${redirectPath}${queryString}`
 
       const response = NextResponse.redirect(redirectUrl, 307)
-
-      // 注意：重定向响应也可以携带 Header 给后续页面使用
       if (vercelDetectedCountry) {
         response.headers.set("x-detected-country", vercelDetectedCountry)
       }
@@ -145,8 +154,6 @@ export async function middleware(request: NextRequest) {
   }
   return NextResponse.next()
 }
-
-
 
 export const config = {
   matcher: [

@@ -1,200 +1,208 @@
 "use client"
 
-import { Popover, Transition } from "@headlessui/react"
-import { Fragment, useEffect, useMemo, useState, useRef } from "react"
-import ReactCountryFlag from "react-country-flag"
-import { useParams, usePathname } from "next/navigation"
-import { updateRegion } from "@lib/data/cart"
-import { HttpTypes } from "@medusajs/types"
-import { ChevronDown, MagnifyingGlassMini } from "@medusajs/icons"
+import { useState, useEffect } from "react"
+import { Menu, X, ChevronRight, Globe } from "lucide-react"
+import LocalizedClientLink from "@modules/common/components/localized-client-link"
+import { usePathname } from "next/navigation"
+import HeaderCountrySelect from "@modules/layout/components/header-country-select"
+import HeaderLanguageSelect from "@modules/layout/components/header-language-select"
 
-type CountryOption = {
-    country: string
-    region: string
-    label: string
+const getMenuHref = (linkType: string, slug: string) => {
+    if (!slug) return "/"
+    const cleanSlug = slug.trim().toLowerCase().replace(/\s+/g, "-").replace(/^\//, "")
+    switch (linkType) {
+        case "category": return `/categories/${cleanSlug}`
+        case "collection": return `/collections/${cleanSlug}`
+        case "blog": return `/blog`
+        default: return `/${cleanSlug}`
+    }
 }
 
-type HeaderCountrySelectProps = {
-    regions: HttpTypes.StoreRegion[] | null
-}
+export default function MobileMenu({
+                                       menuTree,
+                                       brandData,
+                                       regions,
+                                       locales,
+                                       currentLocale
+                                   }: {
+    menuTree: any[],
+    brandData: any,
+    regions: any,
+    locales: any,
+    currentLocale: string
+}) {
+    const [isOpen, setIsOpen] = useState(false)
+    const [openSubMenu, setOpenSubMenu] = useState<number | string | null>(null)
+    const [isMounted, setIsMounted] = useState(false)
+    const pathname = usePathname()
 
-const HeaderCountrySelect = ({ regions }: HeaderCountrySelectProps) => {
-    const [current, setCurrent] = useState<CountryOption | undefined>(undefined)
-    const [isUpdating, setIsUpdating] = useState(false)
-    const [searchTerm, setSearchTerm] = useState("")
-    const { countryCode } = useParams()
-    const currentPath = usePathname().split(`/${countryCode}`)[1] || ""
-    const buttonRef = useRef<HTMLButtonElement>(null)
-    const timeoutRef = useRef<NodeJS.Timeout | null>(null)
-
-    const allOptions = useMemo(() => {
-        return regions
-            ?.flatMap((r) =>
-                r.countries?.map((c) => ({
-                    country: c.iso_2,
-                    region: r.id,
-                    label: c.display_name,
-                })) || []
-            )
-            .filter((o): o is CountryOption => !!o)
-            .sort((a, b) => a.label.localeCompare(b.label))
-    }, [regions])
-
-    // 搜索过滤后的选项
-    const filteredOptions = useMemo(() => {
-        if (!searchTerm) return allOptions
-        return allOptions?.filter(
-            (o) =>
-                o.label.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                o.country.toLowerCase().includes(searchTerm.toLowerCase())
-        )
-    }, [allOptions, searchTerm])
+    useEffect(() => { setIsMounted(true) }, [])
+    useEffect(() => { setIsOpen(false); setOpenSubMenu(null); }, [pathname])
 
     useEffect(() => {
-        if (!allOptions?.length) return
-        const selected = countryCode
-            ? allOptions.find((o) => o.country === countryCode)
-            : allOptions[0]
-        if (selected) setCurrent(selected)
-    }, [allOptions, countryCode])
+        if (isOpen) document.body.style.overflow = 'hidden'
+        else document.body.style.overflow = 'unset'
+        return () => { document.body.style.overflow = 'unset' }
+    }, [isOpen])
 
-    const FlagIcon = ({ code }: { code: string }) => (
-        <div
-            className="relative flex-shrink-0 bg-ui-bg-subtle rounded-[2px] overflow-hidden"
-            style={{ width: '20px', height: '15px' }}
-        >
-            <ReactCountryFlag
-                svg
-                countryCode={code}
-                style={{
-                    width: '100%',
-                    height: '100%',
-                    objectFit: 'cover'
-                }}
-            />
-        </div>
-    )
-
-    const handleMouseEnter = (open: boolean) => {
-        if (typeof window !== 'undefined' && window.matchMedia("(pointer: fine)").matches) {
-            if (timeoutRef.current) clearTimeout(timeoutRef.current)
-            if (!open) buttonRef.current?.click()
-        }
-    }
-
-    const handleMouseLeave = (open: boolean, close: () => void) => {
-        if (typeof window !== 'undefined' && window.matchMedia("(pointer: fine)").matches) {
-            timeoutRef.current = setTimeout(() => {
-                if (open) close()
-            }, 200)
-        }
-    }
-
-    const handleChange = async (option: CountryOption, close: () => void) => {
-        if (isUpdating) return
-        setIsUpdating(true)
-        try {
-            // 在关闭前重置搜索词
-            setSearchTerm("")
-            close()
-            await updateRegion(option.country, currentPath)
-        } catch (error) {
-            console.error("Failed to update region:", error)
-        } finally {
-            setIsUpdating(false)
-        }
-    }
+    if (!isMounted) return <button className="p-2 -ml-2 text-gray-800"><Menu size={24} strokeWidth={1.5} /></button>
 
     return (
-        <Popover className="relative inline-block">
-            {({ open, close }) => (
-                <div
-                    className="relative"
-                    onMouseEnter={() => handleMouseEnter(open)}
-                    onMouseLeave={() => handleMouseLeave(open, close)}
-                >
-                    <Popover.Button
-                        ref={buttonRef}
-                        className={`flex items-center gap-x-2 text-ui-fg-subtle hover:text-ui-fg-base transition-all py-1.5 px-3 rounded-md outline-none min-w-[80px] ${
-                            open ? 'bg-ui-bg-subtle-hover text-ui-fg-base' : ''
-                        }`}
-                    >
-                        {current && <FlagIcon code={current.country} />}
-                        <span className="text-sm font-bold uppercase tabular-nums">
-                            {current?.country || "Select"}
-                        </span>
-                        <ChevronDown className={`h-4 w-4 ml-auto transition-transform duration-200 ${open ? 'rotate-180' : ''}`} />
-                    </Popover.Button>
+        <>
+            {/* 触发按钮 */}
+            <button onClick={() => setIsOpen(true)} className="p-2 -ml-2 text-gray-800 relative z-30">
+                <Menu size={24} strokeWidth={1.5} />
+            </button>
 
-                    <Transition
-                        as={Fragment}
-                        enter="transition duration-100 ease-out"
-                        enterFrom="opacity-0 scale-95"
-                        enterTo="opacity-100 scale-100"
-                        leave="transition duration-75 ease-in"
-                        leaveFrom="opacity-100 scale-100"
-                        leaveTo="opacity-0 scale-95"
-                    >
-                        <Popover.Panel
-                            className="absolute right-0 z-[100] mt-2 w-[280px] origin-top-right bg-white rounded-lg shadow-2xl ring-1 ring-black/5 focus:outline-none overflow-hidden"
-                        >
-                            {/* 灵活高度容器：最大高度设为视口高度减去 120px 预留给 Header */}
-                            <div className="flex flex-col max-h-[calc(100vh-120px)] sm:max-h-[480px]">
+            {/* 背景遮罩 */}
+            <div className={`fixed inset-0 z-[9999] bg-black/50 backdrop-blur-sm transition-opacity duration-300 ${isOpen ? "opacity-100" : "opacity-0 pointer-events-none"}`} onClick={() => setIsOpen(false)} />
 
-                                {/* 顶部标题 */}
-                                <div className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-ui-fg-muted border-b bg-gray-50/95 backdrop-blur-sm sticky top-0">
-                                    Shipping to
-                                </div>
+            {/* 侧边栏容器 - 宽度优化为 75% */}
+            <div
+                className={`fixed inset-y-0 left-0 z-[10000] w-[75%] max-w-[280px] bg-white shadow-2xl transform transition-transform duration-300 ease-out ${isOpen ? "translate-x-0" : "-translate-x-full"}`}
+                onClick={(e) => e.stopPropagation()} // 防止菜单内点击传播到遮罩层
+            >
+                <div className="flex flex-col h-[100dvh] bg-white overflow-hidden overscroll-none">
+                    {/* Header */}
+                    <div className="flex justify-between items-center px-6 py-5 border-b border-gray-100 flex-shrink-0 bg-white">
+                        <span className="text-[12px] font-bold tracking-[0.2em] uppercase text-gray-900">{brandData?.sitename || "MENU"}</span>
+                        <button onClick={() => setIsOpen(false)} className="text-gray-400 p-1"><X size={20} /></button>
+                    </div>
 
-                                {/* 搜索框区域 - 保持固定 */}
-                                <div className="p-2 border-b bg-white sticky top-[37px] z-20">
-                                    <div className="relative flex items-center">
-                                        <MagnifyingGlassMini className="absolute left-2.5 text-ui-fg-muted" />
-                                        <input
-                                            type="text"
-                                            className="w-full pl-8 pr-3 py-1.5 text-sm bg-ui-bg-subtle border-none rounded-md focus:ring-1 focus:ring-ui-border-interactive outline-none"
-                                            placeholder="Search country..."
-                                            value={searchTerm}
-                                            onChange={(e) => setSearchTerm(e.target.value)}
-                                            autoFocus
-                                        />
-                                    </div>
-                                </div>
-
-                                {/* 滚动列表区域 */}
-                                <div className="overflow-y-auto overscroll-contain flex-1 p-1 custom-scrollbar">
-                                    {filteredOptions?.length ? (
-                                        filteredOptions.map((option) => (
-                                            <button
-                                                key={option.country}
-                                                onClick={() => handleChange(option, close)}
-                                                disabled={isUpdating}
-                                                className={`flex items-center w-full px-3 py-2.5 text-sm rounded-md transition-all ${
-                                                    current?.country === option.country
-                                                        ? "bg-ui-bg-base-pressed text-ui-fg-base font-semibold"
-                                                        : "text-ui-fg-subtle hover:bg-ui-bg-base-hover hover:text-ui-fg-base"
-                                                } ${isUpdating ? "opacity-50 cursor-not-allowed" : ""}`}
-                                            >
-                                                <FlagIcon code={option.country} />
-                                                <span className="ml-3 truncate text-left flex-1">{option.label}</span>
-                                                {current?.country === option.country && (
-                                                    <div className="ml-2 w-1.5 h-1.5 rounded-full bg-pink-500" />
-                                                )}
+                    {/* 主导航链接 */}
+                    <div className="flex-1 overflow-y-auto px-4 py-4 bg-white custom-scrollbar">
+                        {menuTree?.map((item: any) => {
+                            const hasChildren = item.children && item.children.length > 0;
+                            const isSubOpen = openSubMenu === item.id;
+                            return (
+                                <div key={item.id} className="border-b border-gray-50 last:border-0">
+                                    <div className="flex items-center justify-between">
+                                        <LocalizedClientLink href={getMenuHref(item.link_type, item.slug)} className="flex-1 px-2 py-4 text-[12px] font-bold tracking-widest uppercase text-gray-800">
+                                            {item.title}
+                                        </LocalizedClientLink>
+                                        {hasChildren && (
+                                            <button onClick={() => setOpenSubMenu(isSubOpen ? null : item.id)} className="w-12 h-12 flex items-center justify-center">
+                                                <ChevronRight size={16} className={`transition-transform duration-300 ${isSubOpen ? 'rotate-90 text-pink-600' : 'text-gray-300'}`} />
                                             </button>
-                                        ))
-                                    ) : (
-                                        <div className="px-4 py-8 text-center text-sm text-ui-fg-muted">
-                                            No countries found
+                                        )}
+                                    </div>
+                                    {hasChildren && (
+                                        <div className={`overflow-hidden transition-all duration-300 ease-in-out bg-gray-50/50 ${isSubOpen ? "max-h-[800px] mb-2 opacity-100" : "max-h-0 opacity-0"}`}>
+                                            {item.children.map((child: any) => (
+                                                <LocalizedClientLink key={child.id} href={getMenuHref(child.link_type, child.slug)} className="block px-6 py-3 text-[10px] tracking-widest text-gray-500 uppercase">
+                                                    {child.title}
+                                                </LocalizedClientLink>
+                                            ))}
                                         </div>
                                     )}
                                 </div>
+                            );
+                        })}
+                    </div>
+
+                    {/* 底部 Preferences 模块 - 适配微信与 UC */}
+                    <div className="p-5 bg-gray-50/80 border-t border-gray-100 flex-shrink-0 max-h-[45vh] overflow-y-auto custom-scrollbar">
+                        <div className="flex items-center gap-x-2 mb-4 text-gray-500 px-1">
+                            <Globe size={13} strokeWidth={2} />
+                            <span className="text-[10px] uppercase tracking-[0.15em] font-bold">Preferences</span>
+                        </div>
+
+                        <div className="space-y-2 mobile-preference-container">
+                            {/* 国家选择 */}
+                            <div className="relative bg-white rounded-xl shadow-sm border border-gray-200/50 min-h-[48px] flex items-center overflow-hidden w-full">
+                                <HeaderCountrySelect regions={regions} />
                             </div>
-                        </Popover.Panel>
-                    </Transition>
+                            {/* 语言选择 */}
+                            <div className="relative bg-white rounded-xl shadow-sm border border-gray-200/50 min-h-[48px] flex items-center overflow-hidden w-full">
+                                <HeaderLanguageSelect locales={locales} currentLocale={currentLocale} />
+                            </div>
+                        </div>
+
+                        <div className="mt-8 text-[9px] text-gray-300 uppercase tracking-[0.2em] text-center">
+                            © {new Date().getFullYear()} {brandData?.sitename}
+                        </div>
+                    </div>
                 </div>
-            )}
-        </Popover>
+            </div>
+
+            <style jsx global>{`
+                /* 1. Preferences 区域滚动条 */
+                .custom-scrollbar::-webkit-scrollbar {
+                    width: 3px;
+                }
+                .custom-scrollbar::-webkit-scrollbar-thumb {
+                    background-color: #e5e7eb;
+                    border-radius: 10px;
+                }
+
+                /* 2. 按钮样式对齐：移除微信默认点击高亮，统一布局 */
+                .mobile-preference-container button {
+                    width: 100% !important;
+                    height: 48px !important;
+                    display: flex !important;
+                    align-items: center !important;
+                    justify-content: flex-start !important;
+                    padding: 0 16px !important;
+                    background: transparent !important;
+                    border: none !important;
+                    font-size: 11px !important;
+                    font-weight: 600 !important;
+                    color: #1f2937 !important;
+                    text-transform: uppercase !important;
+                    -webkit-tap-highlight-color: transparent !important;
+                    outline: none !important;
+                }
+
+                /* 3. 核心修复：微信/UC 下拉框对齐与稳定性 */
+                /* 将绝对定位改为相对定位，防止被微信拦截，并撑开父容器触发滚动 */
+                .mobile-preference-container div[id^="headlessui-popover-panel"],
+                .mobile-preference-container [role="listbox"] {
+                    position: relative !important;
+                    top: 0 !important;
+                    left: 0 !important;
+                    width: 100% !important; 
+                    min-width: 100% !important;
+                    margin-top: 2px !important;
+                    transform: none !important;
+                    z-index: 10 !important;
+                    display: block !important;
+                    /* 视觉样式 */
+                    background-color: #f9fafb !important;
+                    border-radius: 0 0 8px 8px !important;
+                    box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.03) !important;
+                    border-top: 1px solid #f3f4f6 !important;
+                    border-left: none !important;
+                    border-right: none !important;
+                    border-bottom: none !important;
+                    max-height: 250px !important; 
+                    overflow-y: auto !important;
+                    -webkit-overflow-scrolling: touch;
+                }
+
+                /* 4. 下拉选项按钮对齐 */
+                .mobile-preference-container div[id^="headlessui-popover-panel"] button {
+                    width: 100% !important;
+                    height: auto !important;
+                    padding: 12px 16px !important;
+                    border-bottom: 1px solid #f1f1f1 !important;
+                    font-weight: 500 !important;
+                }
+                .mobile-preference-container div[id^="headlessui-popover-panel"] button:last-child {
+                    border-bottom: none !important;
+                }
+
+                /* 5. 图标间距 */
+                .mobile-preference-container img, 
+                .mobile-preference-container .react-country-flag {
+                    margin-right: 12px !important;
+                    flex-shrink: 0;
+                }
+
+                /* 6. 容器层级修正 */
+                .mobile-preference-container {
+                    isolation: isolate;
+                }
+            `}</style>
+        </>
     )
 }
-
-export default HeaderCountrySelect

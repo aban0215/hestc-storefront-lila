@@ -19,6 +19,7 @@ async function getRegionMap(cacheId: string) {
     )
   }
 
+  // 1小时缓存失效逻辑
   if (
       !regionMap.keys().next().value ||
       regionMapUpdated < Date.now() - 3600 * 1000
@@ -29,7 +30,8 @@ async function getRegionMap(cacheId: string) {
       },
       next: {
         revalidate: 3600,
-        tags: [`regions-${cacheId}`],
+        // 修复点：确保标签永远不是空字符串，防止 SuspenseCacheAPI 400 错误
+        tags: [`regions-${cacheId || 'default'}`],
       },
       cache: "force-cache",
     }).then(async (response) => {
@@ -46,9 +48,15 @@ async function getRegionMap(cacheId: string) {
       )
     }
 
+    // 清空旧 Map 重新填充
+    regionMapCache.regionMap.clear()
     regions.forEach((region: HttpTypes.StoreRegion) => {
       region.countries?.forEach((c) => {
-        regionMapCache.regionMap.set(c.iso_2 ?? "", region)
+        // 修复点：强制转为小写存入，解决后端大写 US 无法匹配前端小写 us 的问题
+        const code = c.iso_2?.toLowerCase()
+        if (code) {
+          regionMapCache.regionMap.set(code, region)
+        }
       })
     })
 
@@ -63,7 +71,7 @@ async function getRegionMap(cacheId: string) {
  */
 async function getCountryCode(
     request: NextRequest,
-    regionMap: Map<string, HttpTypes.StoreRegion | number>
+    regionMap: Map<string, HttpTypes.StoreRegion>
 ) {
   try {
     const urlCountryCode = request.nextUrl.pathname.split("/")[1]?.toLowerCase()
@@ -73,7 +81,8 @@ async function getCountryCode(
       return urlCountryCode
     }
 
-    // 2. 核心逻辑：当 URL 没国家码时，无视 IP 识别，强制默认跳转到 DEFAULT_REGION (us)
+    // 2. 核心逻辑：跳转到 DEFAULT_REGION (us)
+    // 此时 regionMap 已归一化，可以安全匹配 "us"
     if (regionMap.has(DEFAULT_REGION)) {
       return DEFAULT_REGION
     }
@@ -92,22 +101,19 @@ export async function middleware(request: NextRequest) {
   const userAgent = request.headers.get("user-agent") || ""
   const isBot = /googlebot|bingbot|baiduspider|twitterbot|facebookexternalhit/i.test(userAgent)
 
-  let cacheIdCookie = request.cookies.get("_medusa_cache_id")
-  let cacheId = cacheIdCookie?.value || crypto.randomUUID()
+  // 修复点：确保 cacheId 稳定性
+  const cacheIdCookie = request.cookies.get("_medusa_cache_id")
+  const cacheId = cacheIdCookie?.value || crypto.randomUUID()
 
   try {
     const regionMap = await getRegionMap(cacheId)
     if (!regionMap || regionMap.size === 0) return NextResponse.next()
 
-    // 获取当前 URL 里的第一个 segment (国家码)
     const urlCountryCode = pathname.split("/")[1]?.toLowerCase()
     const urlHasCountryCode = urlCountryCode && regionMap.has(urlCountryCode)
-
-    // 识别 Vercel IP 真实国家 (始终获取，传给前端 Banner 使用)
     const vercelDetectedCountry = request.headers.get("x-vercel-ip-country")?.toLowerCase()
 
-    // 情况 1: 用户访问了一个无效的国家码 (例如 /cn 但后端没配 cn)
-    // 逻辑：将其重定向到默认的 /us
+    // 情况 1: 用户访问了一个无效的国家码 (如 /cn)，重定向到 /us
     if (urlCountryCode && !regionMap.has(urlCountryCode)) {
       const redirectPath = pathname.replace(`/${urlCountryCode}`, "") || ""
       const queryString = request.nextUrl.search || ""
@@ -115,13 +121,11 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(redirectUrl, 307)
     }
 
-    // 针对爬虫的特殊处理
     if (isBot && urlHasCountryCode) return NextResponse.next()
 
     // 情况 2: URL 已经有合法的国家码了
     if (urlHasCountryCode) {
       const response = NextResponse.next()
-      // 将识别出的真实 IP 国家存入 Header，供 UI 弹出提示使用
       if (vercelDetectedCountry) {
         response.headers.set("x-detected-country", vercelDetectedCountry)
       }
@@ -134,9 +138,8 @@ export async function middleware(request: NextRequest) {
       return NextResponse.next()
     }
 
-    // 情况 3: URL 完全没有国家码 (例如直接访问域名)
-    // 逻辑：重定向到默认国家 /us
-    let targetCountry = await getCountryCode(request, regionMap)
+    // 情况 3: URL 完全没有国家码，重定向到默认国家 /us
+    let targetCountry = await getCountryCode(request, regionMap as any)
     if (targetCountry) {
       const redirectPath = pathname === "/" ? "" : pathname
       const queryString = request.nextUrl.search ? request.nextUrl.search : ""

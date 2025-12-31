@@ -15,48 +15,44 @@ async function getRegionMap(cacheId: string) {
 
   if (!BACKEND_URL) {
     throw new Error(
-        "Middleware.ts: Error fetching regions. Did you set up regions in your Medusa Admin and define a MEDUSA_BACKEND_URL environment variable?"
+      "Middleware.ts: Error fetching regions. Did you set up regions in your Medusa Admin and define a MEDUSA_BACKEND_URL environment variable? Note that the variable is no longer named NEXT_PUBLIC_MEDUSA_BACKEND_URL."
     )
   }
 
-  // 1小时缓存失效逻辑
   if (
-      !regionMap.keys().next().value ||
-      regionMapUpdated < Date.now() - 3600 * 1000
+    !regionMap.keys().next().value ||
+    regionMapUpdated < Date.now() - 3600 * 1000
   ) {
+    // Fetch regions from Medusa. We can't use the JS client here because middleware is running on Edge and the client needs a Node environment.
     const { regions } = await fetch(`${BACKEND_URL}/store/regions`, {
       headers: {
         "x-publishable-api-key": PUBLISHABLE_API_KEY!,
       },
       next: {
         revalidate: 3600,
-        // 修复点：确保标签永远不是空字符串，防止 SuspenseCacheAPI 400 错误
-        tags: [`regions-${cacheId || 'default'}`],
+        tags: [`regions-${cacheId}`],
       },
       cache: "force-cache",
     }).then(async (response) => {
       const json = await response.json()
+
       if (!response.ok) {
         throw new Error(json.message)
       }
+
       return json
     })
 
     if (!regions?.length) {
       throw new Error(
-          "No regions found. Please set up regions in your Medusa Admin."
+        "No regions found. Please set up regions in your Medusa Admin."
       )
     }
 
-    // 清空旧 Map 重新填充
-    regionMapCache.regionMap.clear()
+    // Create a map of country codes to regions.
     regions.forEach((region: HttpTypes.StoreRegion) => {
       region.countries?.forEach((c) => {
-        // 修复点：强制转为小写存入，解决后端大写 US 无法匹配前端小写 us 的问题
-        const code = c.iso_2?.toLowerCase()
-        if (code) {
-          regionMapCache.regionMap.set(code, region)
-        }
+        regionMapCache.regionMap.set(c.iso_2 ?? "", region)
       })
     })
 
@@ -67,95 +63,99 @@ async function getRegionMap(cacheId: string) {
 }
 
 /**
- * 获取目标国家码逻辑
+ * Fetches regions from Medusa and sets the region cookie.
+ * @param request
+ * @param response
  */
 async function getCountryCode(
-    request: NextRequest,
-    regionMap: Map<string, HttpTypes.StoreRegion>
+  request: NextRequest,
+  regionMap: Map<string, HttpTypes.StoreRegion | number>
 ) {
   try {
+    let countryCode
+
+    const vercelCountryCode = request.headers
+      .get("x-vercel-ip-country")
+      ?.toLowerCase()
+
     const urlCountryCode = request.nextUrl.pathname.split("/")[1]?.toLowerCase()
 
-    // 1. 如果 URL 中已经有合法国家码，直接使用它
     if (urlCountryCode && regionMap.has(urlCountryCode)) {
-      return urlCountryCode
+      countryCode = urlCountryCode
+    } else if (vercelCountryCode && regionMap.has(vercelCountryCode)) {
+      countryCode = vercelCountryCode
+    } else if (regionMap.has(DEFAULT_REGION)) {
+      countryCode = DEFAULT_REGION
+    } else if (regionMap.keys().next().value) {
+      countryCode = regionMap.keys().next().value
     }
 
-    // 2. 核心逻辑：跳转到 DEFAULT_REGION (us)
-    // 此时 regionMap 已归一化，可以安全匹配 "us"
-    if (regionMap.has(DEFAULT_REGION)) {
-      return DEFAULT_REGION
-    }
-
-    // 3. 兜底逻辑
-    return regionMap.keys().next().value
+    return countryCode
   } catch (error) {
     if (process.env.NODE_ENV === "development") {
-      console.error("Middleware.ts: Error getting the country code.", error)
+      console.error(
+        "Middleware.ts: Error getting the country code. Did you set up regions in your Medusa Admin and define a MEDUSA_BACKEND_URL environment variable? Note that the variable is no longer named NEXT_PUBLIC_MEDUSA_BACKEND_URL."
+      )
     }
   }
 }
 
+/**
+ * Middleware to handle region selection and onboarding status.
+ */
 export async function middleware(request: NextRequest) {
-  const pathname = request.nextUrl.pathname
-  const userAgent = request.headers.get("user-agent") || ""
-  const isBot = /googlebot|bingbot|baiduspider|twitterbot|facebookexternalhit/i.test(userAgent)
+  let redirectUrl = request.nextUrl.href
 
-  // 修复点：确保 cacheId 稳定性
-  const cacheIdCookie = request.cookies.get("_medusa_cache_id")
-  const cacheId = cacheIdCookie?.value || crypto.randomUUID()
+  let response = NextResponse.redirect(redirectUrl, 307)
 
-  try {
-    const regionMap = await getRegionMap(cacheId)
-    if (!regionMap || regionMap.size === 0) return NextResponse.next()
+  let cacheIdCookie = request.cookies.get("_medusa_cache_id")
 
-    const urlCountryCode = pathname.split("/")[1]?.toLowerCase()
-    const urlHasCountryCode = urlCountryCode && regionMap.has(urlCountryCode)
-    const vercelDetectedCountry = request.headers.get("x-vercel-ip-country")?.toLowerCase()
+  let cacheId = cacheIdCookie?.value || crypto.randomUUID()
 
-    // 情况 1: 用户访问了一个无效的国家码 (如 /cn)，重定向到 /us
-    if (urlCountryCode && !regionMap.has(urlCountryCode)) {
-      const redirectPath = pathname.replace(`/${urlCountryCode}`, "") || ""
-      const queryString = request.nextUrl.search || ""
-      const redirectUrl = `${request.nextUrl.origin}/${DEFAULT_REGION}${redirectPath}${queryString}`
-      return NextResponse.redirect(redirectUrl, 307)
-    }
+  const regionMap = await getRegionMap(cacheId)
 
-    if (isBot && urlHasCountryCode) return NextResponse.next()
+  const countryCode = regionMap && (await getCountryCode(request, regionMap))
 
-    // 情况 2: URL 已经有合法的国家码了
-    if (urlHasCountryCode) {
-      const response = NextResponse.next()
-      if (vercelDetectedCountry) {
-        response.headers.set("x-detected-country", vercelDetectedCountry)
-      }
-      response.headers.set("x-current-country", urlCountryCode)
-      return response
-    }
+  const urlHasCountryCode =
+    countryCode && request.nextUrl.pathname.split("/")[1].includes(countryCode)
 
-    // 排除静态资源和 API
-    if (pathname.includes(".") || pathname.startsWith("/api/")) {
-      return NextResponse.next()
-    }
-
-    // 情况 3: URL 完全没有国家码，重定向到默认国家 /us
-    let targetCountry = await getCountryCode(request, regionMap as any)
-    if (targetCountry) {
-      const redirectPath = pathname === "/" ? "" : pathname
-      const queryString = request.nextUrl.search ? request.nextUrl.search : ""
-      const redirectUrl = `${request.nextUrl.origin}/${targetCountry}${redirectPath}${queryString}`
-
-      const response = NextResponse.redirect(redirectUrl, 307)
-      if (vercelDetectedCountry) {
-        response.headers.set("x-detected-country", vercelDetectedCountry)
-      }
-      return response
-    }
-  } catch (error) {
-    console.error("Middleware Error:", error)
+  // if one of the country codes is in the url and the cache id is set, return next
+  if (urlHasCountryCode && cacheIdCookie) {
     return NextResponse.next()
   }
-  return NextResponse.next()
+
+  // if one of the country codes is in the url and the cache id is not set, set the cache id and redirect
+  if (urlHasCountryCode && !cacheIdCookie) {
+    response.cookies.set("_medusa_cache_id", cacheId, {
+      maxAge: 60 * 60 * 24,
+    })
+
+    return response
+  }
+
+  // check if the url is a static asset
+  if (request.nextUrl.pathname.includes(".")) {
+    return NextResponse.next()
+  }
+
+  const redirectPath =
+    request.nextUrl.pathname === "/" ? "" : request.nextUrl.pathname
+
+  const queryString = request.nextUrl.search ? request.nextUrl.search : ""
+
+  // If no country code is set, we redirect to the relevant region.
+  if (!urlHasCountryCode && countryCode) {
+    redirectUrl = `${request.nextUrl.origin}/${countryCode}${redirectPath}${queryString}`
+    response = NextResponse.redirect(`${redirectUrl}`, 307)
+  } else if (!urlHasCountryCode && !countryCode) {
+    // Handle case where no valid country code exists (empty regions)
+    return new NextResponse(
+      "No valid regions configured. Please set up regions with countries in your Medusa Admin.",
+      { status: 500 }
+    )
+  }
+
+  return response
 }
 
 export const config = {

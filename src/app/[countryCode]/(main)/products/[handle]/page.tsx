@@ -149,13 +149,16 @@ export default async function ProductPage(props: Props) {
     notFound()
   }
 
-  // 2. 获取业务内容 (这里不强制英文，根据当前 countryCode 对应的 locale 渲染内容)
+  // 2. 获取业务内容
   const [medusaData, strapiContent] = await Promise.all([
     listProducts({
       countryCode: countryCode,
-      queryParams: { handle: handle },
+      queryParams: {
+        handle: handle,
+        fields: "*variants.calculated_price,+variants.inventory_quantity,*variants.images,+metadata,+tags,material,origin_country,weight,*type,description"
+      },
     }).then(({ response }) => response.products[0]),
-    getProductStrapiContent(handle) // 这里内部应该已经处理了根据 context 切换 locale 的逻辑
+    getProductStrapiContent(handle)
   ])
 
   if (!medusaData) {

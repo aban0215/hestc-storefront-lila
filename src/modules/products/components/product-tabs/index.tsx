@@ -134,20 +134,6 @@ const ProductTabs = ({ product, strapiContent }: ProductTabsProps) => {
                           <p>{product.weight ? `${product.weight} g` : "-"}</p>
                       </div>
                   </div>
-                  {/*<div className="flex flex-col gap-y-4">*/}
-                  {/*    <div>*/}
-                  {/*        <span className="font-semibold">Weight</span>*/}
-                  {/*        <p>{product.weight ? `${product.weight} g` : "-"}</p>*/}
-                  {/*    </div>*/}
-                  {/*    /!*<div>*!/*/}
-                  {/*    /!*    <span className="font-semibold">Dimensions</span>*!/*/}
-                  {/*    /!*    <p>*!/*/}
-                  {/*    /!*        {product.length && product.width && product.height*!/*/}
-                  {/*    /!*            ? `${product.length}L x ${product.width}W x ${product.height}H`*!/*/}
-                  {/*    /!*            : "-"}*!/*/}
-                  {/*    /!*    </p>*!/*/}
-                  {/*    /!*</div>*!/*/}
-                  {/*</div>*/}
               </div>
           </div>
         <Accordion type="multiple">

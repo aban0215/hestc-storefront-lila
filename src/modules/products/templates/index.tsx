@@ -50,14 +50,6 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
                     {/* 1. Medusa 标题 & 价格 + Strapi Slogan */}
                     <div className="pb-8 border-b border-gray-100">
                         <ProductInfo product={product} />
-                        {/*{strapiContent?.story_title && (*/}
-                        {/*    <div className="mt-6 flex items-start gap-x-2">*/}
-                        {/*        <span className="text-pink-600 text-lg font-serif">“</span>*/}
-                        {/*        <p className="text-sm italic text-gray-500 font-serif leading-relaxed pt-1">*/}
-                        {/*            {strapiContent.story_title}*/}
-                        {/*        </p>*/}
-                        {/*    </div>*/}
-                        {/*)}*/}
                     </div>
 
                     {/* 2. 购买操作区域 (Medusa 规格 + Strapi SizeGuide) */}
@@ -121,11 +113,6 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
                                                 className="w-full rounded-3xl shadow-[0_30px_60px_rgba(0,0,0,0.1)] hover:scale-[1.02] transition-transform duration-[1.2s] ease-out"
                                                 loading="lazy"
                                             />
-                                            {/*{props.alt && (*/}
-                                            {/*    <p className="mt-6 text-center text-[10px] tracking-[0.3em] uppercase text-gray-400">*/}
-                                            {/*        — {props.alt} —*/}
-                                            {/*    </p>*/}
-                                            {/*)}*/}
                                         </div>
                                     ),
                                 }}
@@ -140,10 +127,6 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
             {/* 【第三部分：相关推荐】 */}
             <div className="bg-gray-50 w-full py-32 border-t border-gray-100">
                 <div className="content-container">
-                    {/*<div className="flex flex-col items-center mb-16">*/}
-                    {/*    <span className="text-[10px] tracking-[0.4em] uppercase text-gray-400 mb-4 font-semibold">Discovery</span>*/}
-                    {/*    <h3 className="text-3xl font-serif text-gray-900">Recommended For You</h3>*/}
-                    {/*</div>*/}
                     <Suspense fallback={<SkeletonRelatedProducts />}>
                         <RelatedProducts product={product} countryCode={countryCode} />
                     </Suspense>

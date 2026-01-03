@@ -163,7 +163,8 @@ export interface NewArrivalData {
     link_type: 'category' | 'collection' | 'product' | 'external'
     medusa_handle: string
     active: boolean
-    backgroundImage: StrapiImage // 注意：API返回的是数组，但我们只取第一个
+    backgroundImage: StrapiImage
+    mobileImage?: StrapiImage | null
 }
 
 // 获取新品宣传数据
@@ -180,51 +181,54 @@ export async function getNewArrivalPromo(locale: string): Promise<NewArrivalData
             throw new Error(`HTTP error! status: ${res.status}`)
         }
 
-        const data = await res.json()
+        const jsonResponse = await res.json()
+        const rawData = jsonResponse.data // 这里对应你 JSON 中的 "data" 对象
 
-        if (!data.data || !data.data.active) {
+        if (!rawData || !rawData.active) {
             return null
         }
 
-        // 注意：backgroundImage是一个数组，我们取第一个
-        const backgroundImage = Array.isArray(data.data.backgroundImage)
-            ? data.data.backgroundImage[0]
-            : data.data.backgroundImage
+        // 1. 处理 backgroundImage (数组取第一个)
+        const bgArray = rawData.backgroundImage
+        const backgroundImage = Array.isArray(bgArray) ? bgArray[0] : bgArray
 
         if (!backgroundImage) {
-            console.warn('New Arrival Promo没有背景图片')
+            console.warn('New Arrival Promo 没有背景图片')
             return null
         }
 
+        // 2. 处理 mobileImage (安全提取)
+        const mobImg = rawData.mobileImage
+
         return {
-            id: data.data.id,
-            title: data.data.title,
-            subtitle: data.data.subtitle,
-            description: data.data.description,
-            buttonText: data.data.buttonText,
-            buttonLink: data.data.buttonLink,
-            linkType: data.data.link_type,
-            medusaHandle: data.data.medusa_handle,
-            active: data.data.active,
+            id: rawData.id,
+            title: rawData.title,
+            subtitle: rawData.subtitle,
+            description: rawData.description,
+            buttonText: rawData.buttonText,
+            buttonLink: rawData.buttonLink,
+            linkType: rawData.link_type,      // 映射 Strapi 的下划线字段
+            medusaHandle: rawData.medusa_handle,
+            active: rawData.active,
             backgroundImage: {
                 id: backgroundImage.id,
                 url: backgroundImage.url,
                 alternativeText: backgroundImage.alternativeText,
                 formats: backgroundImage.formats
             },
-            mobileImage: {
-                id: data.mobileImage.id,
-                url: data.mobileImage.url,
-                alternativeText: data.mobileImage.alternativeText,
-                formats: data.mobileImage.formats
-            }
+            // 修复：从 rawData (即 data.data) 中提取并做 null 检查
+            mobileImage: mobImg ? {
+                id: mobImg.id,
+                url: mobImg.url,
+                alternativeText: mobImg.alternativeText,
+                formats: mobImg.formats
+            } : null
         }
     } catch (error) {
         console.error('获取新品宣传数据失败:', error)
         return null
     }
 }
-
 
 
 export interface BestSellerConfig {

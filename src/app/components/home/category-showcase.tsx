@@ -29,21 +29,26 @@ export default async function CategoryShowcase() {
         }
     };
 
-    // const baseUrl = process.env.NEXT_PUBLIC_STRAPI_API_URL || 'http://47.89.151.64:1337';
 
     return (
         <section className="pt-0 bg-white overflow-hidden">
-            <div className="w-full py-8 px-10 flex flex-col md:flex-row items-baseline justify-between border-b border-gray-50">
-                <h2 className="text-2xl font-serif font-bold text-gray-900 leading-none">
+            {/* 修改点：改为 flex-col (垂直) 和 items-center (居中) */}
+            <div className="w-full py-12 px-10 flex flex-col items-center justify-center border-b border-gray-50 text-center">
+                <h2 className="text-3xl md:text-4xl font-serif font-bold text-gray-900 leading-tight">
                     {sectionData.title}
                 </h2>
-                <p className="mt-2 md:mt-0 text-sm text-gray-400 font-light tracking-wider italic">
-                    {sectionData.subtitle}
-                </p>
+                {sectionData.subtitle && (
+                    <p className="mt-4 text-sm md:text-base text-gray-400 font-light tracking-widest italic uppercase">
+                        {sectionData.subtitle}
+                    </p>
+                )}
+                {/* 装饰线条（可选）：增加一点设计感 */}
+                <div className="mt-4 w-12 h-[1px] bg-pink-600/50" />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-0 w-full">
                 {sectionData.featuredCategories.map((category) => {
+                    // ... 内部渲染逻辑保持不变
                     const itemHref = getCategoryHref(category);
                     const imageUrl = `${category.image.url}`
                     const smallImageUrl = category.image.formats?.medium?.url
@@ -76,11 +81,10 @@ export default async function CategoryShowcase() {
                                     href={itemHref}
                                     className="px-6 py-2 border border-white text-white hover:bg-white hover:text-black transition-all duration-300 transform"
                                 >
-                                    {category.buttonText}
+                                    {category.buttonText || "View More"}
                                 </LocalizedClientLink>
                             </div>
 
-                            {/* 整个区域点击跳转使用对应的 itemHref */}
                             <LocalizedClientLink
                                 href={itemHref}
                                 className="absolute inset-0 z-10"

@@ -211,6 +211,12 @@ export async function getNewArrivalPromo(locale: string): Promise<NewArrivalData
                 url: backgroundImage.url,
                 alternativeText: backgroundImage.alternativeText,
                 formats: backgroundImage.formats
+            },
+            mobileImage: {
+                id: data.mobileImage.id,
+                url: data.mobileImage.url,
+                alternativeText: data.mobileImage.alternativeText,
+                formats: data.mobileImage.formats
             }
         }
     } catch (error) {

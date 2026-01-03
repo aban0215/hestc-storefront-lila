@@ -7,9 +7,13 @@ export default async function NewArrivalPromo() {
     const localecode = (await getSelectedLocale()) || 'en-US';
     const newArrivalData = await getNewArrivalPromo(localecode)
 
+    if (!newArrivalData) {
+        return null
+    }
+
     const getHref = () => {
         const handle = newArrivalData.medusaHandle;
-        if (!handle) return "/"; // 兜底返回首页
+        if (!handle) return "/";
 
         switch (newArrivalData.linkType) {
             case 'category':
@@ -19,7 +23,7 @@ export default async function NewArrivalPromo() {
             case 'product':
                 return `/products/${handle}`;
             case 'external':
-                return handle; // 如果是外部链接，handle 直接存放完整的 URL
+                return handle;
             default:
                 return "/";
         }
@@ -27,59 +31,70 @@ export default async function NewArrivalPromo() {
 
     const targetHref = getHref();
 
-    if (!newArrivalData) {
-        return null
-    }
+    // 背景图逻辑：优先获取你新加的 mobileImage 字段，如果没有则回退
+    const desktopImageUrl = `${newArrivalData.backgroundImage.url}`;
+    const mobileImageUrl = newArrivalData.mobileImage?.url
+        ? `${newArrivalData.mobileImage.url}`
+        : desktopImageUrl;
 
-    // 构建图片URL
-    const imageUrl = `${newArrivalData.backgroundImage.url}`
+    // 缩略图用于加载优化
     const smallImageUrl = newArrivalData.backgroundImage.formats?.medium?.url
         ? `${newArrivalData.backgroundImage.formats.medium.url}`
-        : imageUrl
+        : desktopImageUrl;
 
     return (
         <section className="relative w-full overflow-hidden bg-white">
-            <div className="group relative w-full h-[60vh] md:h-[70vh] min-h-[500px]">
-                {/* 背景图片层 - 统一缩放动画 */}
-                <div className="absolute inset-0">
-                    <img
-                        src={imageUrl}
-                        alt={newArrivalData.backgroundImage.alternativeText || newArrivalData.title}
-                        className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
-                        sizes="100vw"
-                        srcSet={`${smallImageUrl} 1000w, ${imageUrl} 2000w`}
-                        loading="lazy"
-                    />
 
-                    {/* 遮罩层 - 与品类卡片一致的深色叠加，确保文字可读 */}
-                    <div className="absolute inset-0 bg-black/30 group-hover:bg-black/40 transition-colors duration-500" />
+            {/* 1. 标题区域：位于两个模块之间，负责撑开间距 */}
+            <div className="w-full py-16 md:py-28 px-10 flex flex-col items-center justify-center text-center border-t border-gray-50">
+                <h2 className="text-3xl md:text-5xl font-serif font-bold text-gray-900 tracking-tight leading-tight">
+                    {newArrivalData.title}
+                </h2>
+                {newArrivalData.subtitle && (
+                    <p className="mt-5 text-sm md:text-base text-gray-400 font-light tracking-[0.3em] italic uppercase">
+                        {newArrivalData.subtitle}
+                    </p>
+                )}
+                {/* 装饰线：增加视觉高级感 */}
+                <div className="mt-8 w-16 h-[1px] bg-pink-600/40" />
+            </div>
+
+            {/* 2. 图片展示区域：应用 picture 标签实现响应式双图 */}
+            <div className="group relative w-full h-[65vh] md:h-[75vh] min-h-[500px]">
+                <div className="absolute inset-0">
+                    <picture>
+                        {/* 移动端媒体查询：小于 768px 使用手机图 */}
+                        <source media="(max-width: 767px)" srcSet={mobileImageUrl} />
+                        <img
+                            src={desktopImageUrl}
+                            alt={newArrivalData.backgroundImage.alternativeText || newArrivalData.title}
+                            className="w-full h-full object-cover transition-transform duration-[3000ms] ease-out group-hover:scale-110"
+                            sizes="100vw"
+                            srcSet={`${smallImageUrl} 800w, ${desktopImageUrl} 1600w`}
+                            loading="lazy"
+                        />
+                    </picture>
+
+                    {/* 遮罩层：稍微加深一点，确保 description 的白字在亮色图片下也清晰 */}
+                    <div className="absolute inset-0 bg-black/25 group-hover:bg-black/35 transition-colors duration-700" />
                 </div>
 
-                {/* 内容层 - 居中对齐 */}
+                {/* 3. 图片内内容层：仅保留描述和按钮 */}
                 <div className="relative h-full flex items-center justify-center">
-                    <div className="max-w-4xl px-6 text-center text-white">
-                        {/* 副标题 - 极简风格 */}
-                        <p className="text-sm md:text-base font-medium tracking-[0.2em] uppercase mb-4 opacity-90">
-                            {newArrivalData.subtitle}
-                        </p>
+                    <div className="max-w-3xl px-6 text-center text-white">
 
-                        {/* 主标题 - 字体加大且显眼 */}
-                        <h2 className="text-4xl md:text-6xl lg:text-7xl font-serif font-bold mb-8 leading-tight">
-                            {newArrivalData.title}
-                        </h2>
-
-                        {/* 描述 - 保持换行，增加过渡动画 */}
-                        <div className="text-gray-100 text-base md:text-lg mb-10 max-w-2xl mx-auto space-y-2 opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-700">
+                        {/* 描述文本：放大字号并增加行间距 */}
+                        <div className="text-white text-lg md:text-2xl mb-12 max-w-2xl mx-auto leading-relaxed drop-shadow-lg font-light">
                             {newArrivalData.description.split('\n').map((line, index) => (
-                                <p key={index}>{line}</p>
+                                <p key={index} className="mb-2">{line}</p>
                             ))}
                         </div>
 
-                        {/* 按钮 - 统一风格：线性边框或实色 */}
+                        {/* 按钮：采用极简线性风格或实色风格 */}
                         <div className="flex justify-center">
                             <LocalizedClientLink
                                 href={targetHref}
-                                className="px-10 py-4 border border-white text-white text-sm font-bold tracking-widest hover:bg-white hover:text-black transition-all duration-300"
+                                className="px-12 py-4 border-2 border-white text-white text-sm font-bold tracking-[0.2em] uppercase hover:bg-white hover:text-black transition-all duration-500 transform hover:-translate-y-1"
                             >
                                 {newArrivalData.buttonText}
                             </LocalizedClientLink>
@@ -87,7 +102,7 @@ export default async function NewArrivalPromo() {
                     </div>
                 </div>
 
-                {/* 全区域点击跳转（可选） */}
+                {/* 全区域点击热区 */}
                 <LocalizedClientLink
                     href={targetHref}
                     className="absolute inset-0 z-10"

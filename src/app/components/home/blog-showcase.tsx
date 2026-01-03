@@ -45,18 +45,30 @@ export default async function BlogShowcase() {
         <section className="relative w-full overflow-hidden bg-white border-t border-gray-50">
 
             {/* 1. 模块标题区域 - 统一间距 py-8 md:py-14 */}
-            <div className="w-full py-8 md:py-14 px-10 flex flex-col items-center justify-center text-center">
+            {/*<div className="w-full py-8 md:py-14 px-10 flex flex-col items-center justify-center text-center">*/}
+            {/*    <h2 className="text-3xl md:text-4xl font-serif font-bold text-gray-900 leading-tight">*/}
+            {/*        {settings.moduleTitle}*/}
+            {/*    </h2>*/}
+            {/*    {settings.moduleDescription && (*/}
+            {/*        <p className="mt-3 md:mt-4 text-sm md:text-base text-gray-400 font-light tracking-[0.3em] italic uppercase">*/}
+            {/*            {settings.moduleDescription}*/}
+            {/*        </p>*/}
+            {/*    )}*/}
+            {/*    /!* 统一的粉色装饰线 *!/*/}
+            {/*    <div className="mt-5 w-16 h-[1px] bg-pink-600/40" />*/}
+            {/*</div>*/}
+
+            <div className="w-full py-6 px-10 flex flex-col items-center justify-center border-b border-gray-50 text-center">
                 <h2 className="text-3xl md:text-4xl font-serif font-bold text-gray-900 leading-tight">
                     {settings.moduleTitle}
                 </h2>
                 {settings.moduleDescription && (
-                    <p className="mt-3 md:mt-4 text-sm md:text-base text-gray-400 font-light tracking-[0.3em] italic uppercase">
+                    <p className="mt-2 text-sm md:text-base text-gray-400 font-light tracking-widest italic uppercase">
                         {settings.moduleDescription}
                     </p>
                 )}
-                {/* 统一的粉色装饰线 */}
-                <div className="mt-5 w-16 h-[1px] bg-pink-600/40" />
             </div>
+
 
             {/* 2. 沉浸式博客平铺区域 */}
             <div className="group relative w-full h-[65vh] md:h-[75vh] min-h-[500px] overflow-hidden">

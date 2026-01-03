@@ -45,17 +45,30 @@ export default async function NewArrivalPromo() {
         <section className="relative w-full overflow-hidden bg-white">
 
             {/* 1. 标题区域：压缩间距并保持居中 */}
-            <div className="w-full py-8 md:py-14 px-10 flex flex-col items-center justify-center text-center border-t border-gray-50">
-                <h2 className="text-3xl md:text-5xl font-serif font-bold text-gray-900 tracking-tight leading-tight">
+            {/*<div className="w-full py-6 md:py-10 px-10 flex flex-col items-center justify-center text-center border-t border-gray-50">*/}
+            {/*    <h2 className="text-3xl md:text-5xl font-serif font-bold text-gray-900 tracking-tight leading-tight">*/}
+            {/*        {newArrivalData.title}*/}
+            {/*    </h2>*/}
+            {/*    {newArrivalData.subtitle && (*/}
+            {/*        <p className="mt-3 md:mt-4 text-sm md:text-base text-gray-400 font-light tracking-[0.3em] italic uppercase">*/}
+            {/*            {newArrivalData.subtitle}*/}
+            {/*        </p>*/}
+            {/*    )}*/}
+            {/*    <div className="mt-5 w-16 h-[1px] bg-pink-600/40" />*/}
+            {/*</div>*/}
+
+
+            <div className="w-full py-6 px-10 flex flex-col items-center justify-center border-b border-gray-50 text-center">
+                <h2 className="text-3xl md:text-4xl font-serif font-bold text-gray-900 leading-tight">
                     {newArrivalData.title}
                 </h2>
                 {newArrivalData.subtitle && (
-                    <p className="mt-3 md:mt-4 text-sm md:text-base text-gray-400 font-light tracking-[0.3em] italic uppercase">
+                    <p className="mt-2 text-sm md:text-base text-gray-400 font-light tracking-widest italic uppercase">
                         {newArrivalData.subtitle}
                     </p>
                 )}
-                <div className="mt-5 w-16 h-[1px] bg-pink-600/40" />
             </div>
+
 
             {/* 2. 图片展示区域：带 Group Hover 状态 */}
             <div className="group relative w-full h-[65vh] md:h-[75vh] min-h-[500px]">
@@ -72,7 +85,7 @@ export default async function NewArrivalPromo() {
                         />
                     </picture>
                     {/* 遮罩颜色加深动效 */}
-                    <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors duration-500" />
+                    {/*<div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors duration-500" />*/}
                 </div>
 
                 {/* 3. 内容层：对标 CategoryShowcase 的悬停升起效果 */}

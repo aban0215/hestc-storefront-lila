@@ -77,17 +77,20 @@ function getImagesForVariant(
     product: HttpTypes.StoreProduct,
     selectedVariantId?: string
 ) {
-  if (!selectedVariantId || !product.variants) {
-    return product.images
+  // 增加对 product.images 的保护
+  if (!product.images || !selectedVariantId || !product.variants) {
+    return product.images || [] // 如果 images 也是空的，返回空数组
   }
 
-  const variant = product.variants!.find((v) => v.id === selectedVariantId)
-  if (!variant || !variant.images.length) {
+  const variant = product.variants.find((v) => v.id === selectedVariantId)
+
+  // 增加对 variant.images 的保护
+  if (!variant || !variant.images || !variant.images.length) {
     return product.images
   }
 
   const imageIdsMap = new Map(variant.images.map((i) => [i.id, true]))
-  return product.images!.filter((i) => imageIdsMap.has(i.id))
+  return product.images.filter((i) => imageIdsMap.has(i.id))
 }
 
 export async function generateMetadata(props: Props): Promise<Metadata> {
@@ -155,12 +158,12 @@ export default async function ProductPage(props: Props) {
       countryCode: countryCode,
       queryParams: {
         handle: handle,
-        fields: "*variants.calculated_price,+variants.inventory_quantity,*variants.images,+metadata,+tags,material,origin_country,weight,*type,description"
+        // 必须包含 *images 和 *variants，否则 getImagesForVariant 会崩溃
+        fields: "*variants,*variants.images,*images,*type,material,origin_country,weight,description"
       },
     }).then(({ response }) => response.products[0]),
     getProductStrapiContent(handle)
   ])
-
   if (!medusaData) {
     notFound()
   }

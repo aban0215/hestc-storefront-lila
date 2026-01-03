@@ -18,7 +18,6 @@ export default function NavLinks({ menuTree }: { menuTree: any[] }) {
     const [activeId, setActiveId] = useState<number | null>(null)
 
     return (
-        /* 修改点：添加 hidden lg:flex，确保在手机端完全隐藏且不占据空间 */
         <div
             className="hidden lg:flex relative items-center justify-center h-[50px] border-t border-gray-50/80"
             onMouseLeave={() => setActiveId(null)}
@@ -27,23 +26,25 @@ export default function NavLinks({ menuTree }: { menuTree: any[] }) {
                 {menuTree.map((item) => (
                     <div
                         key={item.id}
-                        className="flex items-center h-[50px] px-2 text-[11px] tracking-[0.25em] font-bold uppercase cursor-pointer"
+                        className="flex items-center h-[50px] px-2 cursor-pointer group"
                         onMouseEnter={() => setActiveId(item.children?.length > 0 ? item.id : null)}
                     >
                         <LocalizedClientLink
                             href={getMenuHref(item.link_type, item.slug)}
-                            className="relative py-1 text-gray-800"
+                            className="relative py-1 text-[11px] tracking-[0.25em] font-bold uppercase text-gray-800 hover:text-pink-600 transition-colors"
                         >
                             {item.title}
-                            <span className={`absolute bottom-0 left-0 h-[2px] bg-pink-600 transition-all duration-300 ${activeId === item.id ? 'w-full' : 'w-0'}`} />
+                            {/* 悬停下划线：activeId 匹配或容器 Hover 时展现 */}
+                            <span className={`absolute -bottom-1 left-0 h-[1.5px] bg-pink-600 transition-all duration-300 ${activeId === item.id ? 'w-full' : 'w-0'}`} />
                         </LocalizedClientLink>
                     </div>
                 ))}
             </div>
 
+            {/* 全屏下拉菜单 */}
             <div
-                className={`absolute top-full bg-white border-b border-gray-100 shadow-xl transition-all duration-500 ease-in-out overflow-hidden z-[120] ${
-                    activeId ? "max-h-[400px] opacity-100" : "max-h-0 opacity-0"
+                className={`absolute top-full bg-white border-b border-gray-100 shadow-xl transition-all duration-300 ease-in-out overflow-hidden z-[120] ${
+                    activeId ? "max-h-[500px] opacity-100 visible" : "max-h-0 opacity-0 invisible"
                 }`}
                 style={{
                     left: "50%",
@@ -57,7 +58,7 @@ export default function NavLinks({ menuTree }: { menuTree: any[] }) {
                     {menuTree.map((item) => (
                         <div
                             key={item.id}
-                            className={`flex flex-wrap gap-x-16 gap-y-6 justify-center transition-opacity duration-300 ${
+                            className={`flex flex-wrap gap-x-16 gap-y-8 justify-center transition-opacity duration-300 ${
                                 activeId === item.id ? "flex opacity-100" : "hidden opacity-0"
                             }`}
                         >
@@ -65,13 +66,13 @@ export default function NavLinks({ menuTree }: { menuTree: any[] }) {
                                 <LocalizedClientLink
                                     key={child.id}
                                     href={getMenuHref(child.link_type, child.slug)}
-                                    className="group flex flex-col items-center min-w-[100px]"
+                                    className="group flex flex-col items-center min-w-[120px]"
                                     onClick={() => setActiveId(null)}
                                 >
-                                    <span className="text-[10px] tracking-[0.2em] text-gray-500 group-hover:text-pink-600 transition-colors uppercase font-medium">
+                                    <span className="text-[10px] tracking-[0.2em] text-gray-600 group-hover:text-pink-600 transition-colors uppercase font-semibold">
                                         {child.title}
                                     </span>
-                                    <div className="mt-2 w-0 h-[1px] bg-pink-400 group-hover:w-full transition-all duration-300" />
+                                    <div className="mt-2 w-0 h-[1px] bg-pink-400 group-hover:w-full transition-all duration-500" />
                                 </LocalizedClientLink>
                             ))}
                         </div>

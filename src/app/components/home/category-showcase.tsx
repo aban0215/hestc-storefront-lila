@@ -33,17 +33,17 @@ export default async function CategoryShowcase() {
     return (
         <section className="pt-0 bg-white overflow-hidden">
             {/* 修改点：改为 flex-col (垂直) 和 items-center (居中) */}
-            <div className="w-full py-12 px-10 flex flex-col items-center justify-center border-b border-gray-50 text-center">
+            <div className="w-full py-6 px-10 flex flex-col items-center justify-center border-b border-gray-50 text-center">
                 <h2 className="text-3xl md:text-4xl font-serif font-bold text-gray-900 leading-tight">
                     {sectionData.title}
                 </h2>
                 {sectionData.subtitle && (
-                    <p className="mt-4 text-sm md:text-base text-gray-400 font-light tracking-widest italic uppercase">
+                    <p className="mt-2 text-sm md:text-base text-gray-400 font-light tracking-widest italic uppercase">
                         {sectionData.subtitle}
                     </p>
                 )}
                 {/* 装饰线条（可选）：增加一点设计感 */}
-                <div className="mt-4 w-12 h-[1px] bg-pink-600/50" />
+                {/*<div className="mt-4 w-12 h-[1px] bg-pink-600/50" />*/}
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-0 w-full">

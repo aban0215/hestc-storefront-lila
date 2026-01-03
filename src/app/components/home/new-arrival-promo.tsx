@@ -31,13 +31,12 @@ export default async function NewArrivalPromo() {
 
     const targetHref = getHref();
 
-    // 背景图逻辑：优先获取你新加的 mobileImage 字段，如果没有则回退
+    // 背景图逻辑
     const desktopImageUrl = `${newArrivalData.backgroundImage.url}`;
     const mobileImageUrl = newArrivalData.mobileImage?.url
         ? `${newArrivalData.mobileImage.url}`
         : desktopImageUrl;
 
-    // 缩略图用于加载优化
     const smallImageUrl = newArrivalData.backgroundImage.formats?.medium?.url
         ? `${newArrivalData.backgroundImage.formats.medium.url}`
         : desktopImageUrl;
@@ -45,56 +44,53 @@ export default async function NewArrivalPromo() {
     return (
         <section className="relative w-full overflow-hidden bg-white">
 
-            {/* 1. 标题区域：位于两个模块之间，负责撑开间距 */}
-            <div className="w-full py-16 md:py-28 px-10 flex flex-col items-center justify-center text-center border-t border-gray-50">
+            {/* 1. 标题区域：压缩间距并保持居中 */}
+            <div className="w-full py-8 md:py-14 px-10 flex flex-col items-center justify-center text-center border-t border-gray-50">
                 <h2 className="text-3xl md:text-5xl font-serif font-bold text-gray-900 tracking-tight leading-tight">
                     {newArrivalData.title}
                 </h2>
                 {newArrivalData.subtitle && (
-                    <p className="mt-5 text-sm md:text-base text-gray-400 font-light tracking-[0.3em] italic uppercase">
+                    <p className="mt-3 md:mt-4 text-sm md:text-base text-gray-400 font-light tracking-[0.3em] italic uppercase">
                         {newArrivalData.subtitle}
                     </p>
                 )}
-                {/* 装饰线：增加视觉高级感 */}
-                <div className="mt-8 w-16 h-[1px] bg-pink-600/40" />
+                <div className="mt-5 w-16 h-[1px] bg-pink-600/40" />
             </div>
 
-            {/* 2. 图片展示区域：应用 picture 标签实现响应式双图 */}
+            {/* 2. 图片展示区域：带 Group Hover 状态 */}
             <div className="group relative w-full h-[65vh] md:h-[75vh] min-h-[500px]">
                 <div className="absolute inset-0">
                     <picture>
-                        {/* 移动端媒体查询：小于 768px 使用手机图 */}
                         <source media="(max-width: 767px)" srcSet={mobileImageUrl} />
                         <img
                             src={desktopImageUrl}
                             alt={newArrivalData.backgroundImage.alternativeText || newArrivalData.title}
-                            className="w-full h-full object-cover transition-transform duration-[3000ms] ease-out group-hover:scale-110"
+                            className="w-full h-full object-cover transition-transform duration-[2000ms] ease-out group-hover:scale-110"
                             sizes="100vw"
                             srcSet={`${smallImageUrl} 800w, ${desktopImageUrl} 1600w`}
                             loading="lazy"
                         />
                     </picture>
-
-                    {/* 遮罩层：稍微加深一点，确保 description 的白字在亮色图片下也清晰 */}
-                    <div className="absolute inset-0 bg-black/25 group-hover:bg-black/35 transition-colors duration-700" />
+                    {/* 遮罩颜色加深动效 */}
+                    <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors duration-500" />
                 </div>
 
-                {/* 3. 图片内内容层：仅保留描述和按钮 */}
+                {/* 3. 内容层：对标 CategoryShowcase 的悬停升起效果 */}
                 <div className="relative h-full flex items-center justify-center">
                     <div className="max-w-3xl px-6 text-center text-white">
 
-                        {/* 描述文本：放大字号并增加行间距 */}
-                        <div className="text-white text-lg md:text-2xl mb-12 max-w-2xl mx-auto leading-relaxed drop-shadow-lg font-light">
+                        {/* 描述文本：初始透明并下移，Hover 后升起 (与 Category 一致) */}
+                        <div className="text-white text-lg md:text-xl mb-10 max-w-2xl mx-auto space-y-3 opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-700 ease-out drop-shadow-md font-light tracking-wide">
                             {newArrivalData.description.split('\n').map((line, index) => (
-                                <p key={index} className="mb-2">{line}</p>
+                                <p key={index}>{line}</p>
                             ))}
                         </div>
 
-                        {/* 按钮：采用极简线性风格或实色风格 */}
+                        {/* 按钮：悬停缩放效果 */}
                         <div className="flex justify-center">
                             <LocalizedClientLink
                                 href={targetHref}
-                                className="px-12 py-4 border-2 border-white text-white text-sm font-bold tracking-[0.2em] uppercase hover:bg-white hover:text-black transition-all duration-500 transform hover:-translate-y-1"
+                                className="px-12 py-4 border border-white text-white text-sm font-bold tracking-[0.2em] uppercase hover:bg-white hover:text-black transition-all duration-300 transform"
                             >
                                 {newArrivalData.buttonText}
                             </LocalizedClientLink>

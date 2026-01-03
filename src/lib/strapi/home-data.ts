@@ -56,6 +56,12 @@ export async function getHomeHero(locale: string): Promise<HomeHeroData | null> 
                 url: data.backgroundImage?.url,
                 alternativeText: data.backgroundImage?.alternativeText,
                 formats: data.backgroundImage?.formats
+            },
+            mobileImage: {
+                id: data.mobileImage?.id,
+                url: data.mobileImage?.url,
+                alternativeText: data.mobileImage?.alternativeText,
+                formats: data.mobileImage?.formats
             }
         }
     } catch (error) {

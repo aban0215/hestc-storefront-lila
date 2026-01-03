@@ -51,7 +51,7 @@ function buildMenuTree(items: any[]) {
   }))
 }
 
-export default async function Nav() {
+export default  async function Nav() {
   const currentLocale = await getCurrentLocale()
   const [regions, locales, brandData, menuData] = await Promise.all([
     listRegions(),
@@ -72,7 +72,8 @@ export default async function Nav() {
             <div className="flex justify-between items-center h-[60px]">
 
               {/* 左侧：汉堡菜单 */}
-              <div className="flex-1 lg:w-48 lg:flex-none flex items-center">
+              {/*<div className="flex-1 lg:w-48 lg:flex-none flex items-center">*/}
+              <div className="flex-1 lg:hidden flex items-center">
                 <MobileMenu
                     menuTree={menuTree}
                     brandData={brandData}
@@ -84,7 +85,8 @@ export default async function Nav() {
 
               {/* 中间：Logo */}
               <div className="flex-[2] lg:flex-1 text-center flex items-center justify-center h-full">
-                <LocalizedClientLink href="/" className="text-[18px] md:text-[24px] lg:text-[28px] font-semibold tracking-[0.15em] lg:tracking-[0.3em] uppercase text-gray-900 leading-none">
+                <LocalizedClientLink href="/"
+                                     className="text-[18px] md:text-[24px] lg:text-[28px] font-semibold tracking-[0.15em] lg:tracking-[0.3em] uppercase text-gray-900 leading-none">
                   {brandData?.sitename || "LILA ZEN"}
                 </LocalizedClientLink>
               </div>
@@ -95,27 +97,29 @@ export default async function Nav() {
                 {/* PC端显示国家选择器，移动端隐藏 */}
                 <div className="hidden lg:flex items-center relative group h-full">
                   <button className="text-gray-700 hover:text-pink-600 transition-all flex items-center gap-x-1">
-                    <ActiveRegion />
+                    <ActiveRegion/>
                   </button>
-                  <div className="absolute top-full right-0 pt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-[110]">
+                  <div
+                      className="absolute top-full right-0 pt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-[110]">
                     <div className="w-48 bg-white border shadow-xl rounded-xl p-4 mt-1">
-                      <HeaderCountrySelect regions={regions} />
+                      <HeaderCountrySelect regions={regions}/>
                       <div className="mt-4 pt-4 border-t border-gray-50">
-                        <HeaderLanguageSelect locales={locales} currentLocale={currentLocale} />
+                        <HeaderLanguageSelect locales={locales} currentLocale={currentLocale}/>
                       </div>
                     </div>
                   </div>
                 </div>
 
                 {/* 用户中心 */}
-                <LocalizedClientLink href="/account" className="text-gray-700 hover:text-pink-600 flex items-center justify-center min-w-[24px]">
-                  <User size={20} />
+                <LocalizedClientLink href="/account"
+                                     className="text-gray-700 hover:text-pink-600 flex items-center justify-center min-w-[24px]">
+                  <User size={20}/>
                 </LocalizedClientLink>
 
                 {/* 购物车 - 核心对齐修复 */}
-                <Suspense fallback={<ShoppingBag size={20} />}>
+                <Suspense fallback={<ShoppingBag size={20}/>}>
                   <div className="flex items-center justify-center translate-y-[1.5px] min-w-[24px]">
-                    <CartButton />
+                    <CartButton/>
                   </div>
                 </Suspense>
               </div>
@@ -126,11 +130,11 @@ export default async function Nav() {
               <div className="absolute left-0 -top-[60px] z-[130]">
                 <LocalizedClientLink href="/" className="active:scale-95 transition-transform block">
                   {logoUrl && (
-                      <img src={logoUrl} alt="Logo" className="h-24 w-auto object-contain" />
+                      <img src={logoUrl} alt="Logo" className="h-24 w-auto object-contain"/>
                   )}
                 </LocalizedClientLink>
               </div>
-              <NavLinks menuTree={menuTree} />
+              <NavLinks menuTree={menuTree}/>
             </div>
           </nav>
         </header>

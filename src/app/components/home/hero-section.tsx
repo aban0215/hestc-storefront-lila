@@ -5,74 +5,71 @@ import { getSelectedLocale } from "@lib/data/locales";
 export default async function HeroSection() {
     const localecode = (await getSelectedLocale()) || 'en-US';
     const heroData = await getHomeHero(localecode);
-    if (!heroData) {
-        return null
-    }
+
+    if (!heroData) return null;
+
     const getHref = () => {
         const handle = heroData.medusaHandle;
         if (!handle) return "/";
-
         switch (heroData.linkType) {
-            case 'category':
-                return `/categories/${handle}`;
-            case 'collection':
-                return `/collections/${handle}`;
-            case 'product':
-                return `/products/${handle}`;
-            case 'external':
-                return handle;
-            default:
-                return "/";
+            case 'category': return `/categories/${handle}`;
+            case 'collection': return `/collections/${handle}`;
+            case 'product': return `/products/${handle}`;
+            case 'external': return handle;
+            default: return "/";
         }
     };
 
     const targetHref = getHref();
-    const imageUrl = `${heroData.backgroundImage.url}`
-    const smallImageUrl = heroData.backgroundImage.formats?.medium?.url
-        ? `${heroData.backgroundImage.formats.medium.url}`
-        : imageUrl
+
+    // 获取 PC 端和手机端图片地址
+    const desktopImageUrl = heroData.backgroundImage.url;
+    // mobileImage
+    const mobileImageUrl = heroData.mobileImage?.url || desktopImageUrl;
 
     return (
-        /* 修改点：调整高度，手机端 60vh 左右更合适 */
-        <section className="relative h-[60vh] min-h-[400px] md:h-[700px] overflow-hidden">
-            {/* 背景图片 */}
+        <section className="relative h-[70vh] min-h-[500px] md:h-[700px] w-full overflow-hidden">
+            {/* 背景图片容器 */}
             <div className="absolute inset-0">
-                <img
-                    src={imageUrl}
-                    alt={heroData.backgroundImage.alternativeText || heroData.title}
-                    /* 修改点：确保图片始终居中 */
-                    className="w-full h-full object-cover object-center"
-                    sizes="100vw"
-                    srcSet={`${smallImageUrl} 1000w, ${imageUrl} 2000w`}
-                    loading="eager"
-                />
+                <picture>
+                    {/* 当屏幕宽度小于 768px 时，显示手机端专用图 */}
+                    <source
+                        media="(max-width: 767px)"
+                        srcSet={mobileImageUrl}
+                    />
+                    {/* 当屏幕宽度大于等于 768px 时，显示 PC 端图 */}
+                    <img
+                        src={desktopImageUrl}
+                        alt={heroData.backgroundImage.alternativeText || heroData.title}
+                        className="w-full h-full object-cover object-center"
+                        loading="eager"
+                    />
+                </picture>
 
+                {/* 遮罩层 */}
                 <div
                     className="absolute inset-0 bg-black"
-                    style={{opacity: (heroData.overlayOpacity || 0) / 100}}
+                    style={{ opacity: (heroData.overlayOpacity || 0) / 100 }}
                 />
             </div>
 
-            {/* 内容层 */}
+            {/* 内容层 - 优化了移动端的排版 */}
             <div className="relative h-full flex items-center">
-                <div className="container mx-auto px-4">
-                    {/* 修改点：手机端文字居中 (text-center)，PC端保持靠左 (md:text-left) */}
+                <div className="container mx-auto px-6">
                     <div className="max-w-2xl text-center md:text-left mx-auto md:mx-0">
-                        {/* 修改点：手机端标题字号缩小 (text-3xl) */}
-                        <h1 className="text-3xl md:text-5xl lg:text-6xl font-serif font-bold text-white mb-4 leading-tight">
+                        <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif font-bold text-white mb-4 leading-tight drop-shadow-lg">
                             {heroData.title}
                         </h1>
 
                         {heroData.subtitle && (
-                            /* 修改点：手机端字号缩小 (text-lg) */
-                            <p className="text-lg md:text-2xl text-white/90 mb-8">
+                            <p className="text-lg md:text-2xl text-white/90 mb-8 drop-shadow-md">
                                 {heroData.subtitle}
                             </p>
                         )}
 
                         <LocalizedClientLink
                             href={targetHref}
-                            className="inline-flex items-center justify-center px-8 py-3 text-base font-medium text-white bg-pink-600 hover:bg-pink-700 rounded-md transition-colors"
+                            className="inline-flex items-center justify-center px-10 py-4 text-base font-medium text-white bg-pink-600 hover:bg-pink-700 rounded-full transition-all hover:scale-105"
                         >
                             {heroData.buttonText}
                         </LocalizedClientLink>
@@ -80,8 +77,10 @@ export default async function HeroSection() {
                 </div>
             </div>
 
-            <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-black/20 to-transparent"/>
+            {/* 底部渐变装饰 */}
+            <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-black/40 to-transparent"/>
 
+            {/* 全屏点击热区 */}
             <LocalizedClientLink
                 href={targetHref}
                 className="absolute inset-0 z-10"

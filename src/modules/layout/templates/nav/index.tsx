@@ -68,10 +68,13 @@ export default async function Nav() {
       <div className="sticky top-0 inset-x-0 z-[100] w-full">
         <header className="relative bg-white/90 backdrop-blur-md border-b border-gray-100">
           <nav className="content-container mx-auto px-4 lg:px-0">
+
+            {/* 第一行：主要导航层 (高度 60px) */}
             <div className="flex justify-between items-center h-[60px]">
 
-              {/* 左侧：保持与右侧等宽 (lg:w-48)，实现中间真正居中 */}
-              <div className="flex-1 lg:w-48 lg:flex-none flex items-center">
+              {/* 左侧区域：包含移动端菜单和 PC 端 Logo */}
+              <div className="flex-1 lg:w-48 lg:flex-none flex items-center h-full">
+                {/* 移动端 Hamburger Menu */}
                 <div className="lg:hidden">
                   <MobileMenu
                       menuTree={menuTree}
@@ -81,9 +84,24 @@ export default async function Nav() {
                       currentLocale={currentLocale}
                   />
                 </div>
+
+                {/* PC 端 Logo - 纵向居中对齐 */}
+                <div className="hidden lg:flex items-center h-full">
+                  <LocalizedClientLink href="/" className="active:scale-95 transition-transform flex items-center">
+                    {logoUrl ? (
+                        <img
+                            src={logoUrl}
+                            alt="Logo"
+                            className="h-14 w-auto object-contain py-1"
+                        />
+                    ) : (
+                        <span className="font-bold text-xl tracking-tighter text-gray-900">LOGO</span>
+                    )}
+                  </LocalizedClientLink>
+                </div>
               </div>
 
-              {/* 中间：Sitename 居中 */}
+              {/* 中间区域：站点名称 - 绝对水平居中 */}
               <div className="flex-[2] lg:flex-1 text-center flex items-center justify-center h-full">
                 <LocalizedClientLink href="/"
                                      className="text-[18px] md:text-[24px] lg:text-[28px] font-semibold tracking-[0.15em] lg:tracking-[0.3em] uppercase text-gray-900 leading-none">
@@ -91,12 +109,14 @@ export default async function Nav() {
                 </LocalizedClientLink>
               </div>
 
-              {/* 右侧：功能按钮 (固定宽度 lg:w-48) */}
+              {/* 右侧区域：功能图标和区域选择 */}
               <div className="flex-1 lg:w-48 lg:flex-none flex justify-end items-center gap-x-4 lg:gap-x-6 h-full">
+                {/* 地区选择 */}
                 <div className="hidden lg:flex items-center relative group h-full">
                   <button className="text-gray-700 hover:text-pink-600 transition-all flex items-center gap-x-1">
                     <ActiveRegion/>
                   </button>
+                  {/* 下拉浮层 */}
                   <div className="absolute top-full right-0 pt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-[110]">
                     <div className="w-48 bg-white border shadow-xl rounded-xl p-4 mt-1">
                       <HeaderCountrySelect regions={regions}/>
@@ -107,10 +127,12 @@ export default async function Nav() {
                   </div>
                 </div>
 
+                {/* 用户中心 */}
                 <LocalizedClientLink href="/account" className="text-gray-700 hover:text-pink-600 flex items-center justify-center min-w-[24px]">
                   <User size={20}/>
                 </LocalizedClientLink>
 
+                {/* 购物车 */}
                 <Suspense fallback={<ShoppingBag size={20}/>}>
                   <div className="flex items-center justify-center translate-y-[1.5px] min-w-[24px]">
                     <CartButton/>
@@ -119,17 +141,11 @@ export default async function Nav() {
               </div>
             </div>
 
-            {/* 第二行：PC 菜单 */}
-            <div className="hidden lg:block relative">
-              {/* PC Logo 绝对定位在左侧 */}
-              <div className="absolute left-0 -top-[60px] z-[130] h-[60px] flex items-center">
-                <LocalizedClientLink href="/" className="active:scale-95 transition-transform block">
-                  {logoUrl && (
-                      <img src={logoUrl} alt="Logo" className="h-20 w-auto object-contain"/>
-                  )}
-                </LocalizedClientLink>
+            {/* 第二行：PC 菜单分类链接 */}
+            <div className="hidden lg:block border-t border-gray-50/50">
+              <div className="flex justify-center">
+                <NavLinks menuTree={menuTree}/>
               </div>
-              <NavLinks menuTree={menuTree}/>
             </div>
           </nav>
         </header>

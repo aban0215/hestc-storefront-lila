@@ -5,26 +5,25 @@ import LocalizedClientLink from '@modules/common/components/localized-client-lin
 export default async function BlogShowcase() {
     const localecode = (await getSelectedLocale()) || 'en-US'
 
-    // 并行获取设置和最新文章
-    const [settingsData, blogPostData] = await Promise.all([
+    // 并行获取数据
+    const [settingsData, blogPost] = await Promise.all([
         getBlogModuleSettings(localecode),
-        getLatestBlogPost(localecode)
+        getLatestBlogPost(localecode) // 已经返回了 data[0]，所以这里直接就是文章对象
     ])
 
-    // 处理 Strapi 可能的嵌套层级
+    // 处理设置项的嵌套
     const settings = settingsData?.data?.data || settingsData?.data || settingsData;
 
-    // 根据你提供的 JSON 结构：blogPost 应该取 data[0]
-    const blogPost = blogPostData?.data?.[0] || blogPostData?.[0];
-
+    // 健壮性检查：如果没有设置或没有文章，不渲染
     if (!settings?.showModule || !blogPost) {
         return null
     }
 
-    // --- 统一跳转逻辑解析 ---
+    // --- 逻辑解析 ---
     const getTargetHref = () => {
+        // 优先使用 medusaHandle，其次是 slug
         const handle = blogPost.medusaHandle || blogPost.slug;
-        const type = blogPost.linkType || blogPost.link_type; // 兼容后端返回的 link_type
+        const type = blogPost.link_type || blogPost.linkType;
 
         if (!handle) return "/blog";
 
@@ -39,15 +38,12 @@ export default async function BlogShowcase() {
     }
 
     const targetHref = getTargetHref();
-
-    // 媒体处理逻辑
     const media = blogPost.coverImage;
     const isVideo = media?.mime?.includes('video');
     const mediaUrl = media?.url;
 
     return (
         <section className="relative w-full overflow-hidden bg-white border-t border-gray-50">
-
             {/* 1. 顶部标题区域 */}
             <div className="w-full py-6 px-10 flex flex-col items-center justify-center border-b border-gray-50 text-center">
                 <h2 className="text-3xl md:text-4xl font-serif font-bold text-gray-900 leading-tight">
@@ -60,7 +56,7 @@ export default async function BlogShowcase() {
                 )}
             </div>
 
-            {/* 2. 核心展示区域 (图片/视频) */}
+            {/* 2. 核心展示区域 */}
             <div className="group relative w-full h-[65vh] md:h-[75vh] min-h-[500px] overflow-hidden">
                 <div className="absolute inset-0">
                     {mediaUrl && (
@@ -71,7 +67,6 @@ export default async function BlogShowcase() {
                                 muted
                                 loop
                                 playsInline
-                                // 性能优化：利用阿里云OSS截取视频第一帧作为封面图防止白屏
                                 poster={`${mediaUrl}?x-oss-process=video/snapshot,t_1000,f_jpg`}
                                 className="w-full h-full object-cover transition-transform duration-[2000ms] ease-out group-hover:scale-110"
                             />
@@ -84,15 +79,14 @@ export default async function BlogShowcase() {
                             />
                         )
                     )}
-                    {/* 遮罩颜色动效 */}
                     <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors duration-500" />
                 </div>
 
                 {/* 3. 文字内容层 */}
                 <div className="relative h-full flex items-center justify-center text-center px-6 pointer-events-none">
                     <div className="max-w-4xl text-white">
-                        {/* 标签与日期 */}
                         <div className="flex flex-wrap justify-center items-center gap-6 mb-8 text-[10px] md:text-xs tracking-[0.2em] text-gray-100 uppercase font-medium">
+                            {/* 注意：你的数据里分类字段名是 lila_blog_category */}
                             {(settings.showCategory && blogPost.lila_blog_category) && (
                                 <span className="px-3 py-1 border border-white/40">
                                     {blogPost.lila_blog_category.name}
@@ -103,18 +97,15 @@ export default async function BlogShowcase() {
                             )}
                         </div>
 
-                        {/* 文章主标题 */}
                         <h3 className="text-3xl md:text-5xl lg:text-6xl font-serif font-bold mb-8 leading-tight drop-shadow-lg">
                             {blogPost.title}
                         </h3>
 
-                        {/* 描述文本 (Excerpt)：悬停升起效果 */}
                         <p className="text-gray-100 text-sm md:text-lg mb-12 max-w-2xl mx-auto opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-700 ease-out font-light leading-relaxed line-clamp-2 md:line-clamp-none">
                             {blogPost.excerpt}
                         </p>
 
                         <div className="flex flex-col items-center gap-8 pointer-events-auto">
-                            {/* 阅读按钮 */}
                             <LocalizedClientLink
                                 href={targetHref}
                                 className="px-12 py-4 border border-white text-white text-xs font-bold tracking-[0.2em] uppercase hover:bg-white hover:text-black transition-all duration-300"
@@ -122,7 +113,6 @@ export default async function BlogShowcase() {
                                 {settings.readButtonText?.toUpperCase() || 'READ MORE'}
                             </LocalizedClientLink>
 
-                            {/* 查看全部 */}
                             <LocalizedClientLink
                                 href="/blog"
                                 className="inline-flex items-center gap-2 text-white/70 font-bold text-[10px] tracking-[0.2em] uppercase hover:text-white transition-colors group/all"
@@ -136,7 +126,6 @@ export default async function BlogShowcase() {
                     </div>
                 </div>
 
-                {/* 全区域点击热区 (放在最后确保在最上层，但按钮需要 pointer-events-auto 处理) */}
                 <LocalizedClientLink
                     href={targetHref}
                     className="absolute inset-0 z-[5]"
@@ -147,13 +136,12 @@ export default async function BlogShowcase() {
     )
 }
 
-// 日期格式化辅助函数
 function formatDate(dateString: string, locale: string): string {
-    const date = new Date(dateString)
-    const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long', day: 'numeric' };
-
-    if (locale === 'zh-CN' || locale.includes('zh')) {
-        return date.toLocaleDateString('zh-CN', options)
+    try {
+        const date = new Date(dateString)
+        const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long', day: 'numeric' };
+        return date.toLocaleDateString(locale.includes('zh') ? 'zh-CN' : locale, options)
+    } catch (e) {
+        return dateString;
     }
-    return date.toLocaleDateString(locale, options)
 }

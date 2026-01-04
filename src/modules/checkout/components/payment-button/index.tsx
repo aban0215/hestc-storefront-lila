@@ -40,7 +40,7 @@ const PaymentButton: React.FC<PaymentButtonProps> = ({
           />
       )
       // --- PayPal 逻辑分支 ---
-    case paymentSession?.provider_id === "paypal":
+    case paymentSession?.provider_id === "pp_paypal_paypal" || paymentSession?.provider_id === "paypal":
       return (
           <PaypalPaymentButton
               notReady={notReady}
@@ -52,7 +52,7 @@ const PaymentButton: React.FC<PaymentButtonProps> = ({
           <ManualTestPaymentButton notReady={notReady} data-testid={dataTestId} />
       )
     default:
-        return <Button disabled>ID: {paymentSession?.provider_id || "No Session"}</Button>
+        return <Button disabled>Select a payment method</Button>
   }
 }
 
@@ -69,7 +69,7 @@ const PaypalPaymentButton = ({
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
   const session = cart.payment_collection?.payment_sessions?.find(
-      (s) => s.provider_id === "paypal"
+      (s) => s.provider_id === "pp_paypal_paypal" || s.provider_id === "paypal"
   )
 
   const onPaymentCompleted = async () => {

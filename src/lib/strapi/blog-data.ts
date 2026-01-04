@@ -168,6 +168,7 @@ export async function getBlogPosts(locale: string, categorySlug?: string) {
         readTime: post.readTime,
         publishedAt: post.publishedAt,
         coverImage: {
+            mime: post.coverImage?.mime,
             url: post.coverImage?.url,
             alternativeText: post.coverImage?.alternativeText
         },

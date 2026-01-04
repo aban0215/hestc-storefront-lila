@@ -29,6 +29,7 @@ const PaymentButton: React.FC<PaymentButtonProps> = ({
       (s) => s.status === "pending"
   )
 
+    console.log("Current Payment Session:", paymentSession)
   switch (true) {
     case isStripeLike(paymentSession?.provider_id):
       return (
@@ -51,7 +52,7 @@ const PaymentButton: React.FC<PaymentButtonProps> = ({
           <ManualTestPaymentButton notReady={notReady} data-testid={dataTestId} />
       )
     default:
-      return <Button disabled>Select a payment method</Button>
+        return <Button disabled>ID: {paymentSession?.provider_id || "No Session"}</Button>
   }
 }
 

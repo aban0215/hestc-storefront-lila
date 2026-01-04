@@ -1,4 +1,3 @@
-// app/[countryCode]/blog/page.tsx
 
 import { Metadata } from "next"
 import { getBlogPosts, getBlogCategories } from "@lib/strapi/blog-data"
@@ -11,12 +10,12 @@ type Props = {
     searchParams: Promise<{ category?: string }>
 }
 
+const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_API_URL || "http://47.89.151.64:1337";
+
 /**
  * 获取博客列表页专用 SEO 补丁
  */
 async function getBlogArchiveSeo() {
-    // 建议将 IP 替换为环境变量或 getBaseURL 处理
-    const STRAPI_URL = "http://47.89.151.64:1337"
     const query = `${STRAPI_URL}/api/lila-seo-extensions?filters[key][$eq]=blog-key&locale=en-US&populate[lilaSeo][populate]=shareImage`
     try {
         const res = await fetch(query, { next: { revalidate: 3600 } })

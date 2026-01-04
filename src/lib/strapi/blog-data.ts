@@ -35,6 +35,7 @@ export interface BlogPostDetailData {
     medusaHandle: string;
     coverImage: {
         url: string;
+        mime?: string;
         alternativeText: string;
     };
     category?: {
@@ -116,6 +117,7 @@ export async function getBlogPostBySlug(slug: string, locale: string): Promise<B
             medusaHandle: data.medusa_handle || data.slug.replace(/^\//, ''),
             coverImage: {
                 url: data.coverImage?.url,
+                mime: data.coverImage?.mime,
                 alternativeText: data.coverImage?.alternativeText || data.title
             },
             category: data.category ? {

@@ -7,14 +7,15 @@ import LocalizedClientLink from "@modules/common/components/localized-client-lin
 import { getBaseURL } from "@lib/util/env"
 
 type Props = {
-    params: { countryCode: string }
-    searchParams: { category?: string }
+    params: Promise<{ countryCode: string }>
+    searchParams: Promise<{ category?: string }>
 }
 
 /**
  * 获取博客列表页专用 SEO 补丁
  */
 async function getBlogArchiveSeo() {
+    // 建议将 IP 替换为环境变量或 getBaseURL 处理
     const STRAPI_URL = "http://47.89.151.64:1337"
     const query = `${STRAPI_URL}/api/lila-seo-extensions?filters[key][$eq]=blog-key&locale=en-US&populate[lilaSeo][populate]=shareImage`
     try {
@@ -26,13 +27,9 @@ async function getBlogArchiveSeo() {
     }
 }
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
-    const { countryCode } = params
-
-    // 1. 获取 SEO 补丁
+export async function generateMetadata(props: Props): Promise<Metadata> {
+    const { countryCode } = await props.params
     const seo = await getBlogArchiveSeo()
-
-    // 2. 锁定 Canonical (指向美国站博客首页)
     const baseUrl = getBaseURL()
     const canonicalUrl = `${baseUrl}/us/blog`
 
@@ -47,19 +44,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
             title: seo?.metaTitle,
             description: seo?.metaDescription,
             url: canonicalUrl,
-            images: seo?.shareImage?.[0]?.url ? [seo.shareImage[0].url] : [],
+            images: seo?.shareImage?.[0]?.url ? [{ url: seo.shareImage[0].url }] : [],
         },
     }
 }
 
-export default async function BlogArchivePage({
-                                                  params,
-                                                  searchParams,
-                                              }: Props) {
-    const { countryCode } = params
-    const { category: activeCategorySlug } = searchParams
+export default async function BlogArchivePage(props: Props) {
+    const { countryCode } = await props.params
+    const { category: activeCategorySlug } = await props.searchParams
 
-    // 注意：这里业务内容的展示依然遵循用户选择的语言 locale
     const locale = (await getSelectedLocale()) || 'en-US'
 
     // 并行获取分类和文章
@@ -112,39 +105,61 @@ export default async function BlogArchivePage({
                         </div>
                     ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-12">
-                            {posts.map((post: any) => (
-                                <LocalizedClientLink
-                                    key={post.id}
-                                    href={`/blog/${post.slug}`}
-                                    className="group flex flex-col"
-                                >
-                                    <div className="aspect-[16/10] overflow-hidden bg-gray-100 mb-4">
-                                        <img
-                                            src={`${post.coverImage.url}`}
-                                            alt={post.coverImage.alternativeText || post.title}
-                                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                                        />
-                                    </div>
+                            {posts.map((post: any) => {
+                                const media = post.coverImage;
+                                const isVideo = media?.mime?.includes('video');
+                                const mediaUrl = media?.url;
 
-                                    <div className="flex items-center gap-3 mb-2 text-[10px] uppercase tracking-widest font-bold text-pink-600">
-                                        <span>{post.category?.name}</span>
-                                        <span className="text-gray-300">•</span>
-                                        <span className="text-gray-400">{post.readTime} MIN READ</span>
-                                    </div>
+                                return (
+                                    <LocalizedClientLink
+                                        key={post.id}
+                                        href={`/blog/${post.slug}`}
+                                        className="group flex flex-col"
+                                    >
+                                        <div className="aspect-[16/10] overflow-hidden bg-gray-100 mb-4 relative">
+                                            {mediaUrl ? (
+                                                isVideo ? (
+                                                    <video
+                                                        src={mediaUrl}
+                                                        autoPlay
+                                                        muted
+                                                        loop
+                                                        playsInline
+                                                        // 列表页建议强制截取第1帧作为海报，减少白屏感
+                                                        poster={`${mediaUrl}?x-oss-process=video/snapshot,t_1000,f_jpg`}
+                                                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                                    />
+                                                ) : (
+                                                    <img
+                                                        src={mediaUrl}
+                                                        alt={media.alternativeText || post.title}
+                                                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                                        loading="lazy"
+                                                    />
+                                                )
+                                            ) : null}
+                                        </div>
 
-                                    <h2 className="text-xl font-serif font-bold mb-3 group-hover:text-pink-600 transition-colors">
-                                        {post.title}
-                                    </h2>
+                                        <div className="flex items-center gap-3 mb-2 text-[10px] uppercase tracking-widest font-bold text-pink-600">
+                                            <span>{post.lila_blog_category?.name || post.category?.name}</span>
+                                            <span className="text-gray-300">•</span>
+                                            <span className="text-gray-400">{post.readTime || '5'} MIN READ</span>
+                                        </div>
 
-                                    <p className="text-gray-500 text-sm line-clamp-2 mb-4 leading-relaxed">
-                                        {post.excerpt}
-                                    </p>
+                                        <h2 className="text-xl font-serif font-bold mb-3 group-hover:text-pink-600 transition-colors">
+                                            {post.title}
+                                        </h2>
 
-                                    <span className="text-xs font-bold uppercase tracking-widest border-b border-black self-start pb-1">
-                                        Read Article
-                                    </span>
-                                </LocalizedClientLink>
-                            ))}
+                                        <p className="text-gray-500 text-sm line-clamp-2 mb-4 leading-relaxed">
+                                            {post.excerpt}
+                                        </p>
+
+                                        <span className="text-xs font-bold uppercase tracking-widest border-b border-black self-start pb-1 group-hover:text-pink-600 group-hover:border-pink-600 transition-all">
+                                            Read Article
+                                        </span>
+                                    </LocalizedClientLink>
+                                );
+                            })}
                         </div>
                     )}
                 </main>

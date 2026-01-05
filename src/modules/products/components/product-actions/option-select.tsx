@@ -39,8 +39,7 @@ const OptionSelect: React.FC<OptionSelectProps> = ({
                                 "border text-small-regular rounded-lg px-3 py-1.5 min-w-0",
                                 "max-w-full truncate transition-all duration-150",
                                 {
-                                    "border-ui-border-interactive bg-ui-bg-interactive text-ui-fg-interactive":
-                                    isSelected,
+                                    "border-ui-border-interactive": isSelected, // 仅修改这里
                                     "border-ui-border-base bg-ui-bg-subtle text-ui-fg-base hover:bg-ui-bg-subtle-hover":
                                         !isSelected && !disabled,
                                     "border-ui-border-base bg-ui-bg-disabled text-ui-fg-disabled cursor-not-allowed":

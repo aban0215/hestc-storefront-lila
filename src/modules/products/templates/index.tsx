@@ -61,7 +61,7 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
                             </div>
                         )}
 
-                        <ProductOnboardingCta />
+                        {/*<ProductOnboardingCta />*/}
 
                         <Suspense
                             fallback={

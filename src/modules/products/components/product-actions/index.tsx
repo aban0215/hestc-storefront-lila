@@ -163,25 +163,28 @@ export default function ProductActions({
         <ProductPrice product={product} variant={selectedVariant} />
 
         <Button
-          onClick={handleAddToCart}
-          disabled={
-            !inStock ||
-            !selectedVariant ||
-            !!disabled ||
-            isAdding ||
-            !isValidVariant
-          }
-          variant="primary"
-          className="w-full h-10"
-          isLoading={isAdding}
-          data-testid="add-product-button"
+            onClick={handleAddToCart}
+            disabled={
+              !inStock ||
+              !selectedVariant ||
+              !!disabled ||
+              isAdding ||
+              !isValidVariant
+            }
+            variant="primary"
+            className="w-full min-h-[2.5rem] h-auto py-2 flex items-center justify-center text-center"
+            isLoading={isAdding}
+            data-testid="add-product-button"
         >
-          {!selectedVariant && !options
-            ? "Select variant"
-            : !inStock || !isValidVariant
-            ? "Out of stock"
-            : "Add to cart"}
+        <span className="break-words max-w-full">
+          {!selectedVariant
+              ? "Select variant"
+              : !inStock || !isValidVariant
+                  ? "Out of stock"
+                  : "Add to cart"}
+        </span>
         </Button>
+
         <MobileActions
           product={product}
           variant={selectedVariant}

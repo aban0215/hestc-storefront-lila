@@ -136,11 +136,11 @@ export default async function BlogDetailPage(props: Props) {
                                                 playsInline
                                                 className="w-full rounded-md my-4 shadow-sm"
                                             >
-                                                您的浏览器不支持视频播放。
+                                                Your browser does not support video playback.
+
                                             </video>
                                         );
                                     }
-                                    // 如果是普通图片，则正常渲染
                                     return (
                                         <img
                                             src={src}

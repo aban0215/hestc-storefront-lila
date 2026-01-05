@@ -172,17 +172,19 @@ export default function ProductActions({
               !isValidVariant
             }
             variant="primary"
-            className="w-full min-h-[2.5rem] h-auto py-2 flex items-center justify-center text-center"
+            className="w-full min-h-[2.5rem] py-2"
             isLoading={isAdding}
             data-testid="add-product-button"
         >
-        <span className="break-words max-w-full">
-          {!selectedVariant
-              ? "Select variant"
-              : !inStock || !isValidVariant
-                  ? "Out of stock"
-                  : "Add to cart"}
-        </span>
+          <div className="flex items-center justify-center min-h-[1.5rem]">
+    <span className="text-center break-words px-2 leading-tight">
+      {!selectedVariant
+          ? "Select variant"
+          : !inStock || !isValidVariant
+              ? "Out of stock"
+              : "Add to cart"}
+    </span>
+          </div>
         </Button>
 
         <MobileActions

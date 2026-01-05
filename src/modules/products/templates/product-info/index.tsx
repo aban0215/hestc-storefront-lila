@@ -32,7 +32,6 @@ const ProductInfo = ({ product }: ProductInfoProps) => {
           </Heading>
 
           <Text
-              // 字体已加大：从 text-medium 改为 text-2xl
               className="text-2xl leading-normal text-ui-fg-base whitespace-pre-line"
               data-testid="product-description"
           >

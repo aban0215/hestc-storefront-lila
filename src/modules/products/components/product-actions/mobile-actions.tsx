@@ -112,37 +112,37 @@ const MobileActions: React.FC<MobileActionsProps> = ({
                     <Button
                         onClick={open}
                         variant="secondary"
-                        /* 修改点：允许高度自适应，增加内边距 */
-                        className="w-full h-auto min-h-[2.5rem] py-2 px-3 flex items-center justify-center"
+                        className="w-full h-auto min-h-[2.5rem] py-2 px-3"
                         data-testid="mobile-actions-button"
                     >
-                      <div className="flex items-center justify-between w-full gap-x-2">
-                    <span className="break-words text-left leading-tight">
-                      {variant
-                          ? Object.values(options).join(" / ")
-                          : "Select Options"}
-                    </span>
-                        <ChevronDown className="shrink-0" />
-                      </div>
+                        <div className="flex items-center justify-between w-full gap-x-2 min-h-[1.5rem]">
+    <span className="text-left break-words leading-tight flex-1">
+      {variant
+          ? Object.values(options).join(" / ")
+          : "Select Options"}
+    </span>
+                            <ChevronDown className="shrink-0 ml-1" />
+                        </div>
                     </Button>
                 )}
 
-                <Button
-                    onClick={handleAddToCart}
-                    disabled={!inStock || !variant}
-                    /* 修改点：允许高度自适应，内容居中换行 */
-                    className="w-full h-auto min-h-[2.5rem] py-2 px-3 flex items-center justify-center"
-                    isLoading={isAdding}
-                    data-testid="mobile-cart-button"
-                >
-                <span className="break-words leading-tight text-center">
-                  {!variant
-                      ? "Select variant"
-                      : !inStock
-                          ? "Out of stock"
-                          : "Add to cart"}
-                </span>
-                </Button>
+                  <Button
+                      onClick={handleAddToCart}
+                      disabled={!inStock || !variant}
+                      className="w-full h-auto min-h-[2.5rem] py-2 px-3"
+                      isLoading={isAdding}
+                      data-testid="mobile-cart-button"
+                  >
+                      <div className="flex items-center justify-center min-h-[1.5rem]">
+    <span className="text-center break-words leading-tight px-2">
+      {!variant
+          ? "Select variant"
+          : !inStock
+              ? "Out of stock"
+              : "Add to cart"}
+    </span>
+                      </div>
+                  </Button>
               </div>
             </div>
           </Transition>

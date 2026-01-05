@@ -30,7 +30,7 @@ const PaymentButton: React.FC<PaymentButtonProps> = ({
         (s) => s.status === "pending" || s.status === "requires_action"
     )
 
-    console.log("Current Payment Session:", paymentSession)
+    // console.log("Current Payment Session:", paymentSession)
 
     switch (true) {
         case isStripeLike(paymentSession?.provider_id):
@@ -102,7 +102,7 @@ const PaypalPaymentButton = ({
                 }}
                 // 用户在 PayPal 弹窗点击付款成功后触发
                 onApprove={async (data, actions) => {
-                    console.log("PayPal Approved: ", data)
+                    // console.log("PayPal Approved: ", data)
                     await onPaymentCompleted()
                 }}
                 // 处理 PayPal 弹窗内部错误

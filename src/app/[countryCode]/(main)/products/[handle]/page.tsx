@@ -159,7 +159,7 @@ export default async function ProductPage(props: Props) {
       queryParams: {
         handle: handle,
         // 必须包含 *images 和 *variants，否则 getImagesForVariant 会崩溃
-        fields: "*variants,*variants.images,*images,*type,material,origin_country,weight,description"
+        fields: "title,handle,subtitle,description,*variants,*variants.images,*images,*type,material,origin_country,weight"
       },
     }).then(({ response }) => response.products[0]),
     getProductStrapiContent(handle)

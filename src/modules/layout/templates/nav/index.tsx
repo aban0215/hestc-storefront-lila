@@ -76,7 +76,7 @@ export default async function Nav() {
 
               {/* --- 左侧区域 --- */}
               <div className="flex-1 flex items-center gap-x-4">
-                {/* 【移动端专有】 */}
+                {/* 移动端逻辑保持不变 */}
                 <div className="lg:hidden">
                   <MobileMenu
                       menuTree={menuTree}
@@ -87,26 +87,22 @@ export default async function Nav() {
                   />
                 </div>
 
-                {/* 【PC端专有：LV 风格菜单触发】 */}
-                <div className="hidden lg:flex items-center gap-x-2 cursor-pointer group relative">
-                  <BarsThree size={20} className="text-gray-700 group-hover:text-black" />
-                  <span className="text-xs uppercase tracking-[0.2em] font-medium">Menu</span>
-                  {/* 隐藏的触发层 */}
-                  <div className="absolute inset-0 opacity-0 overflow-hidden">
-                    <MobileMenu
-                        menuTree={menuTree}
-                        brandData={brandData}
-                        regions={regions}
-                        locales={locales}
-                        currentLocale={currentLocale}
-                    />
-                  </div>
+                {/* PC端：直接渲染组件，不要包在 absolute 容器里，否则 fixed 定位有时会失效 */}
+                <div className="hidden lg:block">
+                  <MobileMenu
+                      menuTree={menuTree}
+                      brandData={brandData}
+                      regions={regions}
+                      locales={locales}
+                      currentLocale={currentLocale}
+                      isDesktop={true} // 传入这个标记
+                  />
                 </div>
 
-                {/* 搜索按钮 - PC端加文字 */}
+                {/* 搜索按钮 */}
                 <div className="flex items-center group cursor-pointer">
                   <SearchModal />
-                  <span className="text-xs uppercase tracking-[0.2em] font-medium hidden lg:block ml-2">Search</span>
+                  <span className="text-[10px] uppercase tracking-[0.2em] font-bold hidden lg:block ml-1">Search</span>
                 </div>
               </div>
 

@@ -23,13 +23,15 @@ export default function MobileMenu({
                                        brandData,
                                        regions,
                                        locales,
-                                       currentLocale
+                                       currentLocale,
+                                       isDesktop = false // 接收这个新参数
                                    }: {
     menuTree: any[],
     brandData: any,
     regions: any,
     locales: any,
-    currentLocale: string
+    currentLocale: string,
+    isDesktop?: boolean // 可选参数
 }) {
     const [isOpen, setIsOpen] = useState(false)
     const [openSubMenu, setOpenSubMenu] = useState<number | string | null>(null)
@@ -50,16 +52,30 @@ export default function MobileMenu({
     return (
         <>
             {/* 触发按钮 */}
-            <button onClick={() => setIsOpen(true)} className="p-2 -ml-2 text-gray-800 relative z-30">
-                <Menu size={24} strokeWidth={1.5} />
+            <button
+                onClick={() => setIsOpen(true)}
+                className={`flex items-center text-gray-800 transition-all hover:opacity-70 ${
+                    isDesktop ? "gap-x-2 p-0" : "p-2 -ml-2"
+                } relative z-30`}
+            >
+                <Menu size={isDesktop ? 20 : 24} strokeWidth={1.5} />
+                {isDesktop && (
+                    <span className="text-[10px] uppercase tracking-[0.2em] font-bold">Menu</span>
+                )}
             </button>
 
             {/* 背景遮罩 */}
-            <div className={`fixed inset-0 z-[9999] bg-black/50 backdrop-blur-sm transition-opacity duration-300 ${isOpen ? "opacity-100" : "opacity-0 pointer-events-none"}`} onClick={() => setIsOpen(false)} />
-
+            <div
+                className={`fixed inset-0 z-[99999] bg-black/40 backdrop-blur-sm transition-opacity duration-300 ${
+                    isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
+                }`}
+                onClick={() => setIsOpen(false)}
+            />
             {/* 侧边栏容器 */}
             <div
-                className={`fixed inset-y-0 left-0 z-[10000] w-[75%] max-w-[280px] bg-white shadow-2xl transform transition-transform duration-300 ease-out ${isOpen ? "translate-x-0" : "-translate-x-full"}`}
+                className={`fixed inset-y-0 left-0 z-[100000] w-[85%] max-w-[320px] bg-white shadow-2xl transform transition-transform duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] ${
+                    isOpen ? "translate-x-0" : "-translate-x-full"
+                }`}
                 onClick={(e) => e.stopPropagation()}
             >
                 <div className="flex flex-col h-[100dvh] bg-white">

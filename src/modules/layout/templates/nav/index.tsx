@@ -12,6 +12,7 @@ import { User, ShoppingBag } from "@medusajs/icons"
 import ActiveRegion from "@modules/layout/templates/nav/active-region";
 import NavLinks from "@modules/layout/templates/nav/NavLinks";
 import MobileMenu from "@modules/layout/templates/nav/mobile-menu";
+import SearchModal from "@modules/search/components/modal"
 
 async function getCurrentLocale() {
   try {
@@ -112,6 +113,7 @@ export default async function Nav() {
               {/* 右侧：功能按钮 */}
               <div className="flex-1 lg:w-48 lg:flex-none flex justify-end items-center gap-x-4 lg:gap-x-6 h-full">
                 <div className="hidden lg:flex items-center relative group h-full">
+                  <SearchModal />
                   <button className="text-gray-700 hover:text-pink-600 transition-all flex items-center gap-x-1">
                     <ActiveRegion/>
                   </button>

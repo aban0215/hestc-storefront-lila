@@ -1,5 +1,6 @@
 import { getLocaleHeader } from "@lib/util/get-locale-header"
 import Medusa, { FetchArgs, FetchInput } from "@medusajs/js-sdk"
+import { instantMeiliSearch } from "@meilisearch/instant-meilisearch"
 
 // Defaults to standard port for Medusa server
 let MEDUSA_BACKEND_URL = "http://localhost:9000"
@@ -7,6 +8,12 @@ let MEDUSA_BACKEND_URL = "http://localhost:9000"
 if (process.env.MEDUSA_BACKEND_URL) {
   MEDUSA_BACKEND_URL = process.env.MEDUSA_BACKEND_URL
 }
+
+
+export const { searchClient } = instantMeiliSearch(
+    process.env.NEXT_PUBLIC_MEILISEARCH_HOST || "http://127.0.0.1:7700", // 生产环境会读取 Vercel 变量
+    process.env.NEXT_PUBLIC_MEILISEARCH_API_KEY || ""
+)
 
 export const sdk = new Medusa({
   baseUrl: MEDUSA_BACKEND_URL,

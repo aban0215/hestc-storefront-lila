@@ -8,9 +8,7 @@ import HeaderCountrySelect from "@modules/layout/components/header-country-selec
 import HeaderLanguageSelect from "@modules/layout/components/header-language-select"
 
 
-const [isOpen, setIsOpen] = useState(false)
-const [openSubMenu, setOpenSubMenu] = useState<number | string | null>(null) // 控制一级
-const [openGrandChildMenu, setOpenGrandChildMenu] = useState<number | string | null>(null) // 控制二级
+
 
 const getMenuHref = (linkType: string, slug: string) => {
     if (!slug) return "/"
@@ -40,6 +38,7 @@ export default function MobileMenu({
 }) {
     const [isOpen, setIsOpen] = useState(false)
     const [openSubMenu, setOpenSubMenu] = useState<number | string | null>(null)
+    const [openGrandChildMenu, setOpenGrandChildMenu] = useState<number | string | null>(null) // 新加的
     const [isMounted, setIsMounted] = useState(false)
     const pathname = usePathname()
 

@@ -7,6 +7,11 @@ import { usePathname } from "next/navigation"
 import HeaderCountrySelect from "@modules/layout/components/header-country-select"
 import HeaderLanguageSelect from "@modules/layout/components/header-language-select"
 
+
+const [isOpen, setIsOpen] = useState(false)
+const [openSubMenu, setOpenSubMenu] = useState<number | string | null>(null) // 控制一级
+const [openGrandChildMenu, setOpenGrandChildMenu] = useState<number | string | null>(null) // 控制二级
+
 const getMenuHref = (linkType: string, slug: string) => {
     if (!slug) return "/"
     const cleanSlug = slug.trim().toLowerCase().replace(/\s+/g, "-").replace(/^\//, "")
@@ -94,7 +99,7 @@ export default function MobileMenu({
 
                                 return (
                                     <div key={item.id} className="border-b border-gray-50 last:border-0">
-                                        {/* 一级菜单 */}
+                                        {/* 一级菜单行 */}
                                         <div className="flex items-center justify-between">
                                             <LocalizedClientLink
                                                 href={getMenuHref(item.link_type, item.slug)}
@@ -104,7 +109,10 @@ export default function MobileMenu({
                                             </LocalizedClientLink>
                                             {hasChildren && (
                                                 <button
-                                                    onClick={() => setOpenSubMenu(isSubOpen ? null : item.id)}
+                                                    onClick={() => {
+                                                        setOpenSubMenu(isSubOpen ? null : item.id);
+                                                        setOpenGrandChildMenu(null); // 关闭一级时重置二级状态
+                                                    }}
                                                     className="w-10 h-12 flex justify-end items-center"
                                                 >
                                                     <ChevronRight size={14} className={`transition-transform duration-300 ${isSubOpen ? 'rotate-90 text-pink-600' : 'text-gray-300'}`} />
@@ -114,32 +122,42 @@ export default function MobileMenu({
 
                                         {/* 二级菜单容器 */}
                                         {hasChildren && (
-                                            <div className={`overflow-hidden transition-all duration-300 ease-in-out bg-gray-50/30 ${isSubOpen ? "max-h-[1200px] mb-2 opacity-100" : "max-h-0 opacity-0"}`}>
+                                            <div className={`overflow-hidden transition-all duration-300 ease-in-out bg-gray-50/30 ${isSubOpen ? "max-h-[2000px] mb-2 opacity-100" : "max-h-0 opacity-0"}`}>
                                                 {item.children.map((child: any) => {
                                                     const hasGrandChildren = child.children && child.children.length > 0;
-                                                    // 这里我们创建一个独立的二级菜单状态，或者简单地全部显示
+                                                    const isGrandOpen = openGrandChildMenu === child.id;
+
                                                     return (
-                                                        <div key={child.id} className="flex flex-col">
-                                                            {/* 二级菜单项 */}
-                                                            <div className="flex items-center justify-between pr-2">
+                                                        <div key={child.id} className="flex flex-col border-l border-gray-100 ml-2">
+                                                            {/* 二级菜单行 */}
+                                                            <div className="flex items-center justify-between">
                                                                 <LocalizedClientLink
                                                                     href={getMenuHref(child.link_type, child.slug)}
-                                                                    className="block py-3 px-4 text-[10px] tracking-widest text-gray-600 uppercase font-semibold"
+                                                                    className={`block py-3 px-4 text-[10px] tracking-widest uppercase transition-colors ${isGrandOpen ? "text-black font-bold" : "text-gray-600"}`}
                                                                 >
                                                                     {child.title}
                                                                 </LocalizedClientLink>
+                                                                {hasGrandChildren && (
+                                                                    <button
+                                                                        onClick={() => setOpenGrandChildMenu(isGrandOpen ? null : child.id)}
+                                                                        className="w-10 h-10 flex justify-center items-center"
+                                                                    >
+                                                                        {/* 二级菜单用 + - 号或更小的箭头区分 */}
+                                                                        <span className="text-lg text-gray-400">{isGrandOpen ? '−' : '+'}</span>
+                                                                    </button>
+                                                                )}
                                                             </div>
 
-                                                            {/* 三级菜单（如果有） */}
+                                                            {/* 三级菜单容器 */}
                                                             {hasGrandChildren && (
-                                                                <div className="flex flex-col pb-2">
+                                                                <div className={`overflow-hidden transition-all duration-300 ease-in-out ${isGrandOpen ? "max-h-[1000px] opacity-100" : "max-h-0 opacity-0"}`}>
                                                                     {child.children.map((grandChild: any) => (
                                                                         <LocalizedClientLink
                                                                             key={grandChild.id}
                                                                             href={getMenuHref(grandChild.link_type, grandChild.slug)}
-                                                                            className="block py-2 px-8 text-[9px] tracking-[0.15em] text-gray-400 uppercase hover:text-black transition-colors"
+                                                                            className="block py-2.5 px-8 text-[9px] tracking-[0.15em] text-gray-400 uppercase hover:text-pink-600 transition-colors"
                                                                         >
-                                                                            • {grandChild.title}
+                                                                            {grandChild.title}
                                                                         </LocalizedClientLink>
                                                                     ))}
                                                                 </div>

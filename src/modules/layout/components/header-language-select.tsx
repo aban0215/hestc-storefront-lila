@@ -140,19 +140,20 @@ const HeaderLanguageSelect = ({ locales, currentLocale }: HeaderLanguageSelectPr
                         onClick={(e) => {
                             e.stopPropagation()
                         }}
-                        className={`flex items-center gap-x-2 text-ui-fg-subtle hover:text-ui-fg-base transition-all py-1.5 px-3 rounded-md w-full sm:min-w-[100px] outline-none ${
+                        className={`flex items-center gap-x-2 text-ui-fg-subtle hover:text-ui-fg-base transition-all w-full outline-none ${
+                            // 关键点：移除 py-1.5, px-3, rounded-md 和 sm:min-w-[100px]
                             open ? 'bg-ui-bg-subtle-hover text-ui-fg-base' : ''
                         }`}
                     >
                         {current ? (
                             <>
                                 <FlagIcon code={current.countryCode} />
-                                <span className="text-sm font-bold whitespace-nowrap">
-                                    {current.localizedName.split(' ')[0]}
-                                </span>
+                                <span className="text-[11px] font-bold uppercase tracking-widest tabular-nums">
+                {current.localizedName.split(' ')[0]}
+            </span>
                             </>
                         ) : (
-                            <span className="text-sm font-medium">Select</span>
+                            <span className="text-[11px] font-bold uppercase tracking-widest">Select</span>
                         )}
                         <ChevronDown className={`h-4 w-4 ml-auto transition-transform duration-200 ${open ? 'rotate-180' : ''}`} />
                     </Popover.Button>
@@ -173,8 +174,7 @@ const HeaderLanguageSelect = ({ locales, currentLocale }: HeaderLanguageSelectPr
                              * 2. w-full sm:w-[240px] -> 移动端宽度自适应。
                              * 3. 移除 overflow-hidden -> 防止阴影或内容被切断。
                              */
-                            className="relative sm:absolute right-0 z-[110] mt-2 w-full sm:w-[240px] origin-top-right bg-white rounded-lg shadow-xl ring-1 ring-black/5 focus:outline-none"
-                        >
+                            className="relative sm:absolute right-0 z-[110] mt-0 w-full sm:w-[240px] origin-top-right bg-white focus:outline-none"                        >
                             {/* PC端连接层 */}
                             <div className="hidden sm:block absolute -top-2 h-2 w-full bg-transparent" />
 

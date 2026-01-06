@@ -115,19 +115,22 @@ const HeaderCountrySelect = ({ regions }: HeaderCountrySelectProps) => {
                     onMouseEnter={() => handleMouseEnter(open)}
                     onMouseLeave={() => handleMouseLeave(open, close)}
                 >
+                    {/* 修改后的 Popover.Button */}
                     <Popover.Button
                         ref={buttonRef}
                         onClick={(e) => {
                             e.stopPropagation()
                         }}
-                        className={`flex items-center gap-x-2 text-ui-fg-subtle hover:text-ui-fg-base transition-all py-1.5 px-3 rounded-md outline-none w-full sm:min-w-[80px] ${
+                        className={`flex items-center gap-x-2 text-ui-fg-subtle hover:text-ui-fg-base transition-all w-full outline-none ${
+                            // 关键点：移除 px-3, py-1.5 和 rounded-md
                             open ? "bg-ui-bg-subtle-hover text-ui-fg-base" : ""
                         }`}
+                        style={{ padding: '0 12px', height: '50px' }} // 使用行内样式或通过类名确保高度一致
                     >
                         {current && <FlagIcon code={current.country} />}
-                        <span className="text-sm font-bold uppercase tabular-nums">
-                            {current?.country || "Select"}
-                        </span>
+                        <span className="text-[12px] font-bold uppercase tabular-nums tracking-widest">
+        {current?.country || "Select"}
+    </span>
                         <ChevronDown
                             className={`h-4 w-4 ml-auto transition-transform duration-200 ${
                                 open ? "rotate-180" : ""

@@ -120,23 +120,28 @@ export default function MobileMenu({
                         </div>
 
                         {/* 底部 Preferences 模块 - 关键对齐修改 */}
-                        <div className="px-6 py-8 bg-gray-50/50 border-t border-gray-100 flex-shrink-0">
-                            <div className="flex items-center gap-x-2 mb-6 text-gray-400">
-                                <Globe size={12} strokeWidth={2} />
-                                <span className="text-[9px] uppercase tracking-[0.2em] font-bold">Preferences</span>
+                        <div className="px-6 py-10 bg-gray-50/50 border-t border-gray-100 flex-shrink-0">
+                            {/* 标题部分：确保 px 与上方菜单一致 */}
+                            <div className="flex items-center gap-x-3 mb-6 text-gray-400">
+                                <Globe size={14} strokeWidth={1.5} />
+                                <span className="text-[10px] uppercase tracking-[0.2em] font-bold">Preferences</span>
                             </div>
 
-                            {/* 这里的容器不再设置额外的 padding，依靠父级的 px-6 限制宽度 */}
-                            <div className="space-y-3 mobile-preference-container">
-                                <div className="relative bg-white border border-gray-200 overflow-hidden rounded-none flex items-center w-full min-h-[44px]">
+                            {/* 选择框容器：移除 rounded-xl，改为 border 边框 */}
+                            <div className="space-y-4 mobile-preference-container">
+                                {/* 国家选择 */}
+                                <div className="relative bg-white border border-gray-200 flex items-center w-full min-h-[50px] overflow-hidden">
                                     <HeaderCountrySelect regions={regions} />
                                 </div>
-                                <div className="relative bg-white border border-gray-200 overflow-hidden rounded-none flex items-center w-full min-h-[44px]">
+
+                                {/* 语言选择 */}
+                                <div className="relative bg-white border border-gray-200 flex items-center w-full min-h-[50px] overflow-hidden">
                                     <HeaderLanguageSelect locales={locales} currentLocale={currentLocale} />
                                 </div>
                             </div>
 
-                            <div className="mt-10 mb-2 text-[8px] text-gray-300 uppercase tracking-[0.3em] text-center">
+                            {/* 版权信息 */}
+                            <div className="mt-12 mb-4 text-[9px] text-gray-300 uppercase tracking-[0.3em] text-center">
                                 © {new Date().getFullYear()} {brandData?.sitename}
                             </div>
                         </div>
@@ -145,127 +150,79 @@ export default function MobileMenu({
             </div>
 
             <style jsx global>{`
-            
-            .mobile-preference-container button {
-        width: 100% !important;
-        height: 44px !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: space-between !important; /* 让文字和箭头两头对齐 */
-        padding: 0 12px !important;
-        background: transparent !important;
-        border: none !important;
-        font-size: 10px !important;
-        letter-spacing: 0.1em !important;
-        font-weight: 600 !important;
-        color: #374151 !important;
-        text-transform: uppercase !important;
+    /* 统一滚动条 */
+    .custom-scrollbar::-webkit-scrollbar {
+        width: 3px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        background-color: #e5e7eb;
+        border-radius: 10px;
     }
 
-    /* 强制对齐弹出的下拉面板 */
+    /* 强制 Preferences 内部组件占满全宽 */
+    .mobile-preference-container .relative.inline-block {
+        display: block !important;
+        width: 100% !important;
+    }
+
+    /* 统一选择器按钮样式：极致对齐 */
+    .mobile-preference-container button {
+        width: 100% !important;
+        height: 50px !important;
+        padding: 0 16px !important; /* 这个值必须与上方菜单文字的起点对齐 */
+        margin: 0 !important;
+        border-radius: 0 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        background: transparent !important;
+        border: none !important;
+        font-size: 11px !important;
+        font-weight: 700 !important;
+        color: #111827 !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.15em !important;
+        outline: none !important;
+    }
+
+    /* 图标对齐 */
+    .mobile-preference-container img, 
+    .mobile-preference-container .react-country-flag {
+        margin-right: 12px !important;
+        flex-shrink: 0;
+    }
+
+    /* 下拉面板：改为嵌入式，去除悬浮和圆角 */
     .mobile-preference-container div[id^="headlessui-popover-panel"],
     .mobile-preference-container [role="listbox"] {
         position: relative !important;
-        width: 100% !important;
-        min-width: 100% !important;
-        margin: 0 !important; /* 消除边距偏移 */
+        top: 0 !important;
         left: 0 !important;
-        right: 0 !important;
-        border-radius: 0 !important; /* 奢侈品风格通常用直角或极小圆角 */
-        border: 1px solid #f3f4f6 !important;
-        border-top: none !important;
+        width: 100% !important; 
+        margin: 0 !important;
+        transform: none !important;
+        display: block !important;
         background-color: #ffffff !important;
-        box-shadow: none !important; /* 嵌入式布局不需要阴影 */
+        border-radius: 0 !important;
+        border-top: 1px solid #f3f4f6 !important;
+        box-shadow: none !important;
+        max-height: 300px !important; 
+        overflow-y: auto !important;
     }
 
-    /* 内部选项左右对齐 */
+    /* 下拉选项对齐 */
     .mobile-preference-container div[id^="headlessui-popover-panel"] button {
-        padding: 10px 12px !important;
+        padding: 12px 16px !important;
         border-bottom: 1px solid #f9fafb !important;
+        justify-content: flex-start !important;
     }
 
-    /* 隐藏 Select 内部默认的奇怪边距 */
-    .mobile-preference-container .react-country-flag {
-        margin-right: 8px !important;
-        margin-left: 0 !important;
+    /* 侧边栏基础边距对齐 */
+    .px-6 {
+        padding-left: 1.5rem !important; /* 24px */
+        padding-right: 1.5rem !important;
     }
-                /* 1. 全局侧边栏滚动条 */
-                .custom-scrollbar::-webkit-scrollbar {
-                    width: 3px;
-                }
-                .custom-scrollbar::-webkit-scrollbar-thumb {
-                    background-color: #e5e7eb;
-                    border-radius: 10px;
-                }
-
-                /* 2. 按钮样式对齐：完整保留你原来的设置 */
-                .mobile-preference-container button {
-                    width: 100% !important;
-                    height: 48px !important;
-                    display: flex !important;
-                    align-items: center !important;
-                    justify-content: flex-start !important;
-                    padding: 0 16px !important;
-                    background: transparent !important;
-                    border: none !important;
-                    font-size: 11px !important;
-                    font-weight: 600 !important;
-                    color: #1f2937 !important;
-                    text-transform: uppercase !important;
-                    -webkit-tap-highlight-color: transparent !important;
-                    outline: none !important;
-                }
-
-                /* 3. 核心修复：将浮动面板改为嵌入式，撑开菜单触发主滚动条 */
-                .mobile-preference-container div[id^="headlessui-popover-panel"],
-                .mobile-preference-container [role="listbox"] {
-                    position: relative !important;
-                    top: 0 !important;
-                    left: 0 !important;
-                    width: 100% !important; 
-                    min-width: 100% !important;
-                    margin-top: 2px !important;
-                    transform: none !important;
-                    z-index: 10 !important;
-                    display: block !important;
-                    /* 保持你原来的视觉样式 */
-                    background-color: #f9fafb !important;
-                    border-radius: 0 0 8px 8px !important;
-                    box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.03) !important;
-                    border-top: 1px solid #f3f4f6 !important;
-                    border-left: none !important;
-                    border-right: none !important;
-                    border-bottom: none !important;
-                    /* 允许在下拉内部滚动，但不再受外部 45vh 截断 */
-                    max-height: 280px !important; 
-                    overflow-y: auto !important;
-                    -webkit-overflow-scrolling: touch;
-                }
-
-                /* 4. 下拉选项按钮对齐：完整保留 */
-                .mobile-preference-container div[id^="headlessui-popover-panel"] button {
-                    width: 100% !important;
-                    height: auto !important;
-                    padding: 12px 16px !important;
-                    border-bottom: 1px solid #f1f1f1 !important;
-                    font-weight: 500 !important;
-                }
-                .mobile-preference-container div[id^="headlessui-popover-panel"] button:last-child {
-                    border-bottom: none !important;
-                }
-
-                /* 5. 图标间距：完整保留 */
-                .mobile-preference-container img, 
-                .mobile-preference-container .react-country-flag {
-                    margin-right: 12px !important;
-                    flex-shrink: 0;
-                }
-
-                /* 6. 容器层级修正：完整保留 */
-                .mobile-preference-container {
-                    isolation: isolate;
-                }
-            `}</style>
+`}</style>
         </>
     )
 }

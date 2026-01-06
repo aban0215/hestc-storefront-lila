@@ -3,6 +3,7 @@ import { getLilaPageBySlug } from "@lib/strapi/home-data"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import {getSelectedLocale} from "@lib/data/locales";
 import ReactMarkdown from "react-markdown"
+import rehypeRaw from "rehype-raw"
 
 export default async function LilaDynamicPage(props: {
     params: Promise<{ countryCode: string; slug: string }>
@@ -39,7 +40,7 @@ export default async function LilaDynamicPage(props: {
 
                     <article className="prose prose-sm max-w-none">
                         <div className="text-gray-700 leading-[1.8] tracking-wide">
-                            <ReactMarkdown>
+                            <ReactMarkdown rehypePlugins={[rehypeRaw]}>
                                 {pageData.content}
                             </ReactMarkdown>
                         </div>

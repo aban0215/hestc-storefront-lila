@@ -2,6 +2,7 @@ import { notFound } from "next/navigation"
 import { getLilaPageBySlug } from "@lib/strapi/home-data"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import {getSelectedLocale} from "@lib/data/locales";
+import ReactMarkdown from "react-markdown"
 
 export default async function LilaDynamicPage(props: {
     params: Promise<{ countryCode: string; slug: string }>
@@ -32,18 +33,16 @@ export default async function LilaDynamicPage(props: {
 
             <main className="content-container pb-24">
                 <div className="max-w-4xl mx-auto">
-                    {/* 页面大标题 */}
                     <h1 className="text-[32px] md:text-[40px] font-light tracking-tight text-gray-900 mb-16 border-b border-gray-100 pb-10">
                         {pageData.title}
                     </h1>
 
-                    {/* 正文区域 */}
                     <article className="prose prose-sm max-w-none">
-                        {/* 针对 Strapi Blocks 或 Rich Text 的渲染 */}
-                        <div
-                            className="text-gray-700 leading-[1.8] tracking-wide space-y-6"
-                            dangerouslySetInnerHTML={{ __html: pageData.content }}
-                        />
+                        <div className="text-gray-700 leading-[1.8] tracking-wide">
+                            <ReactMarkdown>
+                                {pageData.content}
+                            </ReactMarkdown>
+                        </div>
                     </article>
                 </div>
             </main>

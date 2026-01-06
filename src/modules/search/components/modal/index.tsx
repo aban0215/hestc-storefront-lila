@@ -8,7 +8,7 @@ import { Button } from "@medusajs/ui"
 import Image from "next/image"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Search } from "@medusajs/icons" // 引入官方放大镜图标
+import { MagnifyingGlass } from "@medusajs/icons"
 
 type Hit = {
     id: string;
@@ -44,7 +44,7 @@ export default function SearchModal() {
                     className="text-gray-700 hover:text-pink-600 transition-all flex items-center justify-center p-0 min-w-[24px] hover:bg-transparent focus:!bg-transparent active:scale-95"
                 >
                     {/* 使用放大镜图标，尺寸设为 20 与旁边 User 图标对齐 */}
-                    <Search size={20} />
+                    <MagnifyingGlass size={20} />
                 </Button>
             </div>
             <Modal isOpen={isOpen} close={() => setIsOpen(false)}>

@@ -1,5 +1,4 @@
-// 基础 URL 和配置
-const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_API_URL || "http://47.89.151.64:1337";
+const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_API_URL
 
 /**
  * 获取全局 SEO 配置

@@ -8,6 +8,9 @@ import BestSellers from '../../components/home/best-sellers'
 import BlogShowcase from '../../components/home/blog-showcase'
 import { getBaseURL } from "@lib/util/env"
 
+
+const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_API_URL;
+
 type Props = {
   params: Promise<{ countryCode: string }>
 }
@@ -17,7 +20,6 @@ type Props = {
  * 强制使用 en-US 实现单中心索引
  */
 async function getHomepageSeo() {
-  const STRAPI_URL = "http://47.89.151.64:1337"
   // 适配你的最新接口：key 为 homepage-key，组件名为 lilaSeo
   const query = `${STRAPI_URL}/api/lila-seo-extensions?filters[key][$eq]=homepage-key&locale=en-US&populate[lilaSeo][populate]=shareImage`
 

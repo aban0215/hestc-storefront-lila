@@ -10,7 +10,7 @@ type Props = {
     searchParams: Promise<{ category?: string }>
 }
 
-const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_API_URL || "http://47.89.151.64:1337";
+const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_API_URL;
 
 /**
  * 获取博客列表页专用 SEO 补丁

@@ -63,7 +63,7 @@ export default async function Nav() {
   ])
 
   const menuTree = buildMenuTree(menuData)
-  const baseUrl = process.env.NEXT_PUBLIC_STRAPI_API_URL || "http://47.89.151.64:1337"
+  const baseUrl = process.env.NEXT_PUBLIC_STRAPI_API_URL
   const logoUrl = brandData?.logo?.url ? `${brandData.logo.url.startsWith('http') ? '' : baseUrl}${brandData.logo.url}` : null
 
   return (

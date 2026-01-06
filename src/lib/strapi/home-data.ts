@@ -1,4 +1,4 @@
-const STRAPI_BASE_URL = process.env.NEXT_PUBLIC_STRAPI_API_URL || 'http://47.89.151.64:1337'
+const STRAPI_BASE_URL = process.env.NEXT_PUBLIC_STRAPI_API_URL
 
 export interface StrapiImage {
     id: number
@@ -717,7 +717,7 @@ export async function getFooterBottomSettings(): Promise<FooterBottomSettings | 
             'populate[socialMediaLinks][populate][medialogo]': 'true'
         }).toString();
 
-        const url = `http://47.89.151.64:1337/api/footer-bottom-setting?${query}`;
+        const url = `${STRAPI_BASE_URL}/api/footer-bottom-setting?${query}`;
 
         const res = await fetch(url, {
             next: { revalidate: 3600 },

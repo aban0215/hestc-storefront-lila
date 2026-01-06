@@ -7,6 +7,8 @@ import { HttpTypes } from "@medusajs/types"
 import { getProductStrapiContent } from "../../../../../lib/strapi/product-content"
 import { getBaseURL } from "@lib/util/env"
 
+const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_API_URL;
+
 type Props = {
   params: Promise<{ countryCode: string; handle: string }>
   searchParams: Promise<{ v_id?: string }>
@@ -17,7 +19,6 @@ type Props = {
  * 强制请求 en-US，确保单中心索引
  */
 async function getProductSeoForMetadata(handle: string) {
-  const STRAPI_URL = "http://47.89.151.64:1337"
   // 仅请求 SEO 核心字段，减少体积
   const query = `${STRAPI_URL}/api/lila-product-contents?filters[medusa_handle][$eq]=${handle}&locale=en-US&populate[productSeo][populate]=shareImage`
 

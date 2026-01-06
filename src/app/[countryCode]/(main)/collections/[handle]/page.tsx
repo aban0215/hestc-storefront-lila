@@ -9,13 +9,14 @@ import CollectionTemplate from "@modules/collections/templates"
 import { SortOptions } from "@modules/store/components/refinement-list/sort-products"
 import { getBaseURL } from "@lib/util/env"
 
+const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_API_URL;
+
 type Props = {
   params: Promise<{ handle: string; countryCode: string }>
   searchParams: Promise<{ page?: string; sortBy?: SortOptions }>
 }
 
 async function getCollectionSeoPatch() {
-  const STRAPI_URL = "http://47.89.151.64:1337"
   const query = `${STRAPI_URL}/api/lila-seo-extensions?filters[key][$eq]=collection-key&locale=en-US&populate[lilaSeo][populate]=shareImage`
   try {
     const res = await fetch(query, { next: { revalidate: 3600 } })

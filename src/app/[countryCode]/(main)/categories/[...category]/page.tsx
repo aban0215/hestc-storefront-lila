@@ -1,5 +1,3 @@
-// app/[countryCode]/categories/[...category]/page.tsx
-
 import { Metadata } from "next"
 import { notFound } from "next/navigation"
 import { getCategoryByHandle, listCategories } from "@lib/data/categories"
@@ -14,9 +12,11 @@ type Props = {
   searchParams: Promise<{ sortBy?: SortOptions; page?: string }>
 }
 
+
+const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_API_URL;
+
 // 提取 SEO 的 Helper 函数
 async function getCategorySeoPatch() {
-  const STRAPI_URL = "http://47.89.151.64:1337"
   const query = `${STRAPI_URL}/api/lila-seo-extensions?filters[key][$eq]=category-key&locale=en-US&populate[lilaSeo][populate]=shareImage`
   try {
     const res = await fetch(query, { next: { revalidate: 3600 } })

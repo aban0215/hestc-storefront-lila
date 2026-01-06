@@ -1,4 +1,4 @@
-const STRAPI_BASE_URL = process.env.NEXT_PUBLIC_STRAPI_API_URL || 'http://47.89.151.64:1337'
+const STRAPI_BASE_URL = process.env.NEXT_PUBLIC_STRAPI_API_URL
 
 export interface BlogModuleSettings {
     id: number

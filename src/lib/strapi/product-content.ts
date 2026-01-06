@@ -1,5 +1,9 @@
 import { getLocale } from "@lib/data/locale-actions"
 
+
+
+const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_API_URL
+
 export interface StrapiFAQItem {
     id: number
     question: string
@@ -52,10 +56,9 @@ export interface StrapiProductResponse {
  */
 export async function getProductStrapiContent(handle: string): Promise<LilaProductContent | null> {
     const locale = await getLocale()
-    const strapiUrl = process.env.NEXT_PUBLIC_STRAPI_API_URL || "http://47.89.151.64:1337"
     try {
         const response = await fetch(
-            `${strapiUrl}/api/lila-product-contents?filters[medusa_handle][$eq]=${handle}&locale=${locale}&populate=*`,
+            `${STRAPI_URL}/api/lila-product-contents?filters[medusa_handle][$eq]=${handle}&locale=${locale}&populate=*`,
             {
                 // 建议设置缓存时间，或者根据需要使用 no-store
                 next: { revalidate: 3600 },
@@ -75,13 +78,11 @@ export async function getProductStrapiContent(handle: string): Promise<LilaProdu
 
 
 
-
 /**
  * 获取商品 SEO 补丁
  * 强制使用 locale=en-US 以实现单中心索引
  */
 export async function getProductSeo(handle: string) {
-    const STRAPI_URL = "http://47.89.151.64:1337";
     const query = `${STRAPI_URL}/api/lila-product-contents?filters[medusa_handle][$eq]=${handle}&locale=en-US&populate[productSeo][populate]=shareImage`;
 
     try {

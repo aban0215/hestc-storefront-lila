@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useEffect, useState } from "react"
-import { Hits, InstantSearch, SearchBox } from "react-instantsearch"
+import {Configure, Hits, InstantSearch, SearchBox} from "react-instantsearch"
 import { searchClient } from "../../../../lib/config"
 import Modal from "../../../common/components/modal"
 import { Button } from "@medusajs/ui"
@@ -56,6 +56,7 @@ export default function SearchModal() {
                         searchClient={searchClient}
                         indexName={process.env.NEXT_PUBLIC_MEILISEARCH_INDEX_NAME}
                     >
+                        <Configure hitsPerPage={4} />
                         <SearchBox
                             autoFocus
                             placeholder="Search products..."

@@ -98,7 +98,7 @@ export default function MobileMenu({
 
                                 return (
                                     <div key={item.id} className="border-b border-gray-50 last:border-0">
-                                        {/* 一级菜单行 */}
+                                        {/* 一级菜单 */}
                                         <div className="flex items-center justify-between">
                                             <LocalizedClientLink
                                                 href={getMenuHref(item.link_type, item.slug)}
@@ -110,7 +110,7 @@ export default function MobileMenu({
                                                 <button
                                                     onClick={() => {
                                                         setOpenSubMenu(isSubOpen ? null : item.id);
-                                                        setOpenGrandChildMenu(null); // 关闭一级时重置二级状态
+                                                        setOpenGrandChildMenu(null); // 切换一级时收起所有二级
                                                     }}
                                                     className="w-10 h-12 flex justify-end items-center"
                                                 >
@@ -141,8 +141,11 @@ export default function MobileMenu({
                                                                         onClick={() => setOpenGrandChildMenu(isGrandOpen ? null : child.id)}
                                                                         className="w-10 h-10 flex justify-center items-center"
                                                                     >
-                                                                        {/* 二级菜单用 + - 号或更小的箭头区分 */}
-                                                                        <span className="text-lg text-gray-400">{isGrandOpen ? '−' : '+'}</span>
+                                                                        {/* 同样使用 ChevronRight，根据状态旋转 */}
+                                                                        <ChevronRight
+                                                                            size={12}
+                                                                            className={`transition-transform duration-300 ${isGrandOpen ? 'rotate-90 text-pink-600' : 'text-gray-300'}`}
+                                                                        />
                                                                     </button>
                                                                 )}
                                                             </div>
@@ -154,7 +157,7 @@ export default function MobileMenu({
                                                                         <LocalizedClientLink
                                                                             key={grandChild.id}
                                                                             href={getMenuHref(grandChild.link_type, grandChild.slug)}
-                                                                            className="block py-2.5 px-8 text-[9px] tracking-[0.15em] text-gray-400 uppercase hover:text-pink-600 transition-colors"
+                                                                            className="block py-2.5 px-10 text-[9px] tracking-[0.15em] text-gray-400 uppercase hover:text-black transition-colors"
                                                                         >
                                                                             {grandChild.title}
                                                                         </LocalizedClientLink>

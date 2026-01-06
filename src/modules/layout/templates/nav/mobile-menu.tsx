@@ -91,27 +91,62 @@ export default function MobileMenu({
                             {menuTree?.map((item: any) => {
                                 const hasChildren = item.children && item.children.length > 0;
                                 const isSubOpen = openSubMenu === item.id;
+
                                 return (
                                     <div key={item.id} className="border-b border-gray-50 last:border-0">
+                                        {/* 一级菜单 */}
                                         <div className="flex items-center justify-between">
-                                            {/* 移除 px-2，让文字直接左对齐 */}
-                                            <LocalizedClientLink href={getMenuHref(item.link_type, item.slug)} className="flex-1 py-4 text-[12px] font-bold tracking-widest uppercase text-gray-800">
+                                            <LocalizedClientLink
+                                                href={getMenuHref(item.link_type, item.slug)}
+                                                className="flex-1 py-4 text-[12px] font-bold tracking-widest uppercase text-gray-800"
+                                            >
                                                 {item.title}
                                             </LocalizedClientLink>
                                             {hasChildren && (
-                                                <button onClick={() => setOpenSubMenu(isSubOpen ? null : item.id)} className="w-10 h-12 flex justify-end items-center">
+                                                <button
+                                                    onClick={() => setOpenSubMenu(isSubOpen ? null : item.id)}
+                                                    className="w-10 h-12 flex justify-end items-center"
+                                                >
                                                     <ChevronRight size={14} className={`transition-transform duration-300 ${isSubOpen ? 'rotate-90 text-pink-600' : 'text-gray-300'}`} />
                                                 </button>
                                             )}
                                         </div>
-                                        {/* 子菜单缩进调整 */}
+
+                                        {/* 二级菜单容器 */}
                                         {hasChildren && (
-                                            <div className={`overflow-hidden transition-all duration-300 ease-in-out bg-gray-50/30 ${isSubOpen ? "max-h-[800px] mb-2 opacity-100" : "max-h-0 opacity-0"}`}>
-                                                {item.children.map((child: any) => (
-                                                    <LocalizedClientLink key={child.id} href={getMenuHref(child.link_type, child.slug)} className="block py-3 px-2 text-[10px] tracking-widest text-gray-500 uppercase">
-                                                        {child.title}
-                                                    </LocalizedClientLink>
-                                                ))}
+                                            <div className={`overflow-hidden transition-all duration-300 ease-in-out bg-gray-50/30 ${isSubOpen ? "max-h-[1200px] mb-2 opacity-100" : "max-h-0 opacity-0"}`}>
+                                                {item.children.map((child: any) => {
+                                                    const hasGrandChildren = child.children && child.children.length > 0;
+                                                    // 这里我们创建一个独立的二级菜单状态，或者简单地全部显示
+                                                    return (
+                                                        <div key={child.id} className="flex flex-col">
+                                                            {/* 二级菜单项 */}
+                                                            <div className="flex items-center justify-between pr-2">
+                                                                <LocalizedClientLink
+                                                                    href={getMenuHref(child.link_type, child.slug)}
+                                                                    className="block py-3 px-4 text-[10px] tracking-widest text-gray-600 uppercase font-semibold"
+                                                                >
+                                                                    {child.title}
+                                                                </LocalizedClientLink>
+                                                            </div>
+
+                                                            {/* 三级菜单（如果有） */}
+                                                            {hasGrandChildren && (
+                                                                <div className="flex flex-col pb-2">
+                                                                    {child.children.map((grandChild: any) => (
+                                                                        <LocalizedClientLink
+                                                                            key={grandChild.id}
+                                                                            href={getMenuHref(grandChild.link_type, grandChild.slug)}
+                                                                            className="block py-2 px-8 text-[9px] tracking-[0.15em] text-gray-400 uppercase hover:text-black transition-colors"
+                                                                        >
+                                                                            • {grandChild.title}
+                                                                        </LocalizedClientLink>
+                                                                    ))}
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    );
+                                                })}
                                             </div>
                                         )}
                                     </div>

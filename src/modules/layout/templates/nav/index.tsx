@@ -90,8 +90,9 @@ export default async function Nav() {
             {/* 第一行：工具栏 (60px) */}
             <div className="flex justify-between items-center h-[60px]">
               {/* 左侧：仅在移动端显示 MobileMenu，PC端留空（因为Logo已经绝对定位在此处） */}
-              <div className="flex-1 lg:w-48 lg:flex-none flex items-center">
-                <div className="lg:hidden">
+              <div className="flex-1 lg:w-48 lg:flex-none flex items-center gap-x-3">
+                {/* 仅在移动端显示的容器 */}
+                <div className="flex lg:hidden items-center gap-x-3">
                   <MobileMenu
                       menuTree={menuTree}
                       brandData={brandData}
@@ -99,6 +100,8 @@ export default async function Nav() {
                       locales={locales}
                       currentLocale={currentLocale}
                   />
+                  {/* 手机端搜索图标：放在菜单右边 */}
+                  <SearchModal />
                 </div>
               </div>
 

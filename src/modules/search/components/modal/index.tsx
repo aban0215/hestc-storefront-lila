@@ -9,6 +9,8 @@ import Image from "next/image"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { MagnifyingGlass } from "@medusajs/icons"
+import { useParams } from "next/navigation"
+
 
 type Hit = {
     id: string;
@@ -70,6 +72,7 @@ export default function SearchModal() {
 }
 
 const Hit = ({ hit }: { hit: Hit }) => {
+    const { countryCode } = useParams()
     return (
         <div className="flex flex-row gap-x-4 py-4 border-b border-gray-50 last:border-none relative group" key={hit.id}>
             <div className="w-20 h-20 relative flex-shrink-0 bg-gray-50 rounded-md overflow-hidden">
@@ -89,7 +92,7 @@ const Hit = ({ hit }: { hit: Hit }) => {
                 </p>
             </div>
             <Link
-                href={`/products/${hit.handle}`}
+                href={`/${countryCode}/products/${hit.handle}`}
                 className="absolute inset-0 z-10"
                 aria-label={`View Product: ${hit.title}`}
             />

@@ -121,11 +121,11 @@ const HeaderCountrySelect = ({ regions }: HeaderCountrySelectProps) => {
                         onClick={(e) => {
                             e.stopPropagation()
                         }}
-                        className={`flex items-center gap-x-2 text-ui-fg-subtle hover:text-ui-fg-base transition-all w-full outline-none ${
+                        className={`flex items-center w-full h-[50px] justify-between gap-x-2 text-ui-fg-subtle hover:text-ui-fg-base transition-all w-full outline-none ${
                             // 关键点：移除 px-3, py-1.5 和 rounded-md
                             open ? "bg-ui-bg-subtle-hover text-ui-fg-base" : ""
                         }`}
-                        style={{ padding: '0 12px', height: '50px' }} // 使用行内样式或通过类名确保高度一致
+                        // style={{ padding: '0 12px', height: '50px' }} // 使用行内样式或通过类名确保高度一致
                     >
                         {current && <FlagIcon code={current.country} />}
                         <span className="text-[12px] font-bold uppercase tabular-nums tracking-widest">

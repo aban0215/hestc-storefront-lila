@@ -79,7 +79,7 @@ export default async function PaginatedProducts({
                     return (
                         <li
                             key={p.id}
-                            className="relative border-r border-b border-gray-100 hover:bg-gray-50/30 transition-colors duration-200"
+                            className="group transition-colors duration-200"
                         >
                             {/* 商品项容器 */}
                             <div className="p-4 h-full flex flex-col">

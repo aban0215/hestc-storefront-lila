@@ -6,8 +6,9 @@ import PaginatedProducts from "@modules/store/templates/paginated-products"
 import { HttpTypes } from "@medusajs/types"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import RefinementList from "@modules/store/components/refinement-list"
+import { listProductsWithSort } from "@lib/data/products"
 
-export default function CategoryTemplate({
+export default async function CategoryTemplate({
                                              category,
                                              marketingData,
                                              allCategoryIds,
@@ -24,6 +25,16 @@ export default function CategoryTemplate({
 }) {
     const pageNumber = page ? parseInt(page) : 1
     const sort = sortBy || "created_at"
+
+    const { response: { count } } = await listProductsWithSort({
+        page: 1,
+        queryParams: {
+            limit: 1,
+            category_id: allCategoryIds
+        },
+        sortBy: sort,
+        countryCode,
+    })
 
     if (!category || !countryCode) notFound()
 
@@ -87,6 +98,11 @@ export default function CategoryTemplate({
             {/* 3. 吸顶工具栏：Breadcrumbs(左) + Sort(右) */}
             <div className="sticky top-[60px] lg:top-[80px] z-[40] bg-white/95 backdrop-blur-md border-b border-gray-100">
                 <div className="w-full px-4 md:px-8 py-5">
+
+                    <span className="text-[9px] text-gray-400 uppercase tracking-[0.2em] mb-2 block ml-0.5">
+            {count} {count === 1 ? 'Result' : 'Results'}
+          </span>
+
                     {/* 上方小字提示 */}
                     <div className="flex items-center justify-between w-full">
                         {/* 左侧：面包屑路径 */}

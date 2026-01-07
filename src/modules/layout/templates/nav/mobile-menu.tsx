@@ -6,7 +6,6 @@ import LocalizedClientLink from "@modules/common/components/localized-client-lin
 import { usePathname, useRouter } from "next/navigation"
 import { updateRegion } from "@lib/data/cart"
 import { updateLocale } from "@lib/data/locale-actions"
-import ReactCountryFlag from "react-country-flag"
 
 const getMenuHref = (linkType: string, slug: string) => {
     if (!slug) return "/"
@@ -51,30 +50,23 @@ export default function MobileMenu({
         return () => { document.body.style.overflow = 'unset' }
     }, [isOpen])
 
-    // 处理国家切换
     const handleRegionChange = async (countryCode: string) => {
         try {
             await updateRegion(countryCode, pathname)
             setIsOpen(false)
-        } catch (error) {
-            console.error("Failed to update region:", error)
-        }
+        } catch (error) { console.error(error) }
     }
 
-    // 处理语言切换
     const handleLocaleChange = async (localeCode: string) => {
         try {
             await updateLocale(localeCode)
             setIsOpen(false)
             router.refresh()
-        } catch (error) {
-            console.error("Failed to update locale:", error)
-        }
+        } catch (error) { console.error(error) }
     }
 
     if (!isMounted) return <button className="p-2 -ml-2 text-gray-800"><Menu size={24} strokeWidth={1.5} /></button>
 
-    // 辅助：获取当前国家名称
     const currentCountryCode = pathname.split("/")[1]
     const currentCountryName = regions?.flatMap((r: any) => r.countries).find((c: any) => c.iso_2 === currentCountryCode)?.display_name || "Select"
     const currentLanguageName = locales?.find((l: any) => l.code === currentLocale)?.name || "English"
@@ -83,9 +75,7 @@ export default function MobileMenu({
         <>
             <button
                 onClick={() => setIsOpen(true)}
-                onMouseEnter={() => {
-                    if (isDesktop) setIsOpen(true) // 仅在 PC 端开启悬停触发，避免移动端误触
-                }}
+                onMouseEnter={() => { if (isDesktop) setIsOpen(true) }}
                 className={`flex items-center text-gray-800 transition-all hover:opacity-70 ${
                     isDesktop ? "gap-x-2 p-0" : "p-2 -ml-2"
                 } relative z-30`}
@@ -122,13 +112,17 @@ export default function MobileMenu({
                                 const isSubOpen = openSubMenu === item.id;
 
                                 return (
-                                    <div key={item.id} className="border-b border-gray-50 last:border-0">
+                                    /* 修改 1: 取消了 border-b 分隔线 */
+                                    <div key={item.id} className="last:border-0">
                                         <div className="flex items-center justify-between">
                                             <LocalizedClientLink
                                                 href={getMenuHref(item.link_type, item.slug)}
-                                                className="flex-1 py-4 text-[12px] font-bold tracking-widest uppercase text-gray-800"
+                                                className="flex-1 py-4 text-[12px] font-bold tracking-widest uppercase text-gray-800 group/link w-fit"
                                             >
-                                                {item.title}
+                                                {/* 修改 2: 增加 span 承载动态下划线效果 */}
+                                                <span className="menu-underline relative pb-1">
+                                                    {item.title}
+                                                </span>
                                             </LocalizedClientLink>
                                             {hasChildren && (
                                                 <button
@@ -154,9 +148,11 @@ export default function MobileMenu({
                                                             <div className="flex items-center justify-between">
                                                                 <LocalizedClientLink
                                                                     href={getMenuHref(child.link_type, child.slug)}
-                                                                    className={`block py-3 px-4 text-[10px] tracking-widest uppercase transition-colors ${isGrandOpen ? "text-black font-bold" : "text-gray-600"}`}
+                                                                    className={`block py-3 px-4 text-[10px] tracking-widest uppercase transition-colors group/sublink ${isGrandOpen ? "text-black font-bold" : "text-gray-600"}`}
                                                                 >
-                                                                    {child.title}
+                                                                    <span className="menu-underline relative pb-1">
+                                                                        {child.title}
+                                                                    </span>
                                                                 </LocalizedClientLink>
                                                                 {hasGrandChildren && (
                                                                     <button onClick={() => setOpenGrandChildMenu(isGrandOpen ? null : child.id)} className="w-10 h-10 flex justify-center items-center">
@@ -172,7 +168,9 @@ export default function MobileMenu({
                                                                             href={getMenuHref(grandChild.link_type, grandChild.slug)}
                                                                             className="block py-2.5 px-10 text-[9px] tracking-[0.15em] text-gray-400 uppercase hover:text-black transition-colors"
                                                                         >
-                                                                            {grandChild.title}
+                                                                            <span className="menu-underline relative pb-0.5">
+                                                                                {grandChild.title}
+                                                                            </span>
                                                                         </LocalizedClientLink>
                                                                     ))}
                                                                 </div>
@@ -187,7 +185,6 @@ export default function MobileMenu({
                             })}
                         </div>
 
-                        {/* 底部 Preferences 模块 - 扁平化风格 */}
                         <div className="px-6 py-10 bg-white border-t border-gray-100 flex-shrink-0">
                             <div className="flex items-center gap-x-3 mb-6 text-gray-400">
                                 <Globe size={14} strokeWidth={1.5} />
@@ -195,7 +192,6 @@ export default function MobileMenu({
                             </div>
 
                             <div className="flex flex-col">
-                                {/* 国家列表展开 */}
                                 <div className="border-b border-gray-50">
                                     <button
                                         onClick={() => setOpenSubMenu(openSubMenu === 'country-list' ? null : 'country-list')}
@@ -221,7 +217,6 @@ export default function MobileMenu({
                                     </div>
                                 </div>
 
-                                {/* 语言列表展开 */}
                                 <div className="border-b border-gray-50">
                                     <button
                                         onClick={() => setOpenSubMenu(openSubMenu === 'lang-list' ? null : 'lang-list')}
@@ -260,6 +255,27 @@ export default function MobileMenu({
                 .custom-scrollbar::-webkit-scrollbar { width: 2px; }
                 .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #f3f4f6; border-radius: 10px; }
                 .px-6 { padding-left: 1.5rem !important; padding-right: 1.5rem !important; }
+
+                /* 动态下划线核心样式 */
+                .menu-underline::after {
+                    content: '';
+                    position: absolute;
+                    width: 0;
+                    height: 1.5px; /* 下划线粗细 */
+                    bottom: 0;
+                    left: 0;
+                    background-color: currentColor; /* 继承当前文字颜色 */
+                    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                }
+
+                /* 仅在桌面端且 Hover 时触发 */
+                @media (min-width: 1024px) {
+                    .group\\/link:hover .menu-underline::after,
+                    .group\\/sublink:hover .menu-underline::after,
+                    a:hover .menu-underline::after {
+                        width: 100%;
+                    }
+                }
             `}</style>
         </>
     )

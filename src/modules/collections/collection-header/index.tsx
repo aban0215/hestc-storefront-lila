@@ -21,12 +21,14 @@ export default function CollectionHeader({
             {/* 左侧：COLLECTIONS 切换 */}
             {collections && collections.length > 0 && (
                 <div className="relative group">
-                    <button className={btnClass}>
-                        <span className="truncate max-w-[120px] md:max-w-none border-b border-black/10 group-hover:border-black/40">
+                    {/* 关键改动：去掉 button 的 bg, border, shadow */}
+                    <button className="flex items-center gap-x-2 py-2 text-[11px] font-medium tracking-[0.2em] text-gray-900 uppercase group hover:text-gray-400 transition-colors">
+                        {/* 标题下方加一条随 Hover 变化的动态短线 */}
+                        <span className="relative pb-1 after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-full after:h-[1px] after:bg-black after:scale-x-100 group-hover:after:scale-x-0 after:transition-transform after:duration-300">
                             {collection.title}
                         </span>
-                        <svg className="w-3 h-3 transition-transform duration-300 group-hover:rotate-180 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 9l-7 7-7-7" />
+                        <svg className="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.2} d="M19 9l-7 7-7-7" />
                         </svg>
                     </button>
 

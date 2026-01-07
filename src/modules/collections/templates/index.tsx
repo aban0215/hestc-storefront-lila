@@ -61,15 +61,35 @@ export default function CollectionTemplate({
                 </div>
             </div>
 
-            <div className="sticky top-[60px] lg:top-[80px] z-[40] bg-white/95 backdrop-blur-sm border-y border-gray-100">
+            {/* --- 极简工具栏容器 --- */}
+            <div className="sticky top-[60px] lg:top-[80px] z-[40] bg-white/95 backdrop-blur-sm">
                 <div className="content-container mx-auto px-4 md:px-8">
-                    <div className="h-14 flex items-center justify-between">
-                        {/* 左边和右边的下拉框已经都在 CollectionHeader 里封装好了 */}
-                        <CollectionHeader
-                            collection={collection}
-                            collections={collections}
-                            sort={sort}
-                        />
+                    {/* 只保留底部一条极细的灰线，去掉顶部的线 */}
+                    <div className="h-16 flex items-end justify-between border-b border-gray-100 pb-2">
+
+                        {/* 左侧：Collection 切换 + 数量统计 (合二为一) */}
+                        <div className="flex items-center gap-x-8">
+                            <CollectionHeader
+                                collection={collection}
+                                collections={collections}
+                                sort={sort}
+                                renderType="collection-only" // 告诉组件只渲染左边
+                            />
+                            {/* 数量统计：用更浅的颜色，更小的字号 */}
+                            <span className="hidden md:block text-[10px] text-gray-400 uppercase tracking-[0.2em] mb-1">
+                    {collection.products?.length || 0} Results
+                </span>
+                        </div>
+
+                        {/* 右侧：排序 */}
+                        <div className="mb-1">
+                            <CollectionHeader
+                                collection={collection}
+                                collections={collections}
+                                sort={sort}
+                                renderType="sort-only" // 告诉组件只渲染右边
+                            />
+                        </div>
                     </div>
                 </div>
             </div>

@@ -1,5 +1,3 @@
-// app/[countryCode]/collections/[handle]/page.tsx
-
 import { Metadata } from "next"
 import { notFound } from "next/navigation"
 import { getCollectionByHandle, listCollections } from "@lib/data/collections"
@@ -8,6 +6,8 @@ import { StoreCollection, StoreRegion } from "@medusajs/types"
 import CollectionTemplate from "@modules/collections/templates"
 import { SortOptions } from "@modules/store/components/refinement-list/sort-products"
 import { getBaseURL } from "@lib/util/env"
+import {getSelectedLocale} from "@lib/data/locales";
+import {getMarketingBySlug} from "@lib/strapi/market";
 
 const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_API_URL;
 
@@ -15,6 +15,8 @@ type Props = {
   params: Promise<{ handle: string; countryCode: string }>
   searchParams: Promise<{ page?: string; sortBy?: SortOptions }>
 }
+
+
 
 async function getCollectionSeoPatch() {
   const query = `${STRAPI_URL}/api/lila-seo-extensions?filters[key][$eq]=collection-key&locale=en-US&populate[lilaSeo][populate]=shareImage`
@@ -25,7 +27,6 @@ async function getCollectionSeoPatch() {
   } catch (e) { return null }
 }
 
-// ... generateStaticParams 保持不变 ...
 export async function generateStaticParams() {
   const { collections } = await listCollections({
     fields: "*products",
@@ -88,10 +89,14 @@ export default async function CollectionPage(props: Props) {
   const searchParams = await props.searchParams
   const params = await props.params
   const { sortBy, page } = searchParams
+  const localecode = (await getSelectedLocale()) || 'en-US'
 
-  const [collection, { collections }] = await Promise.all([
+
+
+  const [collection, { collections }, marketingData] = await Promise.all([
     getCollectionByHandle(params.handle),
     listCollections({ limit: 100 }),
+    getMarketingBySlug(params.handle, localecode)
   ])
 
   if (!collection) notFound()
@@ -103,6 +108,7 @@ export default async function CollectionPage(props: Props) {
           page={page}
           sortBy={sortBy}
           countryCode={params.countryCode}
+          marketingData={marketingData}
       />
   )
 }

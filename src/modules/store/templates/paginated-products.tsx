@@ -25,7 +25,7 @@ export default async function PaginatedProducts({
   sortBy?: SortOptions
   page: number
   collectionId?: string
-  categoryId?: string | string[] // 修改点 1: 类型适配，允许传入数组
+  categoryId?: string | string[]
   productsIds?: string[]
   countryCode: string
 }) {

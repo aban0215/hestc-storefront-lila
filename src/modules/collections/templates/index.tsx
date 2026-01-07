@@ -32,7 +32,7 @@ export default function CollectionTemplate({
                 </h1>
                 {/* 简单的系列说明，增加文人气息 */}
                 <p className="max-w-xl text-center text-[13px] md:text-sm text-gray-500 font-light leading-relaxed uppercase tracking-wider">
-                    {marketingData?.description || "Exploring the essence of timeless elegance through our curated series."}
+                    {marketingData?.description}
                 </p>
             </div>
 
@@ -58,9 +58,13 @@ export default function CollectionTemplate({
                         {/* 显示商品数量，增加专业感 */}
                         Showing {collection.products?.length || 0} Results
                     </div>
+                </div>
+            </div>
 
-                    {/* 这里放入你的下拉框组件 */}
-                    <div className="flex items-center gap-x-6">
+            <div className="sticky top-[60px] lg:top-[80px] z-[40] bg-white/95 backdrop-blur-sm border-y border-gray-100">
+                <div className="content-container mx-auto px-4 md:px-8">
+                    <div className="h-14 flex items-center justify-between">
+                        {/* 左边和右边的下拉框已经都在 CollectionHeader 里封装好了 */}
                         <CollectionHeader
                             collection={collection}
                             collections={collections}

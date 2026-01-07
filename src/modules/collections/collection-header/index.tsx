@@ -1,4 +1,4 @@
-"use client" // 只有这个小组件需要客户端交互
+"use client"
 
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import RefinementList from "@modules/store/components/refinement-list"
@@ -13,64 +13,57 @@ export default function CollectionHeader({
     collections?: HttpTypes.StoreCollection[]
     sort: string
 }) {
+    // 基础文字样式
+    const btnClass = "flex items-center gap-x-2 py-4 text-[11px] font-medium tracking-[0.2em] text-gray-900 uppercase group hover:text-gray-500 transition-colors"
+
     return (
-        <div className="w-full border-b border-gray-100 bg-white relative z-50">
-            {/* 这里的布局改为了 flex-col 并使用 items-center 确保所有元素居中 */}
-            <div className="max-w-[1440px] mx-auto px-4 py-6 md:py-8 flex flex-col items-center gap-6">
+        <div className="flex items-center justify-between w-full h-full">
+            {/* 左侧：COLLECTIONS 切换 */}
+            {collections && collections.length > 0 && (
+                <div className="relative group">
+                    <button className={btnClass}>
+                        <span className="truncate max-w-[120px] md:max-w-none border-b border-black/10 group-hover:border-black/40">
+                            {collection.title}
+                        </span>
+                        <svg className="w-3 h-3 transition-transform duration-300 group-hover:rotate-180 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </button>
 
-                {/* 标题区 - 已改为强制居中 */}
-                <div className="text-center w-full">
-                    <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-gray-900 uppercase">
-                        {collection.title}
-                    </h1>
+                    {/* 下拉列表：靠左弹出 */}
+                    <div className="absolute top-full left-0 mt-0 py-4 w-60 bg-white shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-[100] border-t border-gray-100">
+                        <div className="max-h-[400px] overflow-y-auto px-4 custom-scrollbar">
+                            <p className="text-[9px] text-gray-400 tracking-widest mb-4">SELECT COLLECTION</p>
+                            {collections.map((c) => (
+                                <LocalizedClientLink
+                                    key={c.id}
+                                    href={`/collections/${c.handle}`}
+                                    className={`block py-2 text-[11px] uppercase tracking-wider transition-colors ${
+                                        c.id === collection.id ? "text-pink-600 font-bold" : "text-gray-500 hover:text-black"
+                                    }`}
+                                >
+                                    {c.title}
+                                </LocalizedClientLink>
+                            ))}
+                        </div>
+                    </div>
                 </div>
+            )}
 
-                {/* 交互区 - 在移动端和桌面端均居中显示 */}
-                <div className="flex items-center justify-center gap-2 md:gap-4">
-                    {/* COLLECTIONS 下拉 */}
-                    {collections && collections.length > 0 && (
-                        <div className="relative group">
-                            <button className="flex items-center gap-2 px-4 md:px-5 py-2 md:py-2.5 text-[11px] font-bold text-gray-700 bg-white border border-gray-200 rounded-full hover:bg-gray-50 transition-all shadow-sm min-w-[140px] md:min-w-[160px] justify-between">
-                                <span className="tracking-widest uppercase truncate">{collection.title}</span>
-                                <svg className="w-3.5 h-3.5 transition-transform duration-300 group-hover:rotate-180 flex-shrink-0 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                                </svg>
-                            </button>
-                            {/* 下拉列表位置调整：在居中布局下，下拉菜单居中弹出 */}
-                            <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 py-2 w-52 md:w-56 bg-white border border-gray-200 rounded-xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-[100]">
-                                <div className="absolute -top-2 left-0 right-0 h-2 bg-transparent" />
-                                <div className="max-h-[60vh] md:max-h-[300px] overflow-y-auto px-1 custom-scrollbar">
-                                    {collections.map((c) => (
-                                        <LocalizedClientLink
-                                            key={c.id}
-                                            href={`/collections/${c.handle}`}
-                                            className={`block px-4 py-3 text-[10px] md:text-[11px] uppercase tracking-wider rounded-lg transition-colors ${
-                                                c.id === collection.id ? "bg-gray-100 text-pink-600 font-bold" : "text-gray-500 hover:bg-gray-50 hover:text-black"
-                                            }`}
-                                        >
-                                            {c.title}
-                                        </LocalizedClientLink>
-                                    ))}
-                                </div>
-                            </div>
-                        </div>
-                    )}
+            {/* 右侧：SORT 排序 */}
+            <div className="relative group">
+                <button className={btnClass}>
+                    <span className="border-b border-black/10 group-hover:border-black/40">SORT BY</span>
+                    <svg className="w-3 h-3 transition-transform duration-300 group-hover:rotate-180 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 9l-7 7-7-7" />
+                    </svg>
+                </button>
 
-                    {/* SORT 下拉 */}
-                    <div className="relative group">
-                        <button className="flex items-center gap-2 px-4 md:px-5 py-2 md:py-2.5 text-[11px] font-bold text-gray-700 bg-white border border-gray-200 rounded-full hover:bg-gray-50 transition-all shadow-sm">
-                            <span className="tracking-widest uppercase">SORT</span>
-                            <svg className="w-3.5 h-3.5 transition-transform duration-300 group-hover:rotate-180 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                            </svg>
-                        </button>
-                        {/* 下拉列表位置调整 */}
-                        <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 py-2 w-44 md:w-48 bg-white border border-gray-200 rounded-xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-[100]">
-                            <div className="absolute -top-2 left-0 right-0 h-2 bg-transparent" />
-                            <div className="px-1">
-                                <RefinementList sortBy={sort} />
-                            </div>
-                        </div>
+                {/* 下拉列表：靠右弹出 */}
+                <div className="absolute top-full right-0 mt-0 py-4 w-48 bg-white shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-[100] border-t border-gray-100">
+                    <div className="px-4">
+                        <p className="text-[9px] text-gray-400 tracking-widest mb-2">ORDER BY</p>
+                        <RefinementList sortBy={sort} />
                     </div>
                 </div>
             </div>

@@ -56,7 +56,7 @@ export default function CategoryTemplate({
                     </p>
                 ) : (
                     <p className="text-[10px] md:text-[12px] text-gray-400 uppercase tracking-[0.2em] font-light">
-                        Explore the Series
+                        {/*Explore the Series*/}
                     </p>
                 )}
             </div>
@@ -88,10 +88,6 @@ export default function CategoryTemplate({
             <div className="sticky top-[60px] lg:top-[80px] z-[40] bg-white/95 backdrop-blur-md border-b border-gray-100">
                 <div className="w-full px-4 md:px-8 py-5">
                     {/* 上方小字提示 */}
-                    <span className="text-[9px] text-gray-400 uppercase tracking-[0.2em] mb-2 block ml-0.5">
-            Select Category
-          </span>
-
                     <div className="flex items-center justify-between w-full">
                         {/* 左侧：面包屑路径 */}
                         <nav className="flex items-center flex-wrap gap-x-2 text-[11px] font-medium tracking-[0.15em] uppercase text-gray-900">

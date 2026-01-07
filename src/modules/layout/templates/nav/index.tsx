@@ -107,14 +107,23 @@ export default async function Nav() {
               </div>
 
               {/* --- 中间区域：Logo (绝对居中) --- */}
-              <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
-                <LocalizedClientLink href="/" className="flex items-center justify-center">
+              <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full flex justify-center pointer-events-none">
+                <LocalizedClientLink href="/" className="flex items-center justify-center pointer-events-auto">
                   {logoUrl ? (
-                      <img src={logoUrl} alt="Logo" className="h-10 lg:h-14 w-auto object-contain" />
+                      <img
+                          src={logoUrl}
+                          alt="Logo"
+                          /* 移动端: h-[50px] (导航栏60px)
+                             PC端: lg:h-[70px] (导航栏80px)
+                             这样上下各留 5px，视觉上直接拉满
+                          */
+                          className="h-[50px] lg:h-[72px] w-auto object-contain transition-all duration-300"
+                      />
                   ) : (
-                      <span className="text-[18px] lg:text-[24px] font-bold tracking-[0.3em] uppercase whitespace-nowrap">
-                    {brandData?.sitename || "LILA ZEN"}
-                  </span>
+                      /* 文字 Logo 也同步放大 */
+                      <span className="text-[22px] lg:text-[32px] font-bold tracking-[0.3em] uppercase whitespace-nowrap">
+          {brandData?.sitename || "LILA ZEN"}
+        </span>
                   )}
                 </LocalizedClientLink>
               </div>

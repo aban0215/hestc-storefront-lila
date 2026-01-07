@@ -24,52 +24,54 @@ export default function CollectionTemplate({
     const sort = sortBy || "created_at"
 
     return (
-        <div className="w-full overflow-x-hidden">
-            <CollectionHeader
-                collection={collection}
-                collections={collections}
-                sort={sort}
-            />
+        <div className="w-full overflow-x-hidden bg-white">
+            {/* 1. 顶部系列头：把 CollectionHeader 里的标题去掉，这里统一展示 */}
+            <div className="pt-12 pb-6 px-4 md:px-8 flex flex-col items-center">
+                <h1 className="text-[28px] md:text-[40px] font-light uppercase tracking-[0.3em] text-gray-900 mb-4">
+                    {collection.title}
+                </h1>
+                {/* 简单的系列说明，增加文人气息 */}
+                <p className="max-w-xl text-center text-[13px] md:text-sm text-gray-500 font-light leading-relaxed uppercase tracking-wider">
+                    {marketingData?.description || "Exploring the essence of timeless elegance through our curated series."}
+                </p>
+            </div>
 
-            {/* --- 新增：Marketing Banner 区域 --- */}
+            {/* 2. Marketing Banner：去掉厚重的遮罩，改用渐变或纯净排版 */}
             {marketingData && (
-                <div className="relative w-full h-[40vh] md:h-[60vh] min-h-[300px] mb-8 overflow-hidden bg-gray-100">
-                    {/* 媒体层：判断是视频还是图片 */}
+                <div className="relative w-full h-[50vh] md:h-[75vh] mb-12 overflow-hidden bg-gray-50">
                     {marketingData.maketimg?.mime?.includes("video") ? (
-                        <video
-                            src={marketingData.maketimg.url}
-                            autoPlay
-                            loop
-                            muted
-                            playsInline
-                            className="absolute inset-0 w-full h-full object-cover"
-                        />
+                        <video src={marketingData.maketimg.url} autoPlay loop muted playsInline className="absolute inset-0 w-full h-full object-cover" />
                     ) : (
                         marketingData.maketimg?.url && (
-                            <img
-                                src={marketingData.maketimg.url}
-                                alt={marketingData.title || "Collection Banner"}
-                                className="absolute inset-0 w-full h-full object-cover"
-                            />
+                            <img src={marketingData.maketimg.url} alt="" className="absolute inset-0 w-full h-full object-cover" />
                         )
                     )}
-
-                    {/* 文字叠加层 (Overlay) */}
-                    <div className="absolute inset-0 flex flex-col items-center justify-center text-center bg-black/30 px-4">
-                        <h1 className="text-3xl md:text-5xl font-bold text-white uppercase tracking-wider mb-4">
-                            {marketingData.title}
-                        </h1>
-                        {marketingData.description && (
-                            <p className="text-base md:text-xl text-white max-w-2xl font-light">
-                                {marketingData.description}
-                            </p>
-                        )}
-                    </div>
+                    {/* 遮罩改为极其轻微的底部渐变，让画面透出来 */}
+                    <div className="absolute inset-0 bg-gradient-to-b from-black/5 via-transparent to-black/20" />
                 </div>
             )}
-            {/* --- End Marketing Banner --- */}
 
-            <div className="w-full px-4 md:px-8 relative z-0">
+            {/* 3. 筛选工具栏：做成贴地平滑感 */}
+            <div className="sticky top-[60px] lg:top-[80px] z-30 bg-white/90 backdrop-blur-md border-y border-gray-100 mb-8">
+                <div className="content-container mx-auto px-4 md:px-8 h-14 flex items-center justify-between">
+                    <div className="text-[11px] uppercase tracking-widest text-gray-400">
+                        {/* 显示商品数量，增加专业感 */}
+                        Showing {collection.products?.length || 0} Results
+                    </div>
+
+                    {/* 这里放入你的下拉框组件 */}
+                    <div className="flex items-center gap-x-6">
+                        <CollectionHeader
+                            collection={collection}
+                            collections={collections}
+                            sort={sort}
+                        />
+                    </div>
+                </div>
+            </div>
+
+            {/* 4. 商品列表区域 */}
+            <div className="content-container mx-auto px-4 md:px-8 relative z-0">
                 <Suspense fallback={
                     <div className="w-full py-12">
                         <SkeletonProductGrid numberOfProducts={8} />

@@ -78,20 +78,27 @@ export default function CollectionTemplate({
             </div>
 
             {/* 4. 商品列表区域 */}
-            <div className="content-container mx-auto px-4 md:px-8 relative z-0">
-                <Suspense fallback={
-                    <div className="w-full py-12">
-                        <SkeletonProductGrid numberOfProducts={8} />
-                    </div>
-                }>
-                    <PaginatedProducts
-                        sortBy={sort}
-                        page={pageNumber}
-                        collectionId={collection.id}
-                        countryCode={countryCode}
-                    />
-                </Suspense>
+            <div className="w-full relative z-0">
+                {/* 去掉 content-container，改用 w-full，左右 padding 只留极小 */}
+                <div className="px-[1px] md:px-0">
+                    <Suspense fallback={
+                        <div className="w-full py-12 px-4">
+                            <SkeletonProductGrid numberOfProducts={8} />
+                        </div>
+                    }>
+                        {/* 我们在外层包一个 div，强制去掉内部可能存在的卡片样式 */}
+                        <div className="product-grid-clean">
+                            <PaginatedProducts
+                                sortBy={sort}
+                                page={pageNumber}
+                                collectionId={collection.id}
+                                countryCode={countryCode}
+                            />
+                        </div>
+                    </Suspense>
+                </div>
             </div>
+
         </div>
     )
 }

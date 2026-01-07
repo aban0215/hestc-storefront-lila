@@ -19,27 +19,33 @@ export default async function ProductPreview({
 
     return (
         <LocalizedClientLink href={`/products/${product.handle}`} className="group">
-            <div data-testid="product-wrapper" className="flex flex-col">
-                {/* 图片容器：保持比例，去掉多余边距 */}
-                <Thumbnail
-                    thumbnail={product.thumbnail}
-                    images={product.images}
-                    size="full"
-                    isFeatured={isFeatured}
-                />
+            {/* 1. 移除外层所有 padding，确保图片能贴到网格边缘 */}
+            <div data-testid="product-wrapper" className="flex flex-col w-full h-full overflow-hidden">
 
-                {/* 内容区域：改为左对齐 (items-start text-left) */}
-                <div className="mt-3 flex flex-col items-start text-left">
-                    {/* 标题：去掉 uppercase，改用标准粗细，紧凑行高 */}
+                {/* 2. 图片容器：强制直角，去掉圆角和阴影 */}
+                <div className="relative w-full aspect-[3/4] bg-gray-50 overflow-hidden">
+                    <Thumbnail
+                        thumbnail={product.thumbnail}
+                        images={product.images}
+                        size="full"
+                        isFeatured={isFeatured}
+                        // 💡 提醒：如果 Thumbnail 内部自带了 rounded-lg，需要进去把它改成 rounded-none
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                    />
+                </div>
+
+                {/* 3. 内容区域：左对齐，增加呼吸感，但去掉左右内边距 */}
+                <div className="mt-4 flex flex-col items-start text-left px-1 md:px-0">
+                    {/* 标题：LV 风格首字母大写，稍微增加行高 */}
                     <Text
-                        className="text-[14px] md:text-[16px] text-gray-900 font-normal leading-snug line-clamp-2"
+                        className="text-[13px] md:text-[15px] text-gray-900 font-normal leading-tight line-clamp-2"
                         data-testid="product-title"
                     >
                         {product.title}
                     </Text>
 
-                    {/* 价格：字体颜色变浅 (text-gray-500)，稍微变细 */}
-                    <div className="mt-1 text-[14px] md:text-[15px] text-gray-500 font-light tracking-tight">
+                    {/* 价格：字体颜色变浅，稍微拉开一点点间距 */}
+                    <div className="mt-1.5 text-[13px] md:text-[14px] text-gray-500 font-light tracking-tight">
                         {cheapestPrice && <PreviewPrice price={cheapestPrice} />}
                     </div>
                 </div>

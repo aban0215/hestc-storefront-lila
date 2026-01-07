@@ -26,16 +26,17 @@ export default async function CategoryShowcase() {
     return (
         <section className="py-12 bg-white overflow-hidden">
             {/* 标题区域 - 极简风 */}
-            <div className="w-full pb-10 px-6 flex flex-col items-center justify-center text-center">
-                <h2 className="text-xl md:text-2xl font-light text-gray-900 tracking-[0.2em] uppercase">
+            <div className="w-full py-6 px-10 flex flex-col items-center justify-center border-b border-gray-50 text-center">
+                <h2 className="text-3xl md:text-4xl font-serif font-bold text-gray-900 leading-tight">
                     {sectionData.title}
                 </h2>
                 {sectionData.subtitle && (
-                    <p className="mt-4 text-[10px] md:text-xs text-gray-400 font-light tracking-[0.3em] uppercase">
+                    <p className="mt-2 text-sm md:text-base text-gray-400 font-light tracking-widest italic uppercase">
                         {sectionData.subtitle}
                     </p>
                 )}
             </div>
+
 
             {/* 网格展示区域 - 一行4个 */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-y-12 gap-x-4 px-4 md:px-10 w-full">
@@ -76,16 +77,17 @@ export default async function CategoryShowcase() {
                             </LocalizedClientLink>
 
                             {/* 文字区域 - 放在图片下方 */}
-                            <div className="mt-6 flex flex-col items-center text-center px-2">
+                            <div className="mt-8 flex flex-col items-center text-center px-4">
                                 <LocalizedClientLink href={itemHref}>
-                                    <h3 className="text-[12px] md:text-sm font-normal tracking-[0.1em] text-gray-800 hover:text-gray-500 transition-colors duration-300">
+                                    {/* 标题：从 12px/14px 翻倍到 24px/28px 左右，增加粗细感 */}
+                                    <h3 className="text-[24px] md:text-[28px] font-medium tracking-[0.05em] text-gray-900 hover:text-gray-500 transition-colors duration-300 leading-tight">
                                         {category.name}
                                     </h3>
                                 </LocalizedClientLink>
 
-                                {/* 如果有描述，可以极小字显示，或者保持纯净只留标题 */}
+                                {/* 描述：从 10px 翻倍到 20px 左右，调整为 tracking-normal 保证可读性 */}
                                 {category.description && (
-                                    <p className="mt-2 text-[10px] text-gray-400 font-light line-clamp-1">
+                                    <p className="mt-4 text-[18px] md:text-[20px] text-gray-500 font-light leading-relaxed max-w-[90%]">
                                         {category.description}
                                     </p>
                                 )}

@@ -15,17 +15,18 @@ export default function CollectionHeader({
 }) {
     return (
         <div className="w-full border-b border-gray-100 bg-white relative z-50">
-            <div className="max-w-[1440px] mx-auto px-4 py-6 md:py-8 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+            {/* 这里的布局改为了 flex-col 并使用 items-center 确保所有元素居中 */}
+            <div className="max-w-[1440px] mx-auto px-4 py-6 md:py-8 flex flex-col items-center gap-6">
 
-                {/* 标题区 */}
-                <div className="text-center md:text-left">
+                {/* 标题区 - 已改为强制居中 */}
+                <div className="text-center w-full">
                     <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-gray-900 uppercase">
                         {collection.title}
                     </h1>
                 </div>
 
-                {/* 交互区 */}
-                <div className="flex items-center justify-center md:justify-end gap-2 md:gap-4">
+                {/* 交互区 - 在移动端和桌面端均居中显示 */}
+                <div className="flex items-center justify-center gap-2 md:gap-4">
                     {/* COLLECTIONS 下拉 */}
                     {collections && collections.length > 0 && (
                         <div className="relative group">
@@ -35,7 +36,8 @@ export default function CollectionHeader({
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                                 </svg>
                             </button>
-                            <div className="absolute top-full right-1/2 translate-x-1/2 md:translate-x-0 md:right-0 mt-2 py-2 w-52 md:w-56 bg-white border border-gray-200 rounded-xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-[100]">
+                            {/* 下拉列表位置调整：在居中布局下，下拉菜单居中弹出 */}
+                            <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 py-2 w-52 md:w-56 bg-white border border-gray-200 rounded-xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-[100]">
                                 <div className="absolute -top-2 left-0 right-0 h-2 bg-transparent" />
                                 <div className="max-h-[60vh] md:max-h-[300px] overflow-y-auto px-1 custom-scrollbar">
                                     {collections.map((c) => (
@@ -62,7 +64,8 @@ export default function CollectionHeader({
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                             </svg>
                         </button>
-                        <div className="absolute top-full right-1/2 translate-x-1/2 md:translate-x-0 md:right-0 mt-2 py-2 w-44 md:w-48 bg-white border border-gray-200 rounded-xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-[100]">
+                        {/* 下拉列表位置调整 */}
+                        <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 py-2 w-44 md:w-48 bg-white border border-gray-200 rounded-xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-[100]">
                             <div className="absolute -top-2 left-0 right-0 h-2 bg-transparent" />
                             <div className="px-1">
                                 <RefinementList sortBy={sort} />

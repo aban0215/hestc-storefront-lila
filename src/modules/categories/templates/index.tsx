@@ -30,25 +30,26 @@ export default function CategoryTemplate({
         <div className="w-full bg-white">
             {/* 1. 统一的标题区 */}
             <div className="pt-16 pb-8 flex flex-col items-center px-4">
+                {/* 1. 无论如何都显示的分类大标题 */}
                 <h1 className="text-[26px] md:text-[36px] font-light uppercase tracking-[0.3em] text-gray-900 mb-3 text-center">
                     {category.name}
                 </h1>
 
-                {/* 如果没有 Banner 媒体，但在 Strapi 填了描述，就显示在这里 */}
-                {!marketingData?.maketimg?.url && marketingData?.description && (
+                {/* 2. 描述文字逻辑：只要有描述就显示 */}
+                {/* 这样改：不管有没有图，只要你在 Strapi 填了描述，标题下面都会有这行优雅的小字 */}
+                {marketingData?.description ? (
                     <p className="max-w-2xl text-center text-[13px] md:text-[15px] text-gray-500 font-light leading-relaxed mt-4 px-6 italic">
                         {marketingData.description}
                     </p>
-                )}
-
-                {!marketingData?.description && (
+                ) : (
+                    /* 如果连描述都没填，才显示这个兜底的小后缀 */
                     <p className="text-[10px] md:text-[12px] text-gray-400 uppercase tracking-[0.2em] font-light">
                         Explore the Series
                     </p>
                 )}
             </div>
 
-            {/* 2. 营销媒体区：只有存在媒体素材时才渲染（入口级分类） */}
+            {/* 3. 图片区域：独立判断，有图就蹦出来，没图就消失 */}
             {marketingData?.maketimg?.url && (
                 <div className="relative w-full h-[50vh] md:h-[70vh] mb-4 overflow-hidden bg-gray-50">
                     {/* 这里放入之前的视频/图片渲染逻辑 */}
@@ -63,6 +64,7 @@ export default function CategoryTemplate({
                 </div>
             )}
 
+
             {/* 3. 吸顶工具栏：Results 在上，切换/排序在下 */}
             <div className="sticky top-[60px] lg:top-[80px] z-[40] bg-white/95 backdrop-blur-md border-b border-gray-100">
                 <div className="content-container mx-auto px-4 md:px-8 py-4 flex flex-col items-start">
@@ -70,7 +72,7 @@ export default function CategoryTemplate({
                     <span className="text-[9px] text-gray-400 uppercase tracking-[0.2em] mb-1 ml-0.5">
             {/* 如果 PaginatedProducts 有总数可以传出来，这里暂时手动显示内容 */}
                         Explore the Selection
-          </span>
+                    </span>
 
                     {/* 复用 CollectionHeader，把分类信息伪装成 Collection 传进去 */}
                     <CollectionHeader

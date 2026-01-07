@@ -10,7 +10,6 @@ export default async function CategoryShowcase() {
         return null
     }
 
-    // 通用链接生成函数
     const getCategoryHref = (category: any) => {
         const handle = category.medusaHandle;
         const type = category.linkType;
@@ -25,79 +24,72 @@ export default async function CategoryShowcase() {
     };
 
     return (
-        <section className="pt-0 bg-white overflow-hidden">
-            {/* 标题区域 */}
-            <div className="w-full py-6 px-10 flex flex-col items-center justify-center border-b border-gray-50 text-center">
-                <h2 className="text-3xl md:text-4xl font-serif font-bold text-gray-900 leading-tight">
+        <section className="py-12 bg-white overflow-hidden">
+            {/* 标题区域 - 极简风 */}
+            <div className="w-full pb-10 px-6 flex flex-col items-center justify-center text-center">
+                <h2 className="text-xl md:text-2xl font-light text-gray-900 tracking-[0.2em] uppercase">
                     {sectionData.title}
                 </h2>
                 {sectionData.subtitle && (
-                    <p className="mt-2 text-sm md:text-base text-gray-400 font-light tracking-widest italic uppercase">
+                    <p className="mt-4 text-[10px] md:text-xs text-gray-400 font-light tracking-[0.3em] uppercase">
                         {sectionData.subtitle}
                     </p>
                 )}
             </div>
 
-            {/* 网格展示区域 */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-0 w-full">
+            {/* 网格展示区域 - 一行4个 */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-y-12 gap-x-4 px-4 md:px-10 w-full">
                 {sectionData.featuredCategories.map((category) => {
                     const itemHref = getCategoryHref(category);
-                    const media = category.image; // 对应后端图片/视频字段
+                    const media = category.image;
                     const mediaUrl = media?.url;
                     const isVideo = media?.mime?.includes('video');
 
                     return (
-                        <div key={category.id} className="group relative aspect-[4/5] overflow-hidden w-full bg-gray-100">
-                            {/* 媒体层 */}
-                            <div className="absolute inset-0">
-                                {mediaUrl && (
-                                    isVideo ? (
-                                        <video
-                                            src={mediaUrl}
-                                            autoPlay
-                                            muted
-                                            loop
-                                            playsInline
-                                            poster={`${mediaUrl}?x-oss-process=video/snapshot,t_1000,f_jpg`}
-                                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                                        />
-                                    ) : (
-                                        <img
-                                            src={mediaUrl}
-                                            alt={media.alternativeText || category.name}
-                                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                                            loading="lazy"
-                                        />
-                                    )
-                                )}
-                            </div>
-
-                            {/* 遮罩层 */}
-                            <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors duration-300"/>
-
-                            {/* 内容层 - pointer-events-none 防止干扰下方的全屏链接 */}
-                            <div className="absolute inset-0 flex flex-col items-center justify-center text-white p-6 text-center pointer-events-none">
-                                <h3 className="text-2xl md:text-3xl font-bold mb-3 tracking-wide drop-shadow-md">
-                                    {category.name}
-                                </h3>
-
-                                <p className="text-sm md:text-base text-gray-100 mb-6 opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-500 max-w-xs line-clamp-3">
-                                    {category.description}
-                                </p>
-
-                                <div className="pointer-events-auto">
-                                    <div className="px-6 py-2 border border-white text-white group-hover:bg-white group-hover:text-black transition-all duration-300">
-                                        {category.buttonText || "View More"}
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* 全区域点击热区 */}
+                        <div key={category.id} className="group flex flex-col items-center w-full">
+                            {/* 媒体容器 */}
                             <LocalizedClientLink
                                 href={itemHref}
-                                className="absolute inset-0 z-10"
-                                aria-label={category.name}
-                            />
+                                className="relative aspect-[3/4] overflow-hidden w-full bg-[#f6f6f6]"
+                            >
+                                <div className="absolute inset-0">
+                                    {mediaUrl && (
+                                        isVideo ? (
+                                            <video
+                                                src={mediaUrl}
+                                                autoPlay
+                                                muted
+                                                loop
+                                                playsInline
+                                                className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
+                                            />
+                                        ) : (
+                                            <img
+                                                src={mediaUrl}
+                                                alt={media.alternativeText || category.name}
+                                                className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
+                                                loading="lazy"
+                                            />
+                                        )
+                                    )}
+                                </div>
+                            </LocalizedClientLink>
+
+                            {/* 文字区域 - 放在图片下方 */}
+                            <div className="mt-6 flex flex-col items-center text-center px-2">
+                                <LocalizedClientLink href={itemHref}>
+                                    <h3 className="text-[12px] md:text-sm font-normal tracking-[0.1em] text-gray-800 hover:text-gray-500 transition-colors duration-300">
+                                        {category.name}
+                                    </h3>
+                                </LocalizedClientLink>
+
+                                {/* 如果有描述，可以极小字显示，或者保持纯净只留标题 */}
+                                {category.description && (
+                                    <p className="mt-2 text-[10px] text-gray-400 font-light line-clamp-1">
+                                        {category.description}
+                                    </p>
+                                )}
+                            </div>
                         </div>
                     )
                 })}

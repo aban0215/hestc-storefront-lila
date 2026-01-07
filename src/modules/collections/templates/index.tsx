@@ -52,14 +52,14 @@ export default function CollectionTemplate({
             )}
 
             {/* 3. 筛选工具栏：做成贴地平滑感 */}
-            <div className="sticky top-[60px] lg:top-[80px] z-30 bg-white/90 backdrop-blur-md border-y border-gray-100 mb-8">
-                <div className="content-container mx-auto px-4 md:px-8 h-14 flex items-center justify-between">
-                    <div className="text-[11px] uppercase tracking-widest text-gray-400">
-                        {/* 显示商品数量，增加专业感 */}
-                        Showing {collection.products?.length || 0} Results
-                    </div>
-                </div>
-            </div>
+            {/*<div className="sticky top-[60px] lg:top-[80px] z-30 bg-white/90 backdrop-blur-md border-y border-gray-100 mb-8">*/}
+            {/*    <div className="content-container mx-auto px-4 md:px-8 h-14 flex items-center justify-between">*/}
+            {/*        <div className="text-[11px] uppercase tracking-widest text-gray-400">*/}
+            {/*            /!* 显示商品数量，增加专业感 *!/*/}
+            {/*            Showing {collection.products?.length || 0} Results*/}
+            {/*        </div>*/}
+            {/*    </div>*/}
+            {/*</div>*/}
 
             {/* --- 极简工具栏容器 --- */}
             <div className="sticky top-[60px] lg:top-[80px] z-[40] bg-white/95 backdrop-blur-sm">
@@ -82,14 +82,14 @@ export default function CollectionTemplate({
                         </div>
 
                         {/* 右侧：排序 */}
-                        <div className="mb-1">
-                            <CollectionHeader
-                                collection={collection}
-                                collections={collections}
-                                sort={sort}
-                                renderType="sort-only" // 告诉组件只渲染右边
-                            />
-                        </div>
+                        {/*<div className="mb-1">*/}
+                        {/*    <CollectionHeader*/}
+                        {/*        collection={collection}*/}
+                        {/*        collections={collections}*/}
+                        {/*        sort={sort}*/}
+                        {/*        renderType="sort-only" // 告诉组件只渲染右边*/}
+                        {/*    />*/}
+                        {/*</div>*/}
                     </div>
                 </div>
             </div>

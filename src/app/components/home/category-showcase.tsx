@@ -77,17 +77,17 @@ export default async function CategoryShowcase() {
                             </LocalizedClientLink>
 
                             {/* 文字区域 - 放在图片下方 */}
-                            <div className="mt-8 flex flex-col items-center text-center px-4">
-                                <LocalizedClientLink href={itemHref}>
-                                    {/* 标题：从 12px/14px 翻倍到 24px/28px 左右，增加粗细感 */}
-                                    <h3 className="text-[24px] md:text-[28px] font-medium tracking-[0.05em] text-gray-900 hover:text-gray-500 transition-colors duration-300 leading-tight">
+                            <div className="mt-5 flex flex-col items-start text-left w-full">
+                                <LocalizedClientLink href={itemHref} className="group">
+                                    {/* 标题：从 14px 提到 18px-20px 足够了，关键是 tracking(字间距) 和 粗细 */}
+                                    <h3 className="text-[18px] md:text-[20px] font-medium tracking-tight text-gray-900 group-hover:text-gray-500 transition-colors duration-300">
                                         {category.name}
                                     </h3>
                                 </LocalizedClientLink>
 
-                                {/* 描述：从 10px 翻倍到 20px 左右，调整为 tracking-normal 保证可读性 */}
+                                {/* 描述：稍微比标题小一点，用灰色拉开层级 */}
                                 {category.description && (
-                                    <p className="mt-4 text-[18px] md:text-[20px] text-gray-500 font-light leading-relaxed max-w-[90%]">
+                                    <p className="mt-1 text-[14px] md:text-[15px] text-gray-500 font-light leading-snug line-clamp-2">
                                         {category.description}
                                     </p>
                                 )}

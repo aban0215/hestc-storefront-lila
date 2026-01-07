@@ -83,12 +83,17 @@ export default function MobileMenu({
         <>
             <button
                 onClick={() => setIsOpen(true)}
+                onMouseEnter={() => {
+                    if (isDesktop) setIsOpen(true) // 仅在 PC 端开启悬停触发，避免移动端误触
+                }}
                 className={`flex items-center text-gray-800 transition-all hover:opacity-70 ${
                     isDesktop ? "gap-x-2 p-0" : "p-2 -ml-2"
                 } relative z-30`}
             >
                 <Menu size={isDesktop ? 20 : 24} strokeWidth={1.5} />
-                {isDesktop && <span className="text-[10px] uppercase tracking-[0.2em] font-bold">Menu</span>}
+                {isDesktop && (
+                    <span className="text-[10px] uppercase tracking-[0.2em] font-bold">Menu</span>
+                )}
             </button>
 
             <div

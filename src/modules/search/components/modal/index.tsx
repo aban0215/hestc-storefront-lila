@@ -11,22 +11,14 @@ import { usePathname } from "next/navigation"
 import { MagnifyingGlass } from "@medusajs/icons"
 import { useParams } from "next/navigation"
 
-
 type Hit = {
     id: string;
     title: string;
     description: string;
     handle: string;
     thumbnail: string;
-    categories: {
-        id: string
-        name: string
-        handle: string
-    }[]
-    tags: {
-        id: string
-        value: string
-    }[]
+    categories: { id: string; name: string; handle: string }[]
+    tags: { id: string; value: string }[]
 }
 
 export default function SearchModal() {
@@ -43,12 +35,16 @@ export default function SearchModal() {
                 <Button
                     onClick={() => setIsOpen(true)}
                     variant="transparent"
-                    className="text-gray-700 hover:text-pink-600 transition-all flex items-center justify-center p-0 min-w-[24px] hover:bg-transparent focus:!bg-transparent active:scale-95"
+                    className="text-gray-700 hover:text-pink-600 transition-all flex items-center justify-center p-0 min-w-[24px] hover:bg-transparent focus:!bg-transparent active:scale-95 group"
                 >
-                    {/* 使用放大镜图标，尺寸设为 20 与旁边 User 图标对齐 */}
                     <MagnifyingGlass size={20} />
+                    {/* 将文字直接放在 Button 内部，实现点击效果 */}
+                    <span className="text-[10px] uppercase tracking-[0.2em] font-bold hidden lg:block ml-1">
+                        Search
+                    </span>
                 </Button>
             </div>
+
             <Modal isOpen={isOpen} close={() => setIsOpen(false)}>
                 <div className="p-4">
                     <InstantSearch

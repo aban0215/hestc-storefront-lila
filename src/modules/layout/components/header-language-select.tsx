@@ -128,63 +128,62 @@ const HeaderLanguageSelect = ({ locales, currentLocale }: HeaderLanguageSelectPr
     }
 
     return (
-        <Popover className="relative block w-full">
+        <Popover className="relative inline-block w-full sm:w-auto">
             {({ open, close }) => (
                 <div
                     className="relative w-full"
                     onMouseEnter={() => handleMouseEnter(open)}
                     onMouseLeave={() => handleMouseLeave(open, close)}
                 >
-                    {/* 按钮部分：完全去掉内外边距和圆角，由外层容器控制 */}
                     <Popover.Button
                         ref={buttonRef}
                         onClick={(e) => {
                             e.stopPropagation()
                         }}
-                        className={`flex items-center w-full outline-none transition-colors ${
-                            open ? 'bg-gray-50' : 'bg-transparent'
+                        className={`flex items-center gap-x-2 text-ui-fg-subtle hover:text-ui-fg-base transition-all w-full outline-none ${
+                            // 关键点：移除 py-1.5, px-3, rounded-md 和 sm:min-w-[100px]
+                            open ? 'bg-ui-bg-subtle-hover text-ui-fg-base' : ''
                         }`}
-                        // 这里不再写 style，依靠 MobileMenu 里的 global style 控制高度和内边距
                     >
                         {current ? (
-                            <div className="flex items-center gap-x-3">
+                            <>
                                 <FlagIcon code={current.countryCode} />
-                                <span className="text-[11px] font-bold uppercase tracking-[0.15em] text-gray-900 tabular-nums">
-                                    {current.localizedName.split(' ')[0]}
-                                </span>
-                            </div>
+                                <span className="text-[11px] font-bold uppercase tracking-widest tabular-nums">
+                {current.localizedName.split(' ')[0]}
+            </span>
+                            </>
                         ) : (
-                            <span className="text-[11px] font-bold uppercase tracking-[0.15em] text-gray-900">Select</span>
+                            <span className="text-[11px] font-bold uppercase tracking-widest">Select</span>
                         )}
-
-                        {/* 箭头：ml-auto 确保靠右对齐 */}
-                        <ChevronDown
-                            className={`h-4 w-4 ml-auto text-gray-400 transition-transform duration-200 ${
-                                open ? 'rotate-180' : ''
-                            }`}
-                        />
+                        <ChevronDown className={`h-4 w-4 ml-auto transition-transform duration-200 ${open ? 'rotate-180' : ''}`} />
                     </Popover.Button>
 
                     <Transition
                         as={Fragment}
                         enter="transition duration-100 ease-out"
-                        enterFrom="opacity-0 translate-y-[-4px]"
+                        enterFrom="opacity-0 translate-y-[-8px]"
                         enterTo="opacity-100 translate-y-0"
                         leave="transition duration-75 ease-in"
                         leaveFrom="opacity-100 translate-y-0"
-                        leaveTo="opacity-0 translate-y-[-4px]"
+                        leaveTo="opacity-0 translate-y-[-8px]"
                     >
                         <Popover.Panel
-                            // 移动端 relative 撑开，PC端 sm:absolute 悬浮
-                            className="relative sm:absolute right-0 z-[110] mt-0 w-full sm:w-[240px] origin-top bg-white focus:outline-none border-t border-gray-50"
-                        >
+                            /**
+                             * 核心修改：
+                             * 1. relative sm:absolute -> 移动端撑开容器，PC端悬浮。
+                             * 2. w-full sm:w-[240px] -> 移动端宽度自适应。
+                             * 3. 移除 overflow-hidden -> 防止阴影或内容被切断。
+                             */
+                            className="relative sm:absolute right-0 z-[110] mt-0 w-full sm:w-[240px] origin-top-right bg-white focus:outline-none"                        >
+                            {/* PC端连接层 */}
+                            <div className="hidden sm:block absolute -top-2 h-2 w-full bg-transparent" />
+
                             <div className="flex flex-col w-full">
-                                {/* 面板标题：左对齐，与按钮文字对齐 */}
-                                <div className="px-4 py-3 text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400 bg-gray-50/50 text-left">
+                                <div className="sticky top-0 z-10 px-4 py-2.5 text-[10px] font-bold uppercase tracking-widest text-ui-fg-muted border-b bg-gray-50/95 backdrop-blur-sm">
                                     Select Language
                                 </div>
 
-                                {/* 选项列表 */}
+                                {/* 滚动列表高度限制 */}
                                 <div
                                     className="max-h-[240px] sm:max-h-80 overflow-y-auto overscroll-contain p-1 custom-scrollbar"
                                     style={{ WebkitOverflowScrolling: 'touch' }}
@@ -197,18 +196,16 @@ const HeaderLanguageSelect = ({ locales, currentLocale }: HeaderLanguageSelectPr
                                                 handleChange(option, close);
                                             }}
                                             disabled={isUpdating}
-                                            className={`flex items-center w-full px-4 py-3 text-[11px] uppercase tracking-widest transition-all ${
+                                            className={`flex items-center w-full px-3 py-2.5 text-sm rounded-md transition-all ${
                                                 current?.code === option.code
-                                                    ? "bg-gray-100 text-pink-600 font-bold"
-                                                    : "text-gray-600 hover:bg-gray-50 hover:text-black"
+                                                    ? "bg-ui-bg-base-pressed text-ui-fg-base font-semibold"
+                                                    : "text-ui-fg-subtle hover:bg-ui-bg-base-hover hover:text-ui-fg-base"
                                             } ${isUpdating ? "opacity-50 cursor-not-allowed" : ""}`}
                                         >
                                             <FlagIcon code={option.countryCode} />
-                                            <span className="ml-3 truncate text-left flex-1">
-                                                {option.localizedName}
-                                            </span>
+                                            <span className="ml-3 truncate text-left flex-1">{option.localizedName}</span>
                                             {current?.code === option.code && (
-                                                <div className="ml-2 w-1.5 h-1.5 rounded-full bg-pink-600" />
+                                                <div className="ml-2 w-1.5 h-1.5 rounded-full bg-ui-fg-interactive" />
                                             )}
                                         </button>
                                     ))}

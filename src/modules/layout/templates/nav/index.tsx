@@ -121,6 +121,19 @@ export default async function Nav() {
 
               {/* --- 右侧区域 --- */}
               <div className="flex-1 flex justify-end items-center gap-x-4 lg:gap-x-5">
+                {/*<div className="hidden lg:flex items-center relative group h-full">*/}
+                {/*  <button className="text-[11px] uppercase tracking-tighter text-gray-700">*/}
+                {/*    <ActiveRegion/>*/}
+                {/*  </button>*/}
+                {/*  <div className="absolute top-full right-0 pt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-[110]">*/}
+                {/*    <div className="w-48 bg-white border shadow-xl p-4 mt-1">*/}
+                {/*      <HeaderCountrySelect regions={regions}/>*/}
+                {/*      <div className="mt-4 pt-4 border-t border-gray-50">*/}
+                {/*        <HeaderLanguageSelect locales={locales} currentLocale={currentLocale}/>*/}
+                {/*      </div>*/}
+                {/*    </div>*/}
+                {/*  </div>*/}
+                {/*</div>*/}
 
                 <LocalizedClientLink href="/account" className="text-gray-700 hover:text-black">
                   <User size={22} />

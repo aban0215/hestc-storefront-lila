@@ -125,6 +125,7 @@ const HeaderCountrySelect = ({ regions }: HeaderCountrySelectProps) => {
                             // 关键点：移除 px-3, py-1.5 和 rounded-md
                             open ? "bg-ui-bg-subtle-hover text-ui-fg-base" : ""
                         }`}
+                        style={{ padding: '0 12px', height: '50px' }} // 使用行内样式或通过类名确保高度一致
                     >
                         {current && <FlagIcon code={current.country} />}
                         <span className="text-[12px] font-bold uppercase tabular-nums tracking-widest">

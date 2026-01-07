@@ -56,13 +56,14 @@ export default function BestSellersSlider({ products }: { products: any[] }) {
             >
                 {products.map((product, index) => (
                     <SwiperSlide key={`${product.handle}-${index}`} className="bg-white">
+                        {/* 轮播图内部的图片与文字区域 */}
                         <LocalizedClientLink href={`/products/${product.handle}`} className="block group">
                             <div className="aspect-[3/4] overflow-hidden bg-gray-50">
                                 {product.thumbnail ? (
                                     <img
                                         src={product.thumbnail}
                                         alt={product.title}
-                                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                                     />
                                 ) : (
                                     <div className="w-full h-full flex items-center justify-center text-gray-300">
@@ -72,11 +73,16 @@ export default function BestSellersSlider({ products }: { products: any[] }) {
                                     </div>
                                 )}
                             </div>
-                            <div className="p-4 flex flex-col items-center text-center">
-                                <h3 className="text-[10px] md:text-sm font-medium text-gray-800 mb-1 line-clamp-1 group-hover:text-pink-600 transition-colors uppercase tracking-wider">
+
+                            {/* --- 重点修改区域：LV 风格文字排版 --- */}
+                            <div className="p-3 md:p-4 flex flex-col items-start text-left bg-white">
+                                {/* 标题：去掉 uppercase，增加行高，左对齐 */}
+                                <h3 className="text-[13px] md:text-[15px] font-normal text-gray-900 leading-snug line-clamp-2 transition-colors duration-300">
                                     {product.title}
                                 </h3>
-                                <p className="text-sm md:text-base font-bold text-gray-900">
+
+                                {/* 价格：字体变细、变浅 (text-gray-500)，去掉加粗 */}
+                                <p className="mt-1.5 text-[13px] md:text-[14px] font-light text-gray-500 tracking-tight">
                                     {product.price}
                                 </p>
                             </div>

@@ -7,42 +7,43 @@ import Thumbnail from "../thumbnail"
 import PreviewPrice from "./price"
 
 export default async function ProductPreview({
-                                               product,
-                                               isFeatured,
-                                               region,
+                                                 product,
+                                                 isFeatured,
+                                                 region,
                                              }: {
-  product: HttpTypes.StoreProduct
-  isFeatured?: boolean
-  region: HttpTypes.StoreRegion
+    product: HttpTypes.StoreProduct
+    isFeatured?: boolean
+    region: HttpTypes.StoreRegion
 }) {
-  const { cheapestPrice } = getProductPrice({ product })
+    const { cheapestPrice } = getProductPrice({ product })
 
-  return (
-      <LocalizedClientLink href={`/products/${product.handle}`} className="group">
-        <div data-testid="product-wrapper" className="flex flex-col">
-          <Thumbnail
-              thumbnail={product.thumbnail}
-              images={product.images}
-              size="full"
-              isFeatured={isFeatured}
-          />
+    return (
+        <LocalizedClientLink href={`/products/${product.handle}`} className="group">
+            <div data-testid="product-wrapper" className="flex flex-col">
+                {/* 图片容器：保持比例，去掉多余边距 */}
+                <Thumbnail
+                    thumbnail={product.thumbnail}
+                    images={product.images}
+                    size="full"
+                    isFeatured={isFeatured}
+                />
 
-          {/* 内容区域：改为垂直排列 */}
-          <div className="mt-4 flex flex-col items-center text-center px-2">
-            {/* 标题：允许折行或者超过两行省略 */}
-            <Text
-                className="text-[13px] md:text-sm text-gray-900 font-normal uppercase tracking-wider line-clamp-2 min-h-[2.5rem]"
-                data-testid="product-title"
-            >
-              {product.title}
-            </Text>
+                {/* 内容区域：改为左对齐 (items-start text-left) */}
+                <div className="mt-3 flex flex-col items-start text-left">
+                    {/* 标题：去掉 uppercase，改用标准粗细，紧凑行高 */}
+                    <Text
+                        className="text-[14px] md:text-[16px] text-gray-900 font-normal leading-snug line-clamp-2"
+                        data-testid="product-title"
+                    >
+                        {product.title}
+                    </Text>
 
-            {/* 价格：放在下方，稍作间距 */}
-            <div className="mt-2 text-gray-500 font-light">
-              {cheapestPrice && <PreviewPrice price={cheapestPrice} />}
+                    {/* 价格：字体颜色变浅 (text-gray-500)，稍微变细 */}
+                    <div className="mt-1 text-[14px] md:text-[15px] text-gray-500 font-light tracking-tight">
+                        {cheapestPrice && <PreviewPrice price={cheapestPrice} />}
+                    </div>
+                </div>
             </div>
-          </div>
-        </div>
-      </LocalizedClientLink>
-  )
+        </LocalizedClientLink>
+    )
 }

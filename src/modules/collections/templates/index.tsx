@@ -51,45 +51,28 @@ export default function CollectionTemplate({
                 </div>
             )}
 
-            {/* 3. 筛选工具栏：做成贴地平滑感 */}
-            {/*<div className="sticky top-[60px] lg:top-[80px] z-30 bg-white/90 backdrop-blur-md border-y border-gray-100 mb-8">*/}
-            {/*    <div className="content-container mx-auto px-4 md:px-8 h-14 flex items-center justify-between">*/}
-            {/*        <div className="text-[11px] uppercase tracking-widest text-gray-400">*/}
-            {/*            /!* 显示商品数量，增加专业感 *!/*/}
-            {/*            Showing {collection.products?.length || 0} Results*/}
-            {/*        </div>*/}
-            {/*    </div>*/}
-            {/*</div>*/}
 
             {/* --- 极简工具栏容器 --- */}
             <div className="sticky top-[60px] lg:top-[80px] z-[40] bg-white/95 backdrop-blur-sm">
                 <div className="content-container mx-auto px-4 md:px-8">
-                    {/* 只保留底部一条极细的灰线，去掉顶部的线 */}
-                    <div className="h-16 flex items-end justify-between border-b border-gray-100 pb-2">
+                    {/* 1. 高度稍微拉高到 h-20，给两行文字留出呼吸空间 */}
+                    <div className="h-20 flex items-end justify-between border-b border-gray-100 pb-3">
 
-                        {/* 左侧：Collection 切换 + 数量统计 (合二为一) */}
-                        <div className="flex items-center gap-x-8">
+                        {/* 左侧：垂直排列 Result 和 Collection */}
+                        <div className="flex flex-col items-start gap-y-1">
+
+                            {/* 2. 数量统计：放在最上面，字号再小一点，颜色变浅，产生一种“导语”感 */}
+                            <span className="text-[9px] md:text-[10px] text-gray-400 uppercase tracking-[0.2em] ml-0.5">
+                    Showing {collection.products?.length || 0} Results
+                </span>
+
+                            {/* 3. Collection 切换：放在下面，作为视觉重点 */}
                             <CollectionHeader
                                 collection={collection}
                                 collections={collections}
                                 sort={sort}
-                                renderType="collection-only" // 告诉组件只渲染左边
                             />
-                            {/* 数量统计：用更浅的颜色，更小的字号 */}
-                            <span className="hidden md:block text-[10px] text-gray-400 uppercase tracking-[0.2em] mb-1">
-                    {collection.products?.length || 0} Results
-                </span>
                         </div>
-
-                        {/* 右侧：排序 */}
-                        {/*<div className="mb-1">*/}
-                        {/*    <CollectionHeader*/}
-                        {/*        collection={collection}*/}
-                        {/*        collections={collections}*/}
-                        {/*        sort={sort}*/}
-                        {/*        renderType="sort-only" // 告诉组件只渲染右边*/}
-                        {/*    />*/}
-                        {/*</div>*/}
                     </div>
                 </div>
             </div>

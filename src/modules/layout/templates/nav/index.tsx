@@ -120,28 +120,28 @@ export default async function Nav() {
               </div>
 
               {/* --- 右侧区域 --- */}
-              <div className="flex-1 flex justify-end items-center gap-x-4 lg:gap-x-5">
+              <div className="flex-1 flex justify-end items-center gap-x-2 lg:gap-x-2">
 
-                {/* 用户图标：强制高度与购物车一致 */}
+                {/* 用户图标：加上 w-8 h-8 保持跟购物车按钮底色块一致 */}
                 <LocalizedClientLink
                     href="/account"
-                    className="text-gray-700 hover:text-black flex items-center h-[22px]"
+                    className="text-gray-700 hover:text-black hover:bg-ui-bg-subtle-hover w-8 h-8 flex items-center justify-center rounded-md transition-colors"
                 >
                   <User size={22} />
                 </LocalizedClientLink>
 
-                {/* 购物车：使用 Suspense 包裹，并确保容器高度固定且内容居中 */}
+                {/* 购物车：因为内部已有 w-8 h-8，外层只需 items-center */}
                 <Suspense fallback={
-                  <div className="flex items-center h-[22px] w-[22px]">
+                  <div className="w-8 h-8 flex items-center justify-center text-gray-700">
                     <ShoppingBag size={22} />
                   </div>
                 }>
-                  <div className="flex items-center justify-center h-[22px]">
-                    <CartButton />
-                  </div>
+                  <CartButton />
                 </Suspense>
 
               </div>
+
+
             </div>
           </nav>
         </header>

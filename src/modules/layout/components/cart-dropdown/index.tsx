@@ -89,11 +89,12 @@ const CartDropdown = ({
               title={`Cart (${totalItems} items)`}
           >
             <div className="relative">
-              <ShoppingBag className="h-5 w-5" />
+              <ShoppingBag className="h-[22px] w-[22px]" />
               {totalItems > 0 && (
-                  <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-medium rounded-full h-4 w-4 flex items-center justify-center">
-          {totalItems > 9 ? "9+" : totalItems}
-        </span>
+                  /* 2. 微调角标位置，避免它让图标看起来偏下 */
+                  <span className="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[10px] font-bold rounded-full h-4 w-4 flex items-center justify-center border-2 border-white">
+                    {totalItems > 9 ? "9+" : totalItems}
+                  </span>
               )}
             </div>
           </LocalizedClientLink>

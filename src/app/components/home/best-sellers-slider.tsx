@@ -75,14 +75,12 @@ export default function BestSellersSlider({ products }: { products: any[] }) {
                             </div>
 
                             {/* --- 重点修改区域：LV 风格文字排版 --- */}
-                            <div className="p-3 md:p-4 flex flex-col items-start text-left bg-white">
-                                {/* 标题：去掉 uppercase，增加行高，左对齐 */}
-                                <h3 className="text-[13px] md:text-[15px] font-normal text-gray-900 leading-snug line-clamp-2 transition-colors duration-300">
+                            <div className="p-3 md:p-5 flex flex-col items-center text-center bg-white">
+                                <h3 className="w-full text-[11px] md:text-[14px] font-normal text-gray-900 tracking-wide uppercase truncate leading-relaxed">
                                     {product.title}
                                 </h3>
 
-                                {/* 价格：字体变细、变浅 (text-gray-500)，去掉加粗 */}
-                                <p className="mt-1.5 text-[13px] md:text-[14px] font-light text-gray-500 tracking-tight">
+                                <p className="mt-1 text-[10px] md:text-[12px] font-light text-gray-400 tracking-widest">
                                     {product.price}
                                 </p>
                             </div>

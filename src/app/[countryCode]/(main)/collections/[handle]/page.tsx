@@ -9,6 +9,9 @@ import { getBaseURL } from "@lib/util/env"
 import {getSelectedLocale} from "@lib/data/locales";
 import {getMarketingBySlug} from "@lib/strapi/market";
 
+
+export const dynamic = "force-dynamic"
+
 const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_API_URL;
 
 type Props = {

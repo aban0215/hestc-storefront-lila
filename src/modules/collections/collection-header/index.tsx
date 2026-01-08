@@ -53,27 +53,27 @@ export default function CollectionHeader({
             )}
 
             {/* 中间弹簧：强制把左右推开 */}
-            <div className="flex-1"></div>
+            {/*<div className="flex-1"></div>*/}
 
             {/* 右侧：SORT 排序 */}
-            <div className="relative group flex items-center">
-                <button className={btnClass}>
-          <span className="relative pb-1 after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-full after:h-[1px] after:bg-black/10 group-hover:after:bg-black after:transition-colors">
-            SORT BY
-          </span>
-                    <svg className="w-3 h-3 transition-transform duration-300 group-hover:rotate-180 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.2} d="M19 9l-7 7-7-7" />
-                    </svg>
-                </button>
+          {/*  <div className="relative group flex items-center">*/}
+          {/*      <button className={btnClass}>*/}
+          {/*<span className="relative pb-1 after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-full after:h-[1px] after:bg-black/10 group-hover:after:bg-black after:transition-colors">*/}
+          {/*  SORT BY*/}
+          {/*</span>*/}
+          {/*          <svg className="w-3 h-3 transition-transform duration-300 group-hover:rotate-180 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">*/}
+          {/*              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.2} d="M19 9l-7 7-7-7" />*/}
+          {/*          </svg>*/}
+          {/*      </button>*/}
 
-                {/* 下拉列表：靠右弹出 */}
-                <div className="absolute top-full right-0 mt-0 py-5 w-48 bg-white shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-[100] border-t border-gray-100">
-                    <div className="px-6">
-                        <p className="text-[9px] text-gray-400 tracking-widest mb-3">ORDER BY</p>
-                        <RefinementList sortBy={sort} />
-                    </div>
-                </div>
-            </div>
+          {/*      /!* 下拉列表：靠右弹出 *!/*/}
+          {/*      <div className="absolute top-full right-0 mt-0 py-5 w-48 bg-white shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-[100] border-t border-gray-100">*/}
+          {/*          <div className="px-6">*/}
+          {/*              <p className="text-[9px] text-gray-400 tracking-widest mb-3">ORDER BY</p>*/}
+          {/*              <RefinementList sortBy={sort} />*/}
+          {/*          </div>*/}
+          {/*      </div>*/}
+          {/*  </div>*/}
         </div>
     )
 }

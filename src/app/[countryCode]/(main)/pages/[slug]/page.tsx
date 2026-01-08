@@ -23,23 +23,22 @@ export default async function LilaDynamicPage(props: {
 
     return (
         <div className="bg-white min-h-screen">
-            {/* 1. 将 pt-24/32 缩减一半到 pt-12/16，紧贴导航栏下边缘 */}
-            <main className="content-container pt-12 md:pt-16 pb-24">
+            <main className="content-container pt-8 md:pt-16 pb-24">
                 <div className="max-w-4xl mx-auto">
 
-                    {/* 2. 返回按钮：mb-6 稍微收紧，让它离标题更近一点 */}
-                    <div className="mb-6">
+                    {/* --- 手机端固定返回键开始 --- */}
+                    {/* z-40 确保它在内容上方，top-16 是避开你的主导航栏 */}
+                    <div className="sticky top-[60px] md:static bg-white/90 backdrop-blur-sm z-40 py-4 -mx-4 px-4 md:mx-0 md:px-0 mb-6 transition-all">
                         <BackButton />
                     </div>
+                    {/* --- 手机端固定返回键结束 --- */}
 
-                    {/* 3. 标题区域：mb-10 缩短与正文的距离 */}
                     <header className="mb-10 border-b border-gray-100 pb-6">
                         <h1 className="text-[26px] md:text-[32px] font-light tracking-[0.05em] text-gray-900 uppercase">
                             {pageData.title}
                         </h1>
                     </header>
 
-                    {/* 4. 正文内容 */}
                     <article className="prose prose-sm max-w-none">
                         <div className="text-gray-700 leading-[1.7] tracking-[0.02em] font-light">
                             <ReactMarkdown rehypePlugins={[rehypeRaw]}>
@@ -51,5 +50,4 @@ export default async function LilaDynamicPage(props: {
             </main>
         </div>
     )
-
 }

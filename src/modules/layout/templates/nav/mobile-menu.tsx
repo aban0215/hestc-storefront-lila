@@ -52,7 +52,14 @@ export default function MobileMenu({
 
     const handleRegionChange = async (countryCode: string) => {
         try {
-            await updateRegion(countryCode, pathname)
+            const pathParts = pathname.split("/")
+
+            pathParts.splice(1, 1)
+
+            const restOfPath = pathParts.join("/") || "/"
+
+            await updateRegion(countryCode, restOfPath)
+
             setIsOpen(false)
         } catch (error) { console.error(error) }
     }

@@ -10,6 +10,7 @@ import ProductActionsWrapper from "./product-actions-wrapper"
 import { LilaProductContent } from "../../../lib/strapi/product-content"
 import ReactMarkdown from "react-markdown"
 import SizeGuideModal from "@modules/products/components/size-guide-modal"
+import BackButton from "@modules/account/components/back-button"
 
 type ProductTemplateProps = {
     product: HttpTypes.StoreProduct
@@ -31,14 +32,20 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
     }
 
     return (
-        // 核心：外层不能设 overflow-hidden，否则 sticky 失效
         <div className="relative w-full bg-white">
+            {/* 1. 【新增】全局吸顶返回条 */}
+            {/* top-[56px] 避开主导航栏，z-[60] 确保在最上层 */}
+            <div className="sticky top-[56px] lg:top-[64px] z-[60] w-full bg-white/90 backdrop-blur-md border-b border-gray-50">
+                <div className="content-container py-4">
+                    <BackButton />
+                </div>
+            </div>
 
             {/* 【第一部分：核心购买区】 */}
-            {/* 关键：items-start 必须保留，确保右侧不会被拉伸成跟左侧一样高，这样 sticky 才有滑动空间 */}
-            <div className="content-container flex flex-col small:flex-row items-start py-8 small:py-16 relative gap-x-12 lg:gap-x-24">
+            {/* 这里的 py 稍微减小，因为上方已经有了返回条的间距 */}
+            <div className="content-container flex flex-col small:flex-row items-start py-6 small:py-12 relative gap-x-12 lg:gap-x-24">
 
-                {/* A. 左侧：图片瀑布流 (决定了整个区域的总高度) */}
+                {/* A. 左侧：图片瀑布流 */}
                 <div className="flex flex-col w-full flex-1 gap-y-4">
                     {images?.map((image, index) => (
                         <div key={image.id || index} className="w-full bg-gray-50">
@@ -53,10 +60,9 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
                 </div>
 
                 {/* B. 右侧：信息锁定区 */}
-                {/* h-full 确保它在父级容器内，sticky 配合 top 定位 */}
-                <aside className="w-full small:w-[400px] lg:w-[450px] small:sticky small:top-24 self-start">
+                {/* 增加 top 偏移，避开我们的吸顶返回条（64px）+ 导航栏（64px） */}
+                <aside className="w-full small:w-[400px] lg:w-[450px] small:sticky small:top-[140px] self-start">
                     <div className="flex flex-col gap-y-12 py-8 small:py-0">
-
                         {/* 1. 标题价格 */}
                         <div className="pb-10 border-b border-gray-100">
                             <ProductInfo product={product} />
@@ -96,7 +102,7 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
                             <div className="mt-8 w-12 h-[1px] bg-black"></div>
                         </div>
 
-                        <div className="prose prose-neutral max-w-none prose-p:leading-[2] prose-p:font-light">
+                        <div className="prose prose-neutral max-w-none">
                             <ReactMarkdown
                                 components={{
                                     p: "div",

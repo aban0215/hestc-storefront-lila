@@ -8,7 +8,6 @@ type ProductInfoProps = {
 
 const ProductInfo = ({ product }: ProductInfoProps) => {
     // 调试辅助：检查控制台看看 subtitle 是否有数据
-    console.log("Product Info Debug:", product)
 
     return (
         <div id="product-info">

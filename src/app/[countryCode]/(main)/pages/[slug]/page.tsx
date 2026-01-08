@@ -24,10 +24,9 @@ export default async function LilaDynamicPage(props: {
     return (
         <div className="bg-white min-h-screen">
             {/* 1. 顶部返回区域：减少 pt (从 32 减到 24)，去掉重复嵌套 */}
-            <div className="content-container pt-24 md:pt-28 pb-4">
+            <div className="content-container pt-20 md:pt-24 pb-2">
                 <BackButton />
             </div>
-
             {/* 2. 主体区域：pt-0 紧跟返回键，保持整体感 */}
             <main className="content-container pb-24">
                 <div className="max-w-4xl mx-auto">

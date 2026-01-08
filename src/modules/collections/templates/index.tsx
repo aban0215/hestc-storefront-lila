@@ -26,7 +26,7 @@ export default function CollectionTemplate({
 
     return (
         <div className="w-full overflow-x-hidden bg-white">
-            <div className="content-container pt-24 md:pt-28 pb-4">
+            <div className="content-container pt-20 md:pt-24 pb-2">
                 <BackButton />
             </div>
             {/* 1. 顶部系列头：把 CollectionHeader 里的标题去掉，这里统一展示 */}

@@ -20,7 +20,7 @@ export default async function ProductPreview({
     return (
         <LocalizedClientLink href={`/products/${product.handle}`} className="group">
             <div data-testid="product-wrapper" className="flex flex-col w-full h-full">
-                <div className="content-container pt-24 md:pt-28 pb-4">
+                <div className="content-container pt-20 md:pt-24 pb-2">
                     <BackButton />
                 </div>
                 {/* 1. 图片容器：完全直角，极简背景 */}

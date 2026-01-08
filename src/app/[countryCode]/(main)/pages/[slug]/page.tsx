@@ -23,17 +23,25 @@ export default async function LilaDynamicPage(props: {
 
     return (
         <div className="bg-white min-h-screen">
-            {/* 2. 主体区域：pt-0 紧跟返回键，保持整体感 */}
-            <main className="content-container pb-24">
+            {/* 统一使用一个 main 容器，pt-24 避开 Header，pt-32 在大屏更舒展 */}
+            <main className="content-container pt-24 md:pt-32 pb-24">
                 <div className="max-w-4xl mx-auto">
-                    {/* 3. 标题优化：减少 mb (从 16 减到 8)，增加字间距 */}
-                    <h1 className="text-[28px] md:text-[36px] font-light tracking-[0.05em] text-gray-900 mb-8 border-b border-gray-100 pb-8 uppercase">
-                        {pageData.title}
-                    </h1>
 
-                    {/* 4. 正文内容 */}
+                    {/* 1. 返回按钮：放在标题正上方，mb-8 拉开一点呼吸感 */}
+                    <div className="mb-8">
+                        <BackButton />
+                    </div>
+
+                    {/* 2. 标题区域：mb-12 让标题与正文有明显的层级感 */}
+                    <header className="mb-12 border-b border-gray-100 pb-8">
+                        <h1 className="text-[28px] md:text-[36px] font-light tracking-[0.05em] text-gray-900 uppercase">
+                            {pageData.title}
+                        </h1>
+                    </header>
+
+                    {/* 3. 正文内容：保持 font-light 增加高级感 */}
                     <article className="prose prose-sm max-w-none">
-                        <div className="text-gray-700 leading-[1.8] tracking-wide font-light">
+                        <div className="text-gray-700 leading-[1.8] tracking-[0.02em] font-light">
                             <ReactMarkdown rehypePlugins={[rehypeRaw]}>
                                 {pageData.content}
                             </ReactMarkdown>
@@ -42,4 +50,5 @@ export default async function LilaDynamicPage(props: {
                 </div>
             </main>
         </div>
-    )}
+    )
+}

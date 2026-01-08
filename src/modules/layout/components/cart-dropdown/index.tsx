@@ -88,7 +88,7 @@ const CartDropdown = ({
               data-testid="nav-cart-link"
               title={`Cart (${totalItems} items)`}
           >
-            <div className="relative flex items-center justify-center translate-y-[3.5px]">
+            <div className="relative flex items-center justify-center translate-y-[4px]">
               <ShoppingBag className="h-[22px] w-[22px]" />
               {totalItems > 0 && (
                   /* 2. 微调角标位置，避免它让图标看起来偏下 */

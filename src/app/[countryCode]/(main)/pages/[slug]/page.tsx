@@ -4,6 +4,7 @@ import LocalizedClientLink from "@modules/common/components/localized-client-lin
 import {getSelectedLocale} from "@lib/data/locales";
 import ReactMarkdown from "react-markdown"
 import rehypeRaw from "rehype-raw"
+import BackButton from "@modules/account/components/back-button";
 
 export default async function LilaDynamicPage(props: {
     params: Promise<{ countryCode: string; slug: string }>
@@ -22,14 +23,10 @@ export default async function LilaDynamicPage(props: {
 
     return (
         <div className="bg-white min-h-screen">
-            {/* 简单的面包屑或返回导航 */}
             <div className="content-container pt-32 pb-8">
-                <LocalizedClientLink
-                    href="/"
-                    className="text-[11px] uppercase tracking-[0.2em] text-gray-400 hover:text-black transition-colors"
-                >
-                    ← Back to Home
-                </LocalizedClientLink>
+                <div className="content-container pt-32 pb-8">
+                    <BackButton />
+                </div>
             </div>
 
             <main className="content-container pb-24">

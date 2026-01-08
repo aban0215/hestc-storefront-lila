@@ -56,7 +56,6 @@ export default async function CategoryTemplate({
 
     return (
         <div className="w-full bg-white">
-            <BackButton />
             {/* 1. 统一的标题区 */}
             <div className="pt-16 pb-8 flex flex-col items-center px-4">
                 <h1 className="text-[26px] md:text-[36px] font-light uppercase tracking-[0.3em] text-gray-900 mb-3 text-center">

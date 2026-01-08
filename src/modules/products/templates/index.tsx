@@ -39,17 +39,17 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
 
                 {/* A. 左侧：Medusa 商品图集 (占据 60% 左右宽度) */}
                 <div className="block w-full relative flex-1">
-                    <div className="rounded-2xl overflow-hidden shadow-sm">
+                    <div className="rounded-none overflow-hidden"> {/* LV 风格倾向于直角 */}
                         <ImageGallery images={images} />
                     </div>
                 </div>
 
                 {/* B. 右侧：混合信息流 (Sticky 固态挂起) */}
-                <div className="flex flex-col small:sticky small:top-24 small:max-w-[380px] w-full py-2 gap-y-10">
-
-                    {/* 1. Medusa 标题 & 价格 + Strapi Slogan */}
-                    <div className="pb-8 border-b border-gray-100">
+                <div className="flex flex-col small:sticky small:top-32 small:max-w-[420px] w-full py-2 gap-y-12">
+                    {/* 标题部分：增加细分割线 */}
+                    <div className="pb-10 border-b border-gray-200">
                         <ProductInfo product={product} />
+                        {/* 建议在 ProductInfo 内部将标题设为 font-light, tracking-widest */}
                     </div>
 
                     {/* 2. 购买操作区域 (Medusa 规格 + Strapi SizeGuide) */}

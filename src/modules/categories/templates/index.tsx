@@ -56,26 +56,29 @@ export default async function CategoryTemplate({
 
     return (
         <div className="w-full bg-white">
-            {/* 1. 统一的标题区 */}
-            <div className="pt-16 pb-8 flex flex-col items-center px-4">
-                <h1 className="text-[26px] md:text-[36px] font-light uppercase tracking-[0.3em] text-gray-900 mb-3 text-center">
+            {/* 1. 顶部返回区域：紧贴导航栏，作为页面第一个交互点 */}
+            <div className="content-container pt-20 md:pt-24 pb-4">
+                <BackButton />
+            </div>
+
+            {/* 2. 统一的标题区：pt 缩小，让视觉重心快速下移 */}
+            <div className="pb-12 flex flex-col items-center px-4">
+                <h1 className="text-[26px] md:text-[38px] font-light uppercase tracking-[0.25em] text-gray-900 mb-3 text-center leading-tight">
                     {category.name}
                 </h1>
 
                 {marketingData?.description ? (
-                    <p className="max-w-2xl text-center text-[13px] md:text-[15px] text-gray-500 font-light leading-relaxed mt-4 px-6 italic">
+                    <p className="max-w-2xl text-center text-[13px] md:text-[14px] text-gray-500 font-light leading-relaxed mt-4 px-6 italic">
                         {marketingData.description}
                     </p>
                 ) : (
-                    <p className="text-[10px] md:text-[12px] text-gray-400 uppercase tracking-[0.2em] font-light">
-                        {/*Explore the Series*/}
-                    </p>
+                    <div className="h-4" /> // 保持间距的一致性
                 )}
             </div>
 
-            {/* 2. 营销图片/视频区域 */}
+            {/* 3. 营销图片/视频区域：增加圆角或全屏感 */}
             {marketingData?.maketimg?.url && (
-                <div className="relative w-full h-[50vh] md:h-[70vh] mb-4 overflow-hidden bg-gray-50">
+                <div className="relative w-full h-[55vh] md:h-[75vh] mb-8 overflow-hidden bg-gray-50">
                     {marketingData.maketimg.mime?.includes("video") ? (
                         <video
                             src={marketingData.maketimg.url}
@@ -88,7 +91,7 @@ export default async function CategoryTemplate({
                     ) : (
                         <img
                             src={marketingData.maketimg.url}
-                            className="absolute inset-0 w-full h-full object-cover"
+                            className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 hover:scale-105"
                             alt={category.name}
                         />
                     )}
@@ -96,18 +99,17 @@ export default async function CategoryTemplate({
                 </div>
             )}
 
-            {/* 3. 吸顶工具栏：Breadcrumbs(左) + Sort(右) */}
-            <div className="sticky top-[60px] lg:top-[80px] z-[40] bg-white/95 backdrop-blur-md border-b border-gray-100">
-                <div className="w-full px-4 md:px-8 py-5">
+            {/* 4. 吸顶工具栏：针对手机端优化，与 BackButton 错开层级 */}
+            <div className="sticky top-[56px] lg:top-[64px] z-[40] bg-white/95 backdrop-blur-md border-b border-gray-100">
+                <div className="w-full px-4 md:px-8 py-4">
+                    {/* 结果数量提示 */}
+                    <span className="text-[9px] text-gray-400 uppercase tracking-[0.2em] mb-3 block ml-0.5">
+                    {count} {count === 1 ? 'Result' : 'Results'}
+                </span>
 
-                    <span className="text-[9px] text-gray-400 uppercase tracking-[0.2em] mb-2 block ml-0.5">
-            {count} {count === 1 ? 'Result' : 'Results'}
-          </span>
-
-                    {/* 上方小字提示 */}
                     <div className="flex items-center justify-between w-full">
-                        {/* 左侧：面包屑路径 */}
-                        <nav className="flex items-center flex-wrap gap-x-2 text-[11px] font-medium tracking-[0.15em] uppercase text-gray-900">
+                        {/* 左侧：面包屑路径 - 精简字体 */}
+                        <nav className="flex items-center flex-wrap gap-x-2 text-[10px] font-medium tracking-[0.1em] uppercase text-gray-900">
                             <LocalizedClientLink
                                 href="/store"
                                 className="hover:text-gray-400 transition-colors"
@@ -116,14 +118,14 @@ export default async function CategoryTemplate({
                             </LocalizedClientLink>
 
                             {breadcrumbs.map((bc, index) => (
-                                <div key={bc.handle} className="flex items-center gap-x-2">
-                                    <span className="text-gray-300 font-light">/</span>
+                                <div key={bc.handle} className="flex items-center gap-x-1.5">
+                                    <span className="text-gray-300">/</span>
                                     <LocalizedClientLink
                                         href={`/categories/${bc.handle}`}
                                         className={`${
                                             index === breadcrumbs.length - 1
                                                 ? "text-black pointer-events-none"
-                                                : "text-gray-400 hover:text-black transition-colors"
+                                                : "text-gray-400 hover:text-black"
                                         }`}
                                     >
                                         {bc.name}
@@ -132,18 +134,18 @@ export default async function CategoryTemplate({
                             ))}
                         </nav>
 
-                        {/* 右侧：排序下拉 (保持和 CollectionHeader 风格一致) */}
+                        {/* 右侧：排序 */}
                         <div className="relative group">
-                            <button className="flex items-center gap-x-2 text-[11px] font-medium tracking-[0.2em] text-gray-900 uppercase group hover:text-gray-500 transition-colors">
-                <span className="relative pb-1 after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-full after:h-[1px] after:bg-black/10 group-hover:after:bg-black after:transition-colors">
-                  Sort By
-                </span>
-                                <svg className="w-3 h-3 transition-transform duration-300 group-hover:rotate-180 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.2} d="M19 9l-7 7-7-7" />
+                            <button className="flex items-center gap-x-2 text-[10px] font-medium tracking-[0.15em] text-gray-900 uppercase">
+                            <span className="pb-0.5 border-b border-transparent group-hover:border-black transition-all">
+                                Sort By
+                            </span>
+                                <svg className="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 9l-7 7-7-7" />
                                 </svg>
                             </button>
-
-                            <div className="absolute top-full right-0 mt-0 py-5 w-48 bg-white shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-[100] border-t border-gray-100">
+                            {/* 下拉菜单保持不变 */}
+                            <div className="absolute top-full right-0 mt-0 py-5 w-48 bg-white shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-[100] border border-gray-100">
                                 <div className="px-6">
                                     <p className="text-[9px] text-gray-400 tracking-widest mb-3">ORDER BY</p>
                                     <RefinementList sortBy={sort} />
@@ -154,16 +156,10 @@ export default async function CategoryTemplate({
                 </div>
             </div>
 
-            {/* 4. 商品列表区域 */}
-            <div className="w-full mt-8">
-                <div className="px-[1px] md:px-2">
-                    <Suspense
-                        fallback={
-                            <div className="w-full py-12 px-4 md:px-8">
-                                <SkeletonProductGrid numberOfProducts={8} />
-                            </div>
-                        }
-                    >
+            {/* 5. 商品列表区域 */}
+            <div className="w-full mt-10">
+                <div className="px-4 md:px-8">
+                    <Suspense fallback={<SkeletonProductGrid numberOfProducts={8} />}>
                         <PaginatedProducts
                             sortBy={sort}
                             page={pageNumber}

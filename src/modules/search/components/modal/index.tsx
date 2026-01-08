@@ -52,7 +52,7 @@ export default function SearchModal() {
                         searchClient={searchClient}
                         indexName={process.env.NEXT_PUBLIC_MEILISEARCH_INDEX_NAME}
                     >
-                        <Configure hitsPerPage={4} />
+                        <Configure hitsPerPage={10} />
                         <SearchBox
                             autoFocus
                             placeholder="Search products..."

@@ -54,7 +54,9 @@ export default function MobileMenu({
         try {
             const pathParts = pathname.split("/")
 
-            pathParts.splice(1, 1)
+            if (pathParts.length > 1) {
+                pathParts.splice(1, 1)
+            }
 
             const restOfPath = pathParts.join("/") || "/"
 

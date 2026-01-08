@@ -56,6 +56,14 @@ export default function SearchModal() {
                         indexName={process.env.NEXT_PUBLIC_MEILISEARCH_INDEX_NAME}
                     >
 
+                        {/* --- 临时探测器开始 --- */}
+                        <div className="bg-gray-50 p-2 text-[10px] font-mono text-gray-500 mb-4 break-all">
+                            <p>Index: {process.env.NEXT_PUBLIC_MEILISEARCH_INDEX_NAME}</p>
+                            <div className="mt-1">
+                                <SearchStatusDisplay /> {/* 引用下方的自定义探测组件 */}
+                            </div>
+                        </div>
+                        {/* --- 临时探测器结束 --- */}
 
                         <Configure hitsPerPage={10} />
 
@@ -113,5 +121,23 @@ const Hit = ({ hit }: { hit: any }) => {
                 className="absolute inset-0 z-10"
             />
         </div>
+    )
+}
+
+function SearchStatusDisplay() {
+    const { status, results, error } = useInstantSearch()
+
+    if (error) {
+        return <p className="text-red-500">❌ Error: {error.message}</p>
+    }
+
+    if (status === 'loading' || status === 'stalled') {
+        return <p className="text-blue-500">⏳ Searching/Connecting...</p>
+    }
+
+    return (
+        <p className="text-green-500">
+            ✅ Status: {status} | Hits: {results?.nbHits || 0}
+        </p>
     )
 }

@@ -33,19 +33,16 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
 
     return (
         <div className="relative w-full bg-white">
-            {/* 1. 【新增】全局吸顶返回条 */}
-            {/* top-[56px] 避开主导航栏，z-[60] 确保在最上层 */}
+
             <div className="sticky top-[56px] lg:top-[64px] z-[60] w-full bg-white/90 backdrop-blur-md border-b border-gray-50">
                 <div className="content-container py-4">
-                    <BackButton />
+                    <BackButton className="text-gray-900 !tracking-[0.1em]" />
                 </div>
             </div>
 
-            {/* 【第一部分：核心购买区】 */}
-            {/* 这里的 py 稍微减小，因为上方已经有了返回条的间距 */}
+
             <div className="content-container flex flex-col small:flex-row items-start py-6 small:py-12 relative gap-x-12 lg:gap-x-24">
 
-                {/* A. 左侧：图片瀑布流 */}
                 <div className="flex flex-col w-full flex-1 gap-y-4">
                     {images?.map((image, index) => (
                         <div key={image.id || index} className="w-full bg-gray-50">
@@ -59,8 +56,6 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
                     ))}
                 </div>
 
-                {/* B. 右侧：信息锁定区 */}
-                {/* 增加 top 偏移，避开我们的吸顶返回条（64px）+ 导航栏（64px） */}
                 <aside className="w-full small:w-[400px] lg:w-[450px] small:sticky small:top-[140px] self-start">
                     <div className="flex flex-col gap-y-12 py-8 small:py-0">
                         {/* 1. 标题价格 */}

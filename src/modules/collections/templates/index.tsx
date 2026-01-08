@@ -4,6 +4,8 @@ import PaginatedProducts from "@modules/store/templates/paginated-products"
 import { SortOptions } from "@modules/store/components/refinement-list/sort-products"
 import { HttpTypes } from "@medusajs/types"
 import CollectionHeader from "../collection-header/index"
+import BackButton from "@modules/account/components/back-button";
+import RefinementList from "@modules/store/components/refinement-list";
 
 export default function CollectionTemplate({
                                                sortBy,
@@ -24,69 +26,107 @@ export default function CollectionTemplate({
     const sort = sortBy || "created_at"
 
     return (
-        <div className="w-full overflow-x-hidden bg-white">
-            {/* 1. 顶部系列头：把 CollectionHeader 里的标题去掉，这里统一展示 */}
-            <div className="pt-12 pb-6 px-4 md:px-8 flex flex-col items-center">
-                <h1 className="text-[28px] md:text-[40px] font-light uppercase tracking-[0.3em] text-gray-900 mb-4">
+        <div className="w-full bg-white relative">
+            {/* 1. 顶部标题区域：保持大牌呼吸感 */}
+            <div className="pt-24 md:pt-32 pb-12 flex flex-col items-center px-4">
+                <h1 className="text-[28px] md:text-[40px] font-light uppercase tracking-[0.3em] text-gray-900 mb-6 text-center">
                     {collection.title}
                 </h1>
-                {/* 简单的系列说明，增加文人气息 */}
-                <p className="max-w-xl text-center text-[13px] md:text-sm text-gray-500 font-light leading-relaxed uppercase tracking-wider">
-                    {marketingData?.description}
-                </p>
+                {marketingData?.description && (
+                    <p className="max-w-xl text-center text-[13px] md:text-sm text-gray-500 font-light leading-relaxed uppercase tracking-widest px-6 italic">
+                        {marketingData.description}
+                    </p>
+                )}
             </div>
 
-            {/* 2. Marketing Banner：去掉厚重的遮罩，改用渐变或纯净排版 */}
-            {marketingData && (
-                <div className="relative w-full h-[50vh] md:h-[75vh] mb-12 overflow-hidden bg-gray-50">
-                    {marketingData.maketimg?.mime?.includes("video") ? (
-                        <video src={marketingData.maketimg.url} autoPlay loop muted playsInline className="absolute inset-0 w-full h-full object-cover" />
+            {/* 2. Marketing Banner：营销图/视频 */}
+            {marketingData?.maketimg?.url && (
+                <div className="relative w-full h-[55vh] md:h-[75vh] mb-0 overflow-hidden bg-gray-50">
+                    {marketingData.maketimg.mime?.includes("video") ? (
+                        <video
+                            src={marketingData.maketimg.url}
+                            autoPlay
+                            loop
+                            muted
+                            playsInline
+                            className="absolute inset-0 w-full h-full object-cover"
+                        />
                     ) : (
-                        marketingData.maketimg?.url && (
-                            <img src={marketingData.maketimg.url} alt="" className="absolute inset-0 w-full h-full object-cover" />
-                        )
+                        <img
+                            src={marketingData.maketimg.url}
+                            alt={collection.title}
+                            className="absolute inset-0 w-full h-full object-cover"
+                        />
                     )}
-                    {/* 遮罩改为极其轻微的底部渐变，让画面透出来 */}
-                    <div className="absolute inset-0 bg-gradient-to-b from-black/5 via-transparent to-black/20" />
+                    <div className="absolute inset-0 bg-black/5" />
                 </div>
             )}
 
+            {/* 3. 吸顶工具栏：左右天平布局，严格复刻 Category 逻辑 */}
+            {/* 注意：如果还是不吸顶，请尝试把 top-[56px] 改为 top-0 测试 */}
+            <div className="sticky top-[56px] lg:top-[64px] z-[50] bg-white/95 backdrop-blur-md border-b border-gray-100 w-full">
+                <div className="mx-auto px-4 md:px-8 py-4">
 
-            {/* --- 极简工具栏容器 --- */}
-            <div className="sticky top-[60px] lg:top-[80px] z-[40] bg-white/95 backdrop-blur-sm">
-                <div className="content-container mx-auto px-4 md:px-8">
-                    {/* 1. 高度稍微拉高到 h-20，给两行文字留出呼吸空间 */}
-                    <div className="h-20 flex items-end justify-between border-b border-gray-100 pb-3">
-
-                        {/* 左侧：垂直排列 Result 和 Collection */}
-                        <div className="flex flex-col items-start gap-y-1">
-
-                            {/* 2. 数量统计：放在最上面，字号再小一点，颜色变浅，产生一种“导语”感 */}
-                            <span className="text-[9px] md:text-[10px] text-gray-400 uppercase tracking-[0.2em] ml-0.5">
-                    Showing {collection.products?.length || 0} Results
+                    {/* 数量统计：独立展示在左上方 */}
+                    <span className="text-[9px] text-gray-400 uppercase tracking-[0.2em] mb-3 block ml-0.5">
+                    {collection.products?.length || 0} {collection.products?.length === 1 ? 'Result' : 'Results'}
                 </span>
 
-                            {/* 3. Collection 切换：放在下面，作为视觉重点 */}
-                            <CollectionHeader
-                                collection={collection}
-                                collections={collections}
-                                sort={sort}
-                            />
+                    <div className="flex items-center justify-between w-full">
+
+                        {/* 左侧：返回键 + 分隔线 + 系列切换 (必须在一行) */}
+                        <div className="flex items-center gap-x-4">
+                            <div className="flex-shrink-0">
+                                <BackButton className="text-black !tracking-[0.1em]" />
+                            </div>
+
+                            <div className="h-4 w-[1px] bg-gray-200 flex-shrink-0" />
+
+                            <div className="flex items-center">
+                                <CollectionHeader
+                                    collection={collection}
+                                    collections={collections}
+                                    sort={sort}
+                                />
+                            </div>
+                        </div>
+
+                        {/* 右侧：排序下拉 */}
+                        <div className="relative group flex-shrink-0">
+                            <button className="flex items-center gap-x-2 text-[10px] font-medium tracking-[0.15em] text-gray-900 uppercase">
+                            <span className="pb-0.5 border-b border-transparent group-hover:border-black transition-all">
+                                Sort By
+                            </span>
+                                <svg
+                                    className="w-3 h-3 text-gray-400 transition-transform duration-300 group-hover:rotate-180"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </button>
+
+                            {/* 下拉浮层 */}
+                            <div className="absolute top-full right-0 mt-0 py-5 w-48 bg-white shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-[100] border border-gray-100">
+                                <div className="px-6">
+                                    <p className="text-[9px] text-gray-400 tracking-widest mb-3 uppercase font-semibold">ORDER BY</p>
+                                    <RefinementList sortBy={sort} />
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
 
             {/* 4. 商品列表区域 */}
-            <div className="w-full relative z-0">
-                {/* 去掉 content-container，改用 w-full，左右 padding 只留极小 */}
-                <div className="px-[1px] md:px-0">
+            <div className="w-full relative z-0 mt-8">
+                <div className="px-4 md:px-8 pb-24">
                     <Suspense fallback={
                         <div className="w-full py-12 px-4">
                             <SkeletonProductGrid numberOfProducts={8} />
                         </div>
                     }>
-                        {/* 我们在外层包一个 div，强制去掉内部可能存在的卡片样式 */}
                         <div className="product-grid-clean">
                             <PaginatedProducts
                                 sortBy={sort}
@@ -98,7 +138,6 @@ export default function CollectionTemplate({
                     </Suspense>
                 </div>
             </div>
-
         </div>
     )
 }

@@ -4,91 +4,84 @@ import { HttpTypes } from "@medusajs/types"
 import Product from "../product-preview"
 
 type RelatedProductsProps = {
-  product: HttpTypes.StoreProduct
-  countryCode: string
+    product: HttpTypes.StoreProduct
+    countryCode: string
 }
 
 export default async function RelatedProducts({
-                                                product,
-                                                countryCode,
+                                                  product,
+                                                  countryCode,
                                               }: RelatedProductsProps) {
-  const region = await getRegion(countryCode)
+    const region = await getRegion(countryCode)
+    if (!region) return null
 
-  if (!region) {
-    return null
-  }
+    const baseParams: HttpTypes.StoreProductListParams = {
+        region_id: region.id,
+        is_giftcard: false,
+    }
 
-  // --- 逻辑优化：多维度加权抓取 ---
+    // --- 数据获取：确保能拿到足够的货 ---
+    // 优先取同集合，拿 12 个做 Buffer，确保过滤掉自身后还有足够的量
+    let fetchedProducts: HttpTypes.StoreProduct[] = []
 
-  // 1. 尝试获取同系列 (Collection) 商品
-  const collectionProducts = product.collection_id
-      ? await listProducts({
+    const { response } = await listProducts({
         queryParams: {
-          collection_id: [product.collection_id],
-          region_id: region.id,
-          limit: 9 // 多取一个用于过滤掉自身
+            ...baseParams,
+            collection_id: product.collection_id ? [product.collection_id] : undefined,
+            limit: 12
         },
         countryCode,
-      }).then(({ response }) => response.products)
-      : []
+    })
 
-  // 2. 如果同系列商品不足 8 个，尝试用同标签 (Tags) 补齐
-  let taggedProducts: HttpTypes.StoreProduct[] = []
-  if (collectionProducts.length < 9 && product.tags?.length) {
-    taggedProducts = await listProducts({
-      queryParams: {
-        tag_id: product.tags.map(t => t.id).filter(Boolean) as string[],
-        region_id: region.id,
-        limit: 9
-      },
-      countryCode,
-    }).then(({ response }) => response.products)
-  }
+    fetchedProducts = response.products
 
-  // 3. 合并、去重、过滤掉当前正在浏览的商品
-  const allProducts = [...collectionProducts, ...taggedProducts]
-  const seenIds = new Set()
-  const filteredProducts = allProducts.filter((p) => {
-    if (p.id === product.id || seenIds.has(p.id)) return false
-    seenIds.add(p.id)
-    return true
-  })
+    // 如果同集合货太少，直接抓全店补齐（保底逻辑）
+    if (fetchedProducts.length < 5) {
+        const { response: fallbackRes } = await listProducts({
+            queryParams: { ...baseParams, limit: 12 },
+            countryCode,
+        })
+        fetchedProducts = [...fetchedProducts, ...fallbackRes.products]
+    }
 
-  // 最终取 8 个（PC端展示 8 个，手机端通过 CSS 隐藏后 4 个或允许滚动）
-  const finalProducts = filteredProducts.slice(0, 8)
+    // --- 数据清洗：去重、去自身、切片 ---
+    const productMap = new Map()
+    fetchedProducts.forEach(p => {
+        if (p.id !== product.id) productMap.set(p.id, p)
+    })
 
-  if (!finalProducts.length) {
-    return null
-  }
+    // 最终取 8 个作为 PC 端的数据源
+    const finalProducts = Array.from(productMap.values()).slice(0, 8)
 
-  return (
-      <div className="w-full">
-        {/* --- UI 优化：LV 风格标题 --- */}
-        <div className="flex flex-col items-center text-center mb-16 md:mb-24">
-          <h3 className="text-xl md:text-2xl font-light tracking-[0.2em] uppercase text-gray-900">
-            You May Also Like
-          </h3>
-          <div className="mt-6 w-10 h-[1px] bg-black"></div>
-        </div>
+    if (finalProducts.length === 0) return null
 
-        {/* --- 网格系统：手机端 2 列，PC 端 4 列 --- */}
-        {/* 限制数量逻辑：
-          1. 通过 slice(0, 8) 保证数据源最多 8 个
-          2. 手机端 grid-cols-2 配合 hidden/block 控制显示数量
+    return (
+        <div className="w-full">
+            {/* 标题部分 */}
+            <div className="flex flex-col items-center text-center mb-16 md:mb-24">
+                <h3 className="text-xl md:text-2xl font-light tracking-[0.2em] uppercase text-gray-900">
+                    You May Also Like
+                </h3>
+                <div className="mt-6 w-10 h-[1px] bg-black"></div>
+            </div>
+
+            {/* --- 网格控制 --- */}
+            {/* 1. 手机端 grid-cols-2，通过 index 控制只显示 4 个
+          2. PC 端 (lg) grid-cols-4，显示全部 8 个
       */}
-        <ul className="grid grid-cols-2 lg:grid-cols-4 gap-x-4 gap-y-10 md:gap-x-8 md:gap-y-16">
-          {finalProducts.map((p, index) => (
-              <li
-                  key={p.id}
-                  className={`
-              ${index >= 4 ? "hidden lg:block" : "block"} 
-              /* 手机端只显示前4个，PC端显示全部8个 */
+            <ul className="grid grid-cols-2 lg:grid-cols-4 gap-x-4 gap-y-10 md:gap-x-8 md:gap-y-16">
+                {finalProducts.map((p, index) => (
+                    <li
+                        key={p.id}
+                        className={`
+              /* 核心逻辑：index 0-3 始终显示，4-7 只在 lg(PC) 及以上显示 */
+              ${index < 4 ? "block" : "hidden lg:block"}
             `}
-              >
-                <Product region={region} product={p} />
-              </li>
-          ))}
-        </ul>
-      </div>
-  )
+                    >
+                        <Product region={region} product={p} />
+                    </li>
+                ))}
+            </ul>
+        </div>
+    )
 }

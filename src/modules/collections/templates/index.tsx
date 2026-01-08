@@ -4,6 +4,7 @@ import PaginatedProducts from "@modules/store/templates/paginated-products"
 import { SortOptions } from "@modules/store/components/refinement-list/sort-products"
 import { HttpTypes } from "@medusajs/types"
 import CollectionHeader from "../collection-header/index"
+import BackButton from "@modules/account/components/back-button";
 
 export default function CollectionTemplate({
                                                sortBy,
@@ -25,6 +26,9 @@ export default function CollectionTemplate({
 
     return (
         <div className="w-full overflow-x-hidden bg-white">
+            <div className="content-container pt-24 md:pt-28 pb-4">
+                <BackButton />
+            </div>
             {/* 1. 顶部系列头：把 CollectionHeader 里的标题去掉，这里统一展示 */}
             <div className="pt-12 pb-6 px-4 md:px-8 flex flex-col items-center">
                 <h1 className="text-[28px] md:text-[40px] font-light uppercase tracking-[0.3em] text-gray-900 mb-4">

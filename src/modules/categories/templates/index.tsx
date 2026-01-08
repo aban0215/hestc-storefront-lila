@@ -7,6 +7,7 @@ import { HttpTypes } from "@medusajs/types"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import RefinementList from "@modules/store/components/refinement-list"
 import { listProductsWithSort } from "@lib/data/products"
+import BackButton from "@modules/account/components/back-button";
 
 export default async function CategoryTemplate({
                                              category,
@@ -55,6 +56,9 @@ export default async function CategoryTemplate({
 
     return (
         <div className="w-full bg-white">
+            <div className="content-container pt-24 md:pt-28 pb-4">
+                <BackButton />
+            </div>
             {/* 1. 统一的标题区 */}
             <div className="pt-16 pb-8 flex flex-col items-center px-4">
                 <h1 className="text-[26px] md:text-[36px] font-light uppercase tracking-[0.3em] text-gray-900 mb-3 text-center">

@@ -23,20 +23,22 @@ export default async function LilaDynamicPage(props: {
 
     return (
         <div className="bg-white min-h-screen">
-            <div className="content-container pt-32 pb-8">
-                <div className="content-container pt-32 pb-8">
-                    <BackButton />
-                </div>
+            {/* 1. 顶部返回区域：减少 pt (从 32 减到 24)，去掉重复嵌套 */}
+            <div className="content-container pt-24 md:pt-28 pb-4">
+                <BackButton />
             </div>
 
+            {/* 2. 主体区域：pt-0 紧跟返回键，保持整体感 */}
             <main className="content-container pb-24">
                 <div className="max-w-4xl mx-auto">
-                    <h1 className="text-[32px] md:text-[40px] font-light tracking-tight text-gray-900 mb-16 border-b border-gray-100 pb-10">
+                    {/* 3. 标题优化：减少 mb (从 16 减到 8)，增加字间距 */}
+                    <h1 className="text-[28px] md:text-[36px] font-light tracking-[0.05em] text-gray-900 mb-8 border-b border-gray-100 pb-8 uppercase">
                         {pageData.title}
                     </h1>
 
+                    {/* 4. 正文内容 */}
                     <article className="prose prose-sm max-w-none">
-                        <div className="text-gray-700 leading-[1.8] tracking-wide">
+                        <div className="text-gray-700 leading-[1.8] tracking-wide font-light">
                             <ReactMarkdown rehypePlugins={[rehypeRaw]}>
                                 {pageData.content}
                             </ReactMarkdown>
@@ -45,5 +47,4 @@ export default async function LilaDynamicPage(props: {
                 </div>
             </main>
         </div>
-    )
-}
+    )}

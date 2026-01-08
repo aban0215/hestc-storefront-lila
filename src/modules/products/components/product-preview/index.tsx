@@ -4,6 +4,7 @@ import { HttpTypes } from "@medusajs/types"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import Thumbnail from "../thumbnail"
 import PreviewPrice from "./price"
+import BackButton from "@modules/account/components/back-button";
 
 export default async function ProductPreview({
                                                  product,
@@ -19,7 +20,9 @@ export default async function ProductPreview({
     return (
         <LocalizedClientLink href={`/products/${product.handle}`} className="group">
             <div data-testid="product-wrapper" className="flex flex-col w-full h-full">
-
+                <div className="content-container pt-24 md:pt-28 pb-4">
+                    <BackButton />
+                </div>
                 {/* 1. 图片容器：完全直角，极简背景 */}
                 <div className="relative w-full aspect-[4/5] bg-[#f5f5f5] overflow-hidden">
                     <Thumbnail

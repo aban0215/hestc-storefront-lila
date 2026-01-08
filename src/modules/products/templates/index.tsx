@@ -1,7 +1,5 @@
 import React, { Suspense } from "react"
-import ImageGallery from "@modules/products/components/image-gallery"
 import ProductActions from "@modules/products/components/product-actions"
-import ProductOnboardingCta from "@modules/products/components/product-onboarding-cta"
 import ProductTabs from "@modules/products/components/product-tabs"
 import RelatedProducts from "@modules/products/components/related-products"
 import ProductInfo from "@modules/products/templates/product-info"
@@ -12,6 +10,7 @@ import ProductActionsWrapper from "./product-actions-wrapper"
 import { LilaProductContent } from "../../../lib/strapi/product-content"
 import ReactMarkdown from "react-markdown"
 import SizeGuideModal from "@modules/products/components/size-guide-modal"
+import Image from "next/image" // 建议使用 Next.js Image 优化性能
 
 type ProductTemplateProps = {
     product: HttpTypes.StoreProduct
@@ -33,84 +32,100 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
     }
 
     return (
-        <div className="relative overflow-x-hidden w-full">
-            {/* 【第一部分：核心购买区】 左右结构 */}
-            <div className="content-container flex flex-col small:flex-row small:items-start py-8 relative gap-x-16">
+        <div className="relative overflow-x-hidden w-full bg-white">
+            {/* 【第一部分：核心购买区】 */}
+            {/* 关键：去掉 items-start，让容器自然拉伸高度 */}
+            <div className="content-container flex flex-col small:flex-row py-0 small:py-12 relative gap-x-12 lg:gap-x-24">
 
-                {/* A. 左侧：Medusa 商品图集 (占据 60% 左右宽度) */}
-                <div className="block w-full relative flex-1">
-                    <div className="rounded-none overflow-hidden"> {/* LV 风格倾向于直角 */}
-                        <ImageGallery images={images} />
-                    </div>
+                {/* A. 左侧：图片瀑布流 - LV 风格核心 */}
+                <div className="flex flex-col w-full flex-1 gap-y-2 small:gap-y-4">
+                    {images && images.length > 0 ? (
+                        images.map((image, index) => (
+                            <div
+                                key={image.id || index}
+                                className="relative w-full aspect-[4/5] bg-gray-50 overflow-hidden"
+                            >
+                                <img
+                                    src={image.url}
+                                    alt={`${product.title} - view ${index + 1}`}
+                                    className="w-full h-full object-cover object-center"
+                                    loading={index === 0 ? "eager" : "lazy"}
+                                />
+                            </div>
+                        ))
+                    ) : (
+                        <div className="w-full aspect-[4/5] bg-gray-100 flex items-center justify-center">
+                            No Image Available
+                        </div>
+                    )}
                 </div>
 
-                {/* B. 右侧：混合信息流 (Sticky 固态挂起) */}
-                <div className="flex flex-col small:sticky small:top-32 small:max-w-[420px] w-full py-2 gap-y-12">
-                    {/* 标题部分：增加细分割线 */}
-                    <div className="pb-10 border-b border-gray-200">
-                        <ProductInfo product={product} />
-                        {/* 建议在 ProductInfo 内部将标题设为 font-light, tracking-widest */}
-                    </div>
+                {/* B. 右侧：信息锁定区 */}
+                {/* 关键：sticky 定位，top 值取决于你的 Header 高度 */}
+                <div className="small:w-[400px] lg:w-[440px] w-full px-4 small:px-0">
+                    <div className="flex flex-col small:sticky small:top-28 py-12 small:py-0 gap-y-12">
 
-                    {/* 2. 购买操作区域 (Medusa 规格 + Strapi SizeGuide) */}
-                    <div className="flex flex-col gap-y-6">
-                        {/* Size Guide 弹出按钮 */}
-                        {strapiContent?.size_guide && (
-                            <div className="flex justify-end -mb-4">
-                                <SizeGuideModal sizeGuide={strapiContent.size_guide} />
-                            </div>
-                        )}
+                        {/* 1. 商品基础信息 (建议 ProductInfo 内调大字间距) */}
+                        <div className="pb-10 border-b border-gray-100">
+                            <ProductInfo product={product} />
+                        </div>
 
-                        {/*<ProductOnboardingCta />*/}
+                        {/* 2. 购买操作区域 */}
+                        <div className="flex flex-col gap-y-8">
+                            {/* Size Guide - LV 风格通常放在规格选择上方 */}
+                            {strapiContent?.size_guide && (
+                                <div className="flex justify-end">
+                                    <SizeGuideModal sizeGuide={strapiContent.size_guide} />
+                                </div>
+                            )}
 
-                        <Suspense
-                            fallback={
-                                <ProductActions
-                                    disabled={true}
-                                    product={product}
-                                    region={region}
-                                />
-                            }
-                        >
-                            <ProductActionsWrapper id={product.id} region={region} />
-                        </Suspense>
-                    </div>
+                            <Suspense
+                                fallback={
+                                    <ProductActions
+                                        disabled={true}
+                                        product={product}
+                                        region={region}
+                                    />
+                                }
+                            >
+                                <ProductActionsWrapper id={product.id} region={region} />
+                            </Suspense>
+                        </div>
 
-                    {/* 3. 混合信息面板 (Medusa Description + Strapi FAQ/Care) */}
-                    <div className="pt-4">
-                        <ProductTabs product={product} strapiContent={strapiContent} />
+                        {/* 3. 详细信息面板 */}
+                        <div className="pt-6">
+                            <ProductTabs product={product} strapiContent={strapiContent} />
+                        </div>
                     </div>
                 </div>
             </div>
 
-            {/* 【第二部分：Strapi 品牌叙事区】 位于下方，全宽沉浸式 */}
+            {/* 【第二部分：Strapi 品牌叙事区】 */}
             {strapiContent?.story_content && (
-                // <div className="w-full mt-32 border-t border-gray-100 bg-white overflow-hidden">
-                <div className="w-full mt-32 border-t border-gray-100 bg-white overflow-x-hidden">
-                    <div className="max-w-4xl mx-auto py-24 px-6">
-                        {/* 装饰性标题 */}
-                        <div className="flex flex-col items-center mb-20 text-center">
-                            {/*<span className="text-[10px] tracking-[0.5em] uppercase text-gray-400 mb-4 font-bold">Behind The Piece</span>*/}
-                            <h2 className="text-4xl md:text-5xl font-serif text-gray-900 tracking-tight italic">
+                <div className="w-full mt-24 small:mt-48 border-t border-gray-100 bg-white">
+                    <div className="max-w-3xl mx-auto py-24 small:py-40 px-6">
+                        {/* 极简标题设计 */}
+                        <div className="flex flex-col items-center mb-24 text-center">
+                            <h2 className="text-3xl md:text-5xl font-light text-gray-900 tracking-[0.15em] uppercase mb-10">
                                 {strapiContent.story_title}
                             </h2>
-                            <div className="mt-8 w-20 h-[1px] bg-pink-100"></div>
+                            <div className="w-12 h-[1px] bg-black"></div>
                         </div>
 
-                        {/* 富文本内容：通过 ReactMarkdown 渲染 Strapi 的故事和图片 */}
-                        <div className="prose prose-slate prose-xl max-w-none
-                            prose-p:text-gray-600 prose-p:leading-[2.2] prose-p:font-light prose-p:mb-12
-                            prose-headings:font-serif prose-headings:text-gray-900
+                        {/* 品牌叙事富文本 */}
+                        <div className="prose prose-neutral max-w-none
+                            prose-p:text-gray-700 prose-p:leading-[2.2] prose-p:font-light prose-p:mb-16 prose-p:text-lg
+                            prose-headings:font-normal prose-headings:tracking-widest
                             strapi-markdown"
                         >
                             <ReactMarkdown
                                 components={{
-                                    p: "div", // 核心：解决 <div> 不能嵌套在 <p> 里的 Hydration 错误
+                                    p: "div",
                                     img: ({ node, ...props }) => (
-                                        <div className="my-24 -mx-4 md:-mx-20 relative group">
+                                        <div className="my-32 -mx-4 md:-mx-32 relative">
                                             <img
                                                 {...props}
-                                                className="w-full rounded-3xl shadow-[0_30px_60px_rgba(0,0,0,0.1)] hover:scale-[1.02] transition-transform duration-[1.2s] ease-out"
+                                                className="w-full object-cover shadow-none rounded-none"
                                                 loading="lazy"
                                             />
                                         </div>
@@ -125,8 +140,11 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
             )}
 
             {/* 【第三部分：相关推荐】 */}
-            <div className="bg-gray-50 w-full py-32 border-t border-gray-100">
+            <div className="bg-[#f9f9f9] w-full py-24 small:py-40 border-t border-gray-100">
                 <div className="content-container">
+                    <div className="mb-16">
+                        <h3 className="text-2xl font-light tracking-widest uppercase text-center">You May Also Like</h3>
+                    </div>
                     <Suspense fallback={<SkeletonRelatedProducts />}>
                         <RelatedProducts product={product} countryCode={countryCode} />
                     </Suspense>

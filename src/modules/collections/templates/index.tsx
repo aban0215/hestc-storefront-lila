@@ -42,22 +42,43 @@ export default function CollectionTemplate({
             {/* 2. Marketing Banner：营销图/视频 */}
             {marketingData?.maketimg?.url && (
                 <div className="relative w-full h-[55vh] md:h-[75vh] mb-0 overflow-hidden bg-gray-50">
-                    {marketingData.maketimg.mime?.includes("video") ? (
-                        <video
-                            src={marketingData.maketimg.url}
-                            autoPlay
-                            loop
-                            muted
-                            playsInline
-                            className="absolute inset-0 w-full h-full object-cover"
-                        />
-                    ) : (
-                        <img
-                            src={marketingData.maketimg.url}
-                            alt={collection.title}
-                            className="absolute inset-0 w-full h-full object-cover"
-                        />
-                    )}
+                    {/* 1. PC 端显示 (md 以上) */}
+                    <div className="hidden md:block w-full h-full">
+                        {marketingData.maketimg.mime?.includes("video") ? (
+                            <video
+                                src={marketingData.maketimg.url}
+                                autoPlay loop muted playsInline
+                                className="absolute inset-0 w-full h-full object-cover"
+                            />
+                        ) : (
+                            <img
+                                src={marketingData.maketimg.url}
+                                className="absolute inset-0 w-full h-full object-cover"
+                                alt={collection.name}
+                            />
+                        )}
+                    </div>
+
+                    {/* 2. 移动端显示 (md 以下) */}
+                    <div className="block md:hidden w-full h-full">
+                        {/* 如果有专门的移动端图就用 mobileImage，没有就保底用原图 */}
+                        {marketingData.mobileImage?.url ? (
+                            <img
+                                src={marketingData.mobileImage.url}
+                                className="absolute inset-0 w-full h-full object-cover"
+                                alt={`${collection.name} mobile`}
+                            />
+                        ) : (
+                            /* 保底逻辑：如果后台没传手机图，依然显示原图，防止白屏 */
+                            <img
+                                src={marketingData.maketimg.url}
+                                className="absolute inset-0 w-full h-full object-cover"
+                                alt={collection.name}
+                            />
+                        )}
+                    </div>
+
+                    {/* 蒙层：统一的质感滤镜 */}
                     <div className="absolute inset-0 bg-black/5" />
                 </div>
             )}

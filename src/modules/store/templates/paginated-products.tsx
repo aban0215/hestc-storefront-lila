@@ -41,6 +41,7 @@ export default async function PaginatedProducts({
 }) {
     const queryParams: PaginatedProductsParams = {
         limit: PRODUCT_LIMIT,
+        "tag_value[]": material ? [material] : undefined,
     }
 
     // A. 基础过滤 (保持原样)

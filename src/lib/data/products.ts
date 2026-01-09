@@ -53,6 +53,15 @@ export const listProducts = async ({
     ...(await getCacheOptions("products")),
   }
 
+  const queryObj = {
+    limit,
+    offset,
+    region_id: region?.id,
+    fields: "*variants.calculated_price,+variants.inventory_quantity,*variants.images,+metadata,+tags,",
+    ...queryParams,
+  }
+  console.log(">>>> 发送给 Medusa 的最终参数:", JSON.stringify(queryObj, null, 2))
+
   return sdk.client
     .fetch<{ products: HttpTypes.StoreProduct[]; count: number }>(
       `/store/products`,

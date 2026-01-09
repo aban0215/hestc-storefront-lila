@@ -145,7 +145,8 @@ export default async function CategoryTemplate(props: {
                 <div className="px-4 md:px-8 pb-24">
                     {/* 【修改：增加 key 触发 Suspense 刷新，并传入筛选参数】 */}
                     <Suspense
-                        key={`${activeCollectionId}-${material}-${size}-${color}-${sort}`}
+                        key={`${activeCollectionId}-${material}-${size}-${color}-${sort}-${pageNumber}`}
+                        // key={`${activeCollectionId}-${material}-${size}-${color}-${sort}`}
                         fallback={<SkeletonProductGrid numberOfProducts={8} />}
                     >
                         <PaginatedProducts

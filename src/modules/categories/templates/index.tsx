@@ -12,7 +12,6 @@ import { listProductsWithSort } from "@lib/data/products"
 import BackButton from "@modules/account/components/back-button";
 import FilterDrawer from "../../../app/components/filter-drawer";
 
-const [isFilterOpen, setIsFilterOpen] = useState(false)
 
 
 export default async function CategoryTemplate({
@@ -59,6 +58,8 @@ export default async function CategoryTemplate({
     }
 
     const breadcrumbs = getBreadcrumbs(category)
+    const [isFilterOpen, setIsFilterOpen] = useState(false)
+
 
 
     return (

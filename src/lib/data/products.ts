@@ -53,15 +53,6 @@ export const listProducts = async ({
     ...(await getCacheOptions("products")),
   }
 
-  const queryObj = {
-    limit,
-    offset,
-    region_id: region?.id,
-    fields: "*variants.calculated_price,+variants.inventory_quantity,*variants.images,+metadata,+tags,",
-    ...queryParams,
-  }
-  console.log(">>>> 发送给 Medusa 的最终参数:", JSON.stringify(queryObj, null, 2))
-
   return sdk.client
     .fetch<{ products: HttpTypes.StoreProduct[]; count: number }>(
       `/store/products`,
@@ -77,7 +68,7 @@ export const listProducts = async ({
         },
         headers,
         next,
-        cache: "no-store",
+        cache: "force-cache",
       }
     )
     .then(({ products, count }) => {
@@ -99,38 +90,44 @@ export const listProducts = async ({
  * It will then return the paginated products based on the page and limit parameters.
  */
 export const listProductsWithSort = async ({
-                                             page = 1,
-                                             queryParams,
-                                             sortBy = "created_at",
-                                             countryCode,
-                                           }: {
+  page = 0,
+  queryParams,
+  sortBy = "created_at",
+  countryCode,
+}: {
   page?: number
-  queryParams?: any
+  queryParams?: HttpTypes.FindParams & HttpTypes.StoreProductParams
   sortBy?: SortOptions
   countryCode: string
-}) => {
-  // 1. 这里的 limit 从 queryParams 拿，或者默认为 12
+}): Promise<{
+  response: { products: HttpTypes.StoreProduct[]; count: number }
+  nextPage: number | null
+  queryParams?: HttpTypes.FindParams & HttpTypes.StoreProductParams
+}> => {
   const limit = queryParams?.limit || 12
 
-  // 2. 【核心改动】不再写死 limit: 100，而是把所有参数透传给 listProducts
   const {
     response: { products, count },
-    nextPage
   } = await listProducts({
-    pageParam: page,      // 把当前页码传下去，让 listProducts 计算 offset
+    pageParam: 0,
     queryParams: {
-      ...queryParams,    // 这里面包含了我们的 tag_value, variants.options.value 等
-      limit: limit,      // 使用真实的分页限制
+      ...queryParams,
+      limit: 100,
     },
     countryCode,
   })
 
-  // 3. 【核心改动】删掉原来这里的 .slice(...) 逻辑
-  // 因为 listProducts 已经根据 pageParam 和 limit 帮我们分好页了
+  const sortedProducts = sortProducts(products, sortBy)
+
+  const pageParam = (page - 1) * limit
+
+  const nextPage = count > pageParam + limit ? pageParam + limit : null
+
+  const paginatedProducts = sortedProducts.slice(pageParam, pageParam + limit)
 
   return {
     response: {
-      products, // 直接返回后端分好页、滤好后的数据
+      products: paginatedProducts,
       count,
     },
     nextPage,

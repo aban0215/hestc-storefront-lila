@@ -123,7 +123,7 @@ export default async function CategoryTemplate({
                             </button>
                             <div className="absolute top-full right-0 mt-0 py-5 w-48 bg-white shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-[100] border border-gray-100">
                                 <div className="px-6">
-                                    <p className="text-[9px] text-gray-400 tracking-widest mb-3 uppercase">Order By</p>
+                                    {/*<p className="text-[9px] text-gray-400 tracking-widest mb-3 uppercase">Order By</p>*/}
                                     <RefinementList sortBy={sort} />
                                 </div>
                             </div>

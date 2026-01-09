@@ -8,6 +8,8 @@ import LocalizedClientLink from "@modules/common/components/localized-client-lin
 import RefinementList from "@modules/store/components/refinement-list"
 import { listProductsWithSort } from "@lib/data/products"
 import BackButton from "@modules/account/components/back-button";
+import FilterWrapper from "@modules/categories/templates/FilterWrapper";
+
 
 export default async function CategoryTemplate({
                                              category,
@@ -145,6 +147,13 @@ export default async function CategoryTemplate({
                                 ))}
                             </nav>
                         </div>
+
+
+                        <FilterWrapper>
+                            {/* 这里以后放 FilterMenu */}
+                        </FilterWrapper>
+
+                        <div className="h-3 w-[1px] bg-gray-200" />
 
                         {/* 右侧：排序 */}
                         <div className="relative group">

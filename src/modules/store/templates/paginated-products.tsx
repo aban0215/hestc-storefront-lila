@@ -44,7 +44,6 @@ export default async function PaginatedProducts({
 }) {
     const queryParams: PaginatedProductsParams = {
         limit: PRODUCT_LIMIT,
-        "tag_value[]": material ? [material] : undefined,
     }
 
     // A. 基础过滤 (保持原样)
@@ -64,21 +63,22 @@ export default async function PaginatedProducts({
 
     // B. 【核心】材质过滤 (适配 Medusa V2 tag_value)
     if (material) {
-        queryParams["tag_value"] = [material]
+        queryParams["tags"] = {
+            value: [material]
+        }
     }
-    const activeOptions: string[] = []
-    if (size) activeOptions.push(size)
-    if (color) activeOptions.push(color)
 
-    if (activeOptions.length > 0) {
+    if (size || color) {
+        const activeOptions: string[] = []
+        if (size) activeOptions.push(size)
+        if (color) activeOptions.push(color)
+
+        // 尝试用 options 嵌套，通常 V2 允许通过这种方式过滤
         queryParams["variants"] = {
-            "options": {
-                "value": activeOptions
+            options: {
+                value: activeOptions
             }
         }
-
-        // 💡 如果上面的对象写法后端还报错，尝试这种 V2 最常见的兼容写法：
-        // queryParams["variant_values"] = activeOptions
     }
 
     if (sortBy === "created_at") {

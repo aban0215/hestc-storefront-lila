@@ -21,11 +21,18 @@ export default async function CategoryTemplate(props: {
     sortBy?: SortOptions
     page?: string
     countryCode: string
-    searchParams: Promise<any> // 【关键：适配 Next.js 15】
+    searchParams: Promise<any>
 }) {
-    // 1. 【解析异步参数】
-    const searchParams = await props.searchParams
-    const { material, size, color, collection: collectionHandle } = searchParams
+    // 1. 【核心修复】先等待 Promise，并给一个 {} 作为保底
+    const searchParams = (await props.searchParams) || {}
+
+    // 2. 【核心修复】解构时给属性也加保底，防止 null 报错
+    const {
+        material = undefined,
+        size = undefined,
+        color = undefined,
+        collection: collectionHandle = undefined
+    } = searchParams
 
     const pageNumber = props.page ? parseInt(props.page) : 1
     const sort = props.sortBy || "created_at"

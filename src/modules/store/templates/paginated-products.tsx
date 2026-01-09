@@ -63,22 +63,18 @@ export default async function PaginatedProducts({
 
     // B. 【核心】材质过滤 (适配 Medusa V2 tag_value)
     if (material) {
-        queryParams["tags"] = {
-            value: [material]
-        }
+        // 方案 A：这是最标准的 V2 标签过滤字段
+        queryParams["tag_id"] = [material]
     }
 
+// 2. 【规格过滤】因为 3 层深度被封死了，V2 Store API 提供了一个扁平化入口
     if (size || color) {
-        const activeOptions: string[] = []
-        if (size) activeOptions.push(size)
-        if (color) activeOptions.push(color)
+        const opts: string[] = []
+        if (size) opts.push(size)
+        if (color) opts.push(color)
 
-        // 尝试用 options 嵌套，通常 V2 允许通过这种方式过滤
-        queryParams["variants"] = {
-            options: {
-                value: activeOptions
-            }
-        }
+        // 方案 B：不再深入嵌套，改用 V2 专门为 Store 端设计的扁平 key
+        queryParams["option_value"] = opts
     }
 
     if (sortBy === "created_at") {

@@ -28,16 +28,16 @@ export default function CollectionTemplate({
     return (
         <div className="w-full bg-white relative">
             {/* 1. 顶部标题区域：保持大牌呼吸感 */}
-            <div className="pt-24 md:pt-32 pb-12 flex flex-col items-center px-4">
-                <h1 className="text-[28px] md:text-[40px] font-light uppercase tracking-[0.3em] text-gray-900 mb-6 text-center">
-                    {collection.title}
-                </h1>
-                {marketingData?.description && (
-                    <p className="max-w-xl text-center text-[13px] md:text-sm text-gray-500 font-light leading-relaxed uppercase tracking-widest px-6 italic">
-                        {marketingData.description}
-                    </p>
-                )}
-            </div>
+            {/*<div className="pt-24 md:pt-32 pb-12 flex flex-col items-center px-4">*/}
+            {/*    <h1 className="text-[28px] md:text-[40px] font-light uppercase tracking-[0.3em] text-gray-900 mb-6 text-center">*/}
+            {/*        {collection.title}*/}
+            {/*    </h1>*/}
+            {/*    {marketingData?.description && (*/}
+            {/*        <p className="max-w-xl text-center text-[13px] md:text-sm text-gray-500 font-light leading-relaxed uppercase tracking-widest px-6 italic">*/}
+            {/*            {marketingData.description}*/}
+            {/*        </p>*/}
+            {/*    )}*/}
+            {/*</div>*/}
 
             {/* 2. Marketing Banner：营销图/视频 */}
             {marketingData?.maketimg?.url && (

@@ -57,16 +57,16 @@ export default async function CategoryTemplate({
     return (
         <div className="w-full bg-white">
             {/* 1. 标题区：保持呼吸感，但不再单独放 BackButton */}
-            <div className="pt-24 md:pt-32 pb-12 flex flex-col items-center px-4">
-                <h1 className="text-[26px] md:text-[38px] font-light uppercase tracking-[0.25em] text-gray-900 mb-3 text-center leading-tight">
-                    {category.name}
-                </h1>
-                {marketingData?.description && (
-                    <p className="max-w-2xl text-center text-[13px] md:text-[14px] text-gray-500 font-light leading-relaxed mt-4 px-6 italic">
-                        {marketingData.description}
-                    </p>
-                )}
-            </div>
+            {/*<div className="pt-24 md:pt-32 pb-12 flex flex-col items-center px-4">*/}
+            {/*    <h1 className="text-[26px] md:text-[38px] font-light uppercase tracking-[0.25em] text-gray-900 mb-3 text-center leading-tight">*/}
+            {/*        {category.name}*/}
+            {/*    </h1>*/}
+            {/*    {marketingData?.description && (*/}
+            {/*        <p className="max-w-2xl text-center text-[13px] md:text-[14px] text-gray-500 font-light leading-relaxed mt-4 px-6 italic">*/}
+            {/*            {marketingData.description}*/}
+            {/*        </p>*/}
+            {/*    )}*/}
+            {/*</div>*/}
 
             {/* 2. 营销图片/视频区域 */}
             {marketingData?.maketimg?.url && (

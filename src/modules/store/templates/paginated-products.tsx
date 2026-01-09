@@ -24,7 +24,6 @@ export default async function PaginatedProducts({
                                                     categoryId,
                                                     productsIds,
                                                     countryCode,
-                                                    // --- 新增：接收从 Template 传下来的筛选值 ---
                                                     material,
                                                     size,
                                                     color,

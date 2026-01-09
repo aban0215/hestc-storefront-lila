@@ -33,7 +33,7 @@ export default function CollectionHeader({
                     {/* 下拉列表：靠左弹出 */}
                     <div className="absolute top-full left-0 mt-0 py-5 w-64 bg-white shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-[100] border-t border-gray-100">
                         <div className="max-h-[400px] overflow-y-auto px-6 custom-scrollbar">
-                            <p className="text-[9px] text-gray-400 tracking-widest mb-4">SELECT COLLECTION</p>
+                            {/*<p className="text-[9px] text-gray-400 tracking-widest mb-4">SELECT COLLECTION</p>*/}
                             <div className="flex flex-col gap-y-3">
                                 {collections.map((c) => (
                                     <LocalizedClientLink

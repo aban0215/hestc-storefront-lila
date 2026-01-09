@@ -1,3 +1,17 @@
+import { notFound } from "next/navigation"
+import { Suspense } from "react"
+import SkeletonProductGrid from "@modules/skeletons/templates/skeleton-product-grid"
+import { SortOptions } from "@modules/store/components/refinement-list/sort-products"
+import PaginatedProducts from "@modules/store/templates/paginated-products"
+import { HttpTypes } from "@medusajs/types"
+import LocalizedClientLink from "@modules/common/components/localized-client-link"
+import RefinementList from "@modules/store/components/refinement-list"
+import { listProductsWithSort } from "@lib/data/products"
+import { listCollections } from "@lib/data/collections" // 确保你有这个获取集合的 helper
+import BackButton from "@modules/account/components/back-button"
+import FilterWrapper from "@modules/categories/templates/filterwrapper"
+import FilterMenu from "@modules/categories/templates/filterwrapper/FilterMenu"
+
 export default async function CategoryTemplate(props: {
     category: HttpTypes.StoreProductCategory
     marketingData?: any

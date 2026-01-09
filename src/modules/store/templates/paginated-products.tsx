@@ -14,7 +14,11 @@ type PaginatedProductsParams = {
     id?: string[]
     order?: string
     tag_value?: string[]           // V2 材质筛选
-    "variants.options.value"?: string[] // V2 规格筛选 (Size/Color)
+    variants?: {
+        options?: {
+            value?: string[]
+        }
+    }
 }
 
 export default async function PaginatedProducts({
@@ -62,15 +66,19 @@ export default async function PaginatedProducts({
     if (material) {
         queryParams["tag_value"] = [material]
     }
-
-    // C. 【核心】规格过滤 (适配 Medusa V2 Size/Color)
     const activeOptions: string[] = []
     if (size) activeOptions.push(size)
     if (color) activeOptions.push(color)
 
     if (activeOptions.length > 0) {
-        // V2 允许直接通过这个 key 匹配变体下所有的 option values
-        queryParams["variants.options.value"] = activeOptions
+        queryParams["variants"] = {
+            "options": {
+                "value": activeOptions
+            }
+        }
+
+        // 💡 如果上面的对象写法后端还报错，尝试这种 V2 最常见的兼容写法：
+        // queryParams["variant_values"] = activeOptions
     }
 
     if (sortBy === "created_at") {

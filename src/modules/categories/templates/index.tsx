@@ -1,3 +1,5 @@
+"use client"
+
 import { notFound } from "next/navigation"
 import {Suspense, useState} from "react"
 import SkeletonProductGrid from "@modules/skeletons/templates/skeleton-product-grid"

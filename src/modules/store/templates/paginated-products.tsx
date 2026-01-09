@@ -6,71 +6,97 @@ import { SortOptions } from "@modules/store/components/refinement-list/sort-prod
 
 const PRODUCT_LIMIT = 12
 
+// 1. 扩展参数类型以适配 V2 筛选
 type PaginatedProductsParams = {
-  limit: number
-  collection_id?: string[]
-  category_id?: string[]
-  id?: string[]
-  order?: string
+    limit: number
+    collection_id?: string[]
+    category_id?: string[]
+    id?: string[]
+    order?: string
+    tag_value?: string[]           // V2 材质筛选
+    "variants.options.value"?: string[] // V2 规格筛选 (Size/Color)
 }
 
 export default async function PaginatedProducts({
-                                                  sortBy,
-                                                  page,
-                                                  collectionId,
-                                                  categoryId,
-                                                  productsIds,
-                                                  countryCode,
+                                                    sortBy,
+                                                    page,
+                                                    collectionId,
+                                                    categoryId,
+                                                    productsIds,
+                                                    countryCode,
+                                                    // --- 新增：接收从 Template 传下来的筛选值 ---
+                                                    material,
+                                                    size,
+                                                    color,
                                                 }: {
-  sortBy?: SortOptions
-  page: number
-  collectionId?: string
-  categoryId?: string | string[]
-  productsIds?: string[]
-  countryCode: string
+    sortBy?: SortOptions
+    page: number
+    collectionId?: string
+    categoryId?: string | string[]
+    productsIds?: string[]
+    countryCode: string
+    material?: string
+    size?: string
+    color?: string
 }) {
-  const queryParams: PaginatedProductsParams = {
-    limit: PRODUCT_LIMIT,
-  }
+    const queryParams: PaginatedProductsParams = {
+        limit: PRODUCT_LIMIT,
+    }
 
-  if (collectionId) {
-    queryParams["collection_id"] = [collectionId]
-  }
+    // A. 基础过滤 (保持原样)
+    if (collectionId) {
+        queryParams["collection_id"] = [collectionId]
+    }
 
-  if (categoryId) {
-    queryParams["category_id"] = Array.isArray(categoryId)
-        ? categoryId
-        : [categoryId]
-  }
+    if (categoryId) {
+        queryParams["category_id"] = Array.isArray(categoryId)
+            ? categoryId
+            : [categoryId]
+    }
 
-  if (productsIds) {
-    queryParams["id"] = productsIds
-  }
+    if (productsIds) {
+        queryParams["id"] = productsIds
+    }
 
-  if (sortBy === "created_at") {
-    queryParams["order"] = "created_at"
-  }
+    // B. 【核心】材质过滤 (适配 Medusa V2 tag_value)
+    if (material) {
+        queryParams["tag_value"] = [material]
+    }
 
-  const region = await getRegion(countryCode)
+    // C. 【核心】规格过滤 (适配 Medusa V2 Size/Color)
+    const activeOptions: string[] = []
+    if (size) activeOptions.push(size)
+    if (color) activeOptions.push(color)
 
-  if (!region) {
-    return null
-  }
+    if (activeOptions.length > 0) {
+        // V2 允许直接通过这个 key 匹配变体下所有的 option values
+        queryParams["variants.options.value"] = activeOptions
+    }
 
-  let {
-    response: { products, count },
-  } = await listProductsWithSort({
-    page,
-    queryParams,
-    sortBy,
-    countryCode,
-  })
+    if (sortBy === "created_at") {
+        queryParams["order"] = "created_at"
+    }
 
-  const totalPages = Math.ceil(count / PRODUCT_LIMIT)
+    const region = await getRegion(countryCode)
+
+    if (!region) {
+        return null
+    }
+
+    // D. 执行查询
+    let {
+        response: { products, count },
+    } = await listProductsWithSort({
+        page,
+        queryParams, // 这里的参数现在包含了过滤条件
+        sortBy,
+        countryCode,
+    })
+
+    const totalPages = Math.ceil(count / PRODUCT_LIMIT)
 
     return (
         <>
-            {/* 每行显示5个商品，无间隙平铺 */}
             <ul
                 className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 w-full"
                 data-testid="products-list"
@@ -79,21 +105,17 @@ export default async function PaginatedProducts({
                     return (
                         <li
                             key={p.id}
-                            className="group transition-colors duration-200"
+                            className="group relative transition-colors duration-200"
                         >
-                            {/* 商品项容器 */}
                             <div className="p-4 h-full flex flex-col">
                                 <ProductPreview product={p} region={region} />
                             </div>
-
-                            {/* 悬停效果 */}
                             <div className="absolute inset-0 border-2 border-transparent group-hover:border-gray-200 pointer-events-none transition-colors duration-200" />
                         </li>
                     )
                 })}
             </ul>
 
-            {/* 分页组件 - 添加内边距 */}
             {totalPages > 1 && (
                 <div className="mt-12 pb-12 px-4">
                     <Pagination

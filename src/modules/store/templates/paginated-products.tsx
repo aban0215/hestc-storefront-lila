@@ -1,25 +1,10 @@
-import { listProductsWithSort } from "@lib/data/products"
 import { getRegion } from "@lib/data/regions"
 import ProductPreview from "@modules/products/components/product-preview"
 import { Pagination } from "@modules/store/components/pagination"
 import { SortOptions } from "@modules/store/components/refinement-list/sort-products"
+import { searchProducts } from "@lib/util/meilisearch-client"
 
 const PRODUCT_LIMIT = 12
-
-// 1. 扩展参数类型以适配 V2 筛选
-type PaginatedProductsParams = {
-    limit: number
-    collection_id?: string[]
-    category_id?: string[]
-    id?: string[]
-    order?: string
-    tag_value?: string[]           // V2 材质筛选
-    variants?: {
-        options?: {
-            value?: string[]
-        }
-    }
-}
 
 export default async function PaginatedProducts({
                                                     sortBy,
@@ -42,66 +27,35 @@ export default async function PaginatedProducts({
     size?: string
     color?: string
 }) {
-    const queryParams: PaginatedProductsParams = {
-        limit: PRODUCT_LIMIT,
-    }
-
-    // A. 基础过滤 (保持原样)
-    if (collectionId) {
-        queryParams["collection_id"] = [collectionId]
-    }
-
-    if (categoryId) {
-        queryParams["category_id"] = Array.isArray(categoryId)
-            ? categoryId
-            : [categoryId]
-    }
-
-    if (productsIds) {
-        queryParams["id"] = productsIds
-    }
-
-    // B. 【核心】材质过滤 (适配 Medusa V2 tag_value)
-    if (material) {
-        // 方案 A：这是最标准的 V2 标签过滤字段
-        queryParams["tag_id"] = [material]
-    }
-
-    if (size || color) {
-        const activeOptions: string[] = []
-        if (size) activeOptions.push(size)
-        if (color) activeOptions.push(color)
-
-        if (activeOptions.length > 0) {
-            queryParams.variants = {
-                options: {
-                    value: activeOptions
-                }
-            }
-        }
-    }
-
-    if (sortBy === "created_at") {
-        queryParams["order"] = "created_at"
-    }
-
+    // 1. 优先获取 Region 信息（计算价格用）
     const region = await getRegion(countryCode)
+    if (!region) return null
 
-    if (!region) {
-        return null
-    }
-
-    // D. 执行查询
-    let {
-        response: { products, count },
-    } = await listProductsWithSort({
+    // 2. 【核心重构】调用 Meilisearch 搜索函数
+    // 注意：这里我们直接把参数喂给 Meilisearch
+    const {
+        products,
+        count,
+        totalPages
+    } = await searchProducts({
+        categoryId: Array.isArray(categoryId) ? categoryId[0] : categoryId, // 传主ID
+        collectionId,
+        material,
+        size,
+        color,
         page,
-        queryParams, // 这里的参数现在包含了过滤条件
-        sortBy,
-        countryCode,
+        limit: PRODUCT_LIMIT,
+        // sortBy: sortBy // 如果你 Meilisearch 做了排序索引也可以传
     })
 
-    const totalPages = Math.ceil(count / PRODUCT_LIMIT)
+    // 3. 处理空状态
+    if (products.length === 0) {
+        return (
+            <div className="flex flex-col items-center justify-center py-24">
+                <p className="text-gray-500">No products found matching your filters.</p>
+            </div>
+        )
+    }
 
     return (
         <>
@@ -109,7 +63,9 @@ export default async function PaginatedProducts({
                 className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 w-full"
                 data-testid="products-list"
             >
-                {products.map((p) => {
+                {products.map((p: any) => {
+                    // 注意：Meilisearch 返回的数据结构需要适配 ProductPreview
+                    // 确保它包含 id, handle, title, thumbnail 以及 variants 等必要字段
                     return (
                         <li
                             key={p.id}

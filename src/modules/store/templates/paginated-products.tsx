@@ -64,8 +64,6 @@ export default async function PaginatedProducts({
                 data-testid="products-list"
             >
                 {products.map((p: any) => {
-                    // 注意：Meilisearch 返回的数据结构需要适配 ProductPreview
-                    // 确保它包含 id, handle, title, thumbnail 以及 variants 等必要字段
                     return (
                         <li
                             key={p.id}

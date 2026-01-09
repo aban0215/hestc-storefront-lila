@@ -1,8 +1,8 @@
 import { Meilisearch } from "meilisearch"
 
 const client = new Meilisearch({
-    host: process.env.NEXT_PUBLIC_MEILISEARCH_HOST || "http://127.0.0.1:7700",
-    apiKey: process.env.NEXT_PUBLIC_MEILISEARCH_API_KEY, // 确保用的是 Search Key
+    host: process.env.NEXT_PUBLIC_MEILISEARCH_HOST,
+    apiKey: process.env.NEXT_PUBLIC_MEILISEARCH_API_KEY,
 })
 
 export const searchProducts = async ({
@@ -16,17 +16,17 @@ export const searchProducts = async ({
                                      }) => {
     const index = client.index("products")
 
-    // 构建 Meilisearch 语法的 Filter 字符串
-    const filters: string[] = []
-    if (categoryId) filters.push(`category_ids = "${categoryId}"`)
-    if (collectionId) filters.push(`collection_id = "${collectionId}"`)
-    if (material) filters.push(`materials = "${material}"`)
-    if (size) filters.push(`sizes = "${size}"`)
-    if (color) filters.push(`colors = "${color}"`)
+    const filterArray: string[] = []
+
+    if (categoryId) filterArray.push(`category_ids = "${categoryId}"`)
+    if (collectionId) filterArray.push(`collection_id = "${collectionId}"`)
+    if (material) filterArray.push(`materials = "${material}"`)
+    if (size) filterArray.push(`sizes = "${size}"`)
+    if (color) filterArray.push(`colors = "${color}"`)
 
     const results = await index.search("", {
-        filter: filters.join(" AND "),
-        facets: ["materials", "sizes", "colors"], // 获取聚合数据供菜单显示
+        filter: filterArray.join(" AND "),
+        facets: ["materials", "sizes", "colors"],
         hitsPerPage: limit,
         page: page,
     })
@@ -34,7 +34,7 @@ export const searchProducts = async ({
     return {
         products: results.hits,
         count: results.totalHits,
-        facetDistribution: results.facetDistribution, // 这里的格式非常适合做筛选菜单
-        totalPages: results.totalPages
+        totalPages: results.totalPages,
+        facetDistribution: results.facetDistribution
     }
 }

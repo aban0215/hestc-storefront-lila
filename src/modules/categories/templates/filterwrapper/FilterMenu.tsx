@@ -1,9 +1,9 @@
 "use client"
 
 import { HttpTypes } from "@medusajs/types"
-import FilterRadioGroup from "./filter-radio-group"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useCallback } from "react"
+import FilterRadioGroup from "@modules/common/components/filter-radio-group";
 
 type FilterMenuProps = {
     products: HttpTypes.StoreProduct[]

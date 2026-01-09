@@ -1,17 +1,3 @@
-import { notFound } from "next/navigation"
-import { Suspense } from "react"
-import SkeletonProductGrid from "@modules/skeletons/templates/skeleton-product-grid"
-import { SortOptions } from "@modules/store/components/refinement-list/sort-products"
-import PaginatedProducts from "@modules/store/templates/paginated-products"
-import { HttpTypes } from "@medusajs/types"
-import LocalizedClientLink from "@modules/common/components/localized-client-link"
-import RefinementList from "@modules/store/components/refinement-list"
-import { listProductsWithSort } from "@lib/data/products"
-import { listCollections } from "@lib/data/collections" // 确保你有这个获取集合的 helper
-import BackButton from "@modules/account/components/back-button"
-import FilterWrapper from "@modules/categories/templates/filterwrapper"
-import FilterMenu from "@modules/categories/templates/filterwrapper/FilterMenu"
-
 export default async function CategoryTemplate(props: {
     category: HttpTypes.StoreProductCategory
     marketingData?: any
@@ -21,23 +7,33 @@ export default async function CategoryTemplate(props: {
     countryCode: string
     searchParams: Promise<any> // 明确定义为 Promise
 }) {
-    // 1. 【核心修复】先等待 searchParams 解析
-    const searchParams = await props.searchParams
-    const { material, size, color, collection: collectionHandle } = searchParams
+    // 1. 【核心修复】安全地获取 searchParams
+    // 先检查 props 是否存在，再等待 Promise 解析
+    const searchParams = props.searchParams ? await props.searchParams : {}
 
-    // 兼容可能从 searchParams 传来的 page 和 sortBy
-    const pageNumber = props.page ? parseInt(props.page) : (searchParams.page ? parseInt(searchParams.page) : 1)
+    // 给所有解构值提供默认值，防止解构 undefined 报错
+    const {
+        material = undefined,
+        size = undefined,
+        color = undefined,
+        collection: collectionHandle = undefined
+    } = searchParams || {}
+
+    // 2. 统一处理分页和排序逻辑
+    const pageNumber = props.page ? parseInt(props.page) : (searchParams.page ? parseInt(searchParams.page as string) : 1)
     const sort = props.sortBy || (searchParams.sortBy as SortOptions) || "created_at"
 
-    // 2. 获取系列列表（为了把 URL 的 handle 转成 ID）
-    const { collections } = await listCollections({
+    // 3. 获取系列列表（用于翻译 Handle -> ID）
+    const { collections = [] } = await listCollections({
         limit: 100
     })
 
-    // 3. 【核心转换】根据 handle 找到 ID 传给 PaginatedProducts
-    const activeCollectionId = collections.find(c => c.handle === collectionHandle)?.id
+    // 翻译 Handle 为 ID
+    const activeCollectionId = collectionHandle
+        ? collections.find(c => c.handle === collectionHandle)?.id
+        : undefined
 
-    // 4. 获取用于提取筛选维度的初始商品数据
+    // 4. 获取初始商品数据（用于 FilterMenu 提取维度）
     const {
         response: { products, count },
     } = await listProductsWithSort({
@@ -69,7 +65,7 @@ export default async function CategoryTemplate(props: {
 
     return (
         <div className="w-full bg-white">
-            {/* 营销图片区域 */}
+            {/* 营销图片/视频区域 */}
             {props.marketingData?.maketimg?.url && (
                 <div className="relative w-full h-[55vh] md:h-[75vh] mb-0 overflow-hidden bg-gray-50">
                     <div className="hidden md:block w-full h-full">
@@ -171,16 +167,20 @@ export default async function CategoryTemplate(props: {
                 </div>
             </div>
 
-            {/* 4. 商品列表区域 - 传入过滤后的 ID 和 属性 */}
+            {/* 商品列表区域 */}
             <div className="w-full mt-10">
                 <div className="px-4 md:px-8 pb-24">
-                    <Suspense key={`${activeCollectionId}-${material}-${size}-${color}`} fallback={<SkeletonProductGrid numberOfProducts={8} />}>
+                    {/* 使用独特的 Key 强制 Suspense 在参数变化时显示 Skeleton */}
+                    <Suspense
+                        key={`${activeCollectionId}-${material}-${size}-${color}-${sort}`}
+                        fallback={<SkeletonProductGrid numberOfProducts={8} />}
+                    >
                         <PaginatedProducts
                             sortBy={sort}
                             page={pageNumber}
                             categoryId={props.allCategoryIds}
                             countryCode={props.countryCode}
-                            collectionId={activeCollectionId} // 这里传转换后的 ID
+                            collectionId={activeCollectionId}
                             material={material}
                             size={size}
                             color={color}

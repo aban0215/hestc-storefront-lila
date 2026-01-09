@@ -21,26 +21,33 @@ export const retrieveCollection = async (id: string) => {
 }
 
 export const listCollections = async (
-  queryParams: Record<string, string> = {}
+    queryParams: Record<string, any> = {}
 ): Promise<{ collections: HttpTypes.StoreCollection[]; count: number }> => {
-  const next = {
-    ...(await getCacheOptions("collections")),
-  }
+    const next = await getCacheOptions("collections")
 
-  queryParams.limit = queryParams.limit || "100"
-  queryParams.offset = queryParams.offset || "0"
+    // 合并参数，确保 limit 和 offset 有保底
+    const query = {
+        limit: 100,
+        offset: 0,
+        ...queryParams,
+    }
 
-  return sdk.client
-    .fetch<{ collections: HttpTypes.StoreCollection[]; count: number }>(
-      "/store/collections",
-      {
-        query: queryParams,
-        next,
-        cache: "force-cache",
-      }
-    )
-    .then(({ collections }) => ({ collections, count: collections.length }))
+    return sdk.client
+        .fetch<HttpTypes.StoreCollectionListResponse>(
+            "/store/collections",
+            {
+                query,
+                next,
+                cache: "force-cache",
+            }
+        )
+        .then((res) => ({
+            collections: res.collections,
+            // 兼容逻辑：如果后端没返 count (极少见)，则回退到长度
+            count: res.count !== undefined ? res.count : res.collections.length
+        }))
 }
+
 
 export const getCollectionByHandle = async (
   handle: string

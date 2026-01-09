@@ -1,7 +1,7 @@
 "use client" // 只有这个小组件是客户端的
 
 import { useState } from "react"
-import FilterDrawer from "../../../app/components/filter-drawer";
+import FilterDrawer from "../../../../app/components/filter-drawer";
 
 type FilterWrapperProps = {
     // 这里以后可以传 collections, tags 等数据进去

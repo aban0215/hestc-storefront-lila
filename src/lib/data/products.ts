@@ -14,7 +14,7 @@ export const listProducts = async ({
                                      regionId,
                                    }: {
   pageParam?: number
-  queryParams?: any // 这里的类型改为 any，因为我们要传自定义过滤字段
+  queryParams?: any // 提升兼容性，接收自定义过滤字段
   countryCode?: string
   regionId?: string
 }): Promise<{
@@ -28,9 +28,10 @@ export const listProducts = async ({
 
   const limit = queryParams?.limit || 12
   const _pageParam = Math.max(pageParam, 1)
-  const offset = _pageParam === 1 ? 0 : (_pageParam - 1) * limit
+  const offset = (_pageParam - 1) * limit
 
   let region: HttpTypes.StoreRegion | undefined | null
+
   if (countryCode) {
     region = await getRegion(countryCode)
   } else {
@@ -38,61 +39,116 @@ export const listProducts = async ({
   }
 
   if (!region) {
-    return { response: { products: [], count: 0 }, nextPage: null }
+    return {
+      response: { products: [], count: 0 },
+      nextPage: null,
+    }
   }
 
-  // --- 核心逻辑：提取并转换过滤参数 ---
-  const { color, size, material, collection, ...restParams } = queryParams || {}
+  // --- 1. 提取自定义过滤参数 ---
+  const { color, size, material, collection, category_id, order, ...rest } = queryParams || {}
 
-  // 组装 Medusa 认可的查询对象
-  const mappedQuery: any = {
-    ...restParams,
+  // --- 2. 组装 Medusa V2 官方认可的基础参数 ---
+  const query: any = {
+    ...rest,
     limit,
     offset,
     region_id: region?.id,
-    fields: "*variants.calculated_price,+variants.inventory_quantity,*variants.images,+metadata,+tags,+variants.options", // 确保取到了 options 用于匹配
+    order: order,
+    // 必须包含 variants.options 才能让后端执行选项值匹配
+    fields: "*variants.calculated_price,+variants.inventory_quantity,*variants.images,+metadata,+tags,+variants.options",
   }
 
-  // Medusa V2 属性过滤：匹配变体选项的值
-  // 如果 URL 有 ?color=Black，我们构造 variants: { options: { value: ["Black"] } }
+  // 如果有分类 ID，直接放入
+  if (category_id) {
+    query["category_id"] = Array.isArray(category_id) ? category_id : [category_id]
+  }
+
+  // --- 3. 构建 $and 高级过滤逻辑 ---
+  const andFilters: any[] = []
+
+  // A. 处理颜色 (Color) 和 尺码 (Size) - 匹配变体选项
   if (color || size) {
-    mappedQuery["variants"] = {
-      options: {
-        value: []
-      }
+    const optionValues: string[] = []
+    if (color) {
+      const colors = Array.isArray(color) ? color : [color]
+      optionValues.push(...colors)
     }
-    if (color) mappedQuery.variants.options.value.push(...(Array.isArray(color) ? color : [color]))
-    if (size) mappedQuery.variants.options.value.push(...(Array.isArray(size) ? size : [size]))
+    if (size) {
+      const sizes = Array.isArray(size) ? size : [size]
+      optionValues.push(...sizes)
+    }
+
+    if (optionValues.length > 0) {
+      andFilters.push({
+        variants: {
+          options: {
+            value: optionValues
+          }
+        }
+      })
+    }
   }
 
-  // 处理 Collection (如果不是通过 category 过滤而是通过 collection 过滤)
+  // B. 处理系列 (Collection) - 支持 Handle 匹配
   if (collection) {
-    mappedQuery["collection_id"] = Array.isArray(collection) ? collection : [collection]
+    const collections = Array.isArray(collection) ? collection : [collection]
+    andFilters.push({
+      collection: {
+        handle: collections
+      }
+    })
   }
 
-  const headers = { ...(await getAuthHeaders()) }
-  const next = { ...(await getCacheOptions("products")) }
+  // C. 处理材质 (Material) - 假设存放在产品的 Metadata 中
+  if (material) {
+    const materials = Array.isArray(material) ? material : [material]
+    andFilters.push({
+      metadata: {
+        material: materials
+      }
+    })
+  }
 
+  // 将构建好的过滤器注入查询对象
+  if (andFilters.length > 0) {
+    query["$and"] = andFilters
+  }
+
+  const headers = {
+    ...(await getAuthHeaders()),
+  }
+
+  const next = {
+    ...(await getCacheOptions("products")),
+  }
+
+  // --- 4. 发起请求 ---
   return sdk.client
       .fetch<{ products: HttpTypes.StoreProduct[]; count: number }>(
           `/store/products`,
           {
             method: "GET",
-            query: mappedQuery, // 使用转换后的查询对象
+            query, // 此时 query 包含了复杂的 $and 结构
             headers,
             next,
-            cache: "no-store", // 调试期间建议设为 no-store，确保过滤即时生效
+            cache: "no-store", // 建议调试阶段设为 no-store，确保即时生效
           }
       )
       .then(({ products, count }) => {
-        const nextPage = count > offset + limit ? pageParam + 1 : null
+        const nextPage = count > offset + limit ? _pageParam + 1 : null
+
         return {
-          response: { products, count },
-          nextPage,
+          response: {
+            products,
+            count,
+          },
+          nextPage: nextPage,
           queryParams,
         }
       })
 }
+
 
 /**
  * This will fetch 100 products to the Next.js cache and sort them based on the sortBy parameter.

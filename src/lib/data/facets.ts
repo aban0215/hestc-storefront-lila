@@ -1,4 +1,3 @@
-import {isServer} from "@stripe/react-stripe-js/src/utils/isServer";
 
 export type FacetSnapshot = {
     id: string
@@ -17,9 +16,8 @@ export type FacetSnapshot = {
 export async function getFacetSnapshot(id: string): Promise<FacetSnapshot | null> {
     // const host = process.env.NEXT_PUBLIC_MEILISEARCH_HOST
 
-    const host = isServer
-        ? "http://127.0.0.1:7700"  // 服务端走本地
-        : process.env.NEXT_PUBLIC_MEILISEARCH_HOST // 客户端走公网
+    const host = "http://127.0.0.1:7700"
+
 
     const apiKey = process.env.NEXT_PUBLIC_MEILISEARCH_API_KEY
 

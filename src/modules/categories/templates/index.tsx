@@ -19,6 +19,7 @@ export default async function CategoryTemplate({
                                                    sortBy,
                                                    page,
                                                    countryCode,
+                                                   searchParams,
                                                }: {
     category: HttpTypes.StoreProductCategory
     marketingData?: any
@@ -26,6 +27,7 @@ export default async function CategoryTemplate({
     sortBy?: SortOptions
     page?: string
     countryCode: string
+    searchParams?: any
 }) {
     const pageNumber = page ? parseInt(page) : 1
     const sort = sortBy || "created_at"
@@ -182,6 +184,7 @@ export default async function CategoryTemplate({
                             page={pageNumber}
                             categoryId={allCategoryIds}
                             countryCode={countryCode}
+                            searchParams={searchParams}
                         />
                     </Suspense>
                 </div>

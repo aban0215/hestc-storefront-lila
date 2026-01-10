@@ -8,19 +8,19 @@ import { getAuthHeaders, getCacheOptions } from "./cookies"
 import { getRegion, retrieveRegion } from "./regions"
 
 export const listProducts = async ({
-  pageParam = 1,
-  queryParams,
-  countryCode,
-  regionId,
-}: {
+                                     pageParam = 1,
+                                     queryParams,
+                                     countryCode,
+                                     regionId,
+                                   }: {
   pageParam?: number
-  queryParams?: HttpTypes.FindParams & HttpTypes.StoreProductListParams
+  queryParams?: any // 这里的类型改为 any，因为我们要传自定义过滤字段
   countryCode?: string
   regionId?: string
 }): Promise<{
   response: { products: HttpTypes.StoreProduct[]; count: number }
   nextPage: number | null
-  queryParams?: HttpTypes.FindParams & HttpTypes.StoreProductListParams
+  queryParams?: any
 }> => {
   if (!countryCode && !regionId) {
     throw new Error("Country code or region ID is required")
@@ -31,7 +31,6 @@ export const listProducts = async ({
   const offset = _pageParam === 1 ? 0 : (_pageParam - 1) * limit
 
   let region: HttpTypes.StoreRegion | undefined | null
-
   if (countryCode) {
     region = await getRegion(countryCode)
   } else {
@@ -39,50 +38,60 @@ export const listProducts = async ({
   }
 
   if (!region) {
-    return {
-      response: { products: [], count: 0 },
-      nextPage: null,
+    return { response: { products: [], count: 0 }, nextPage: null }
+  }
+
+  // --- 核心逻辑：提取并转换过滤参数 ---
+  const { color, size, material, collection, ...restParams } = queryParams || {}
+
+  // 组装 Medusa 认可的查询对象
+  const mappedQuery: any = {
+    ...restParams,
+    limit,
+    offset,
+    region_id: region?.id,
+    fields: "*variants.calculated_price,+variants.inventory_quantity,*variants.images,+metadata,+tags,+variants.options", // 确保取到了 options 用于匹配
+  }
+
+  // Medusa V2 属性过滤：匹配变体选项的值
+  // 如果 URL 有 ?color=Black，我们构造 variants: { options: { value: ["Black"] } }
+  if (color || size) {
+    mappedQuery["variants"] = {
+      options: {
+        value: []
+      }
     }
+    if (color) mappedQuery.variants.options.value.push(...(Array.isArray(color) ? color : [color]))
+    if (size) mappedQuery.variants.options.value.push(...(Array.isArray(size) ? size : [size]))
   }
 
-  const headers = {
-    ...(await getAuthHeaders()),
+  // 处理 Collection (如果不是通过 category 过滤而是通过 collection 过滤)
+  if (collection) {
+    mappedQuery["collection_id"] = Array.isArray(collection) ? collection : [collection]
   }
 
-  const next = {
-    ...(await getCacheOptions("products")),
-  }
+  const headers = { ...(await getAuthHeaders()) }
+  const next = { ...(await getCacheOptions("products")) }
 
   return sdk.client
-    .fetch<{ products: HttpTypes.StoreProduct[]; count: number }>(
-      `/store/products`,
-      {
-        method: "GET",
-        query: {
-          limit,
-          offset,
-          region_id: region?.id,
-          fields:
-            "*variants.calculated_price,+variants.inventory_quantity,*variants.images,+metadata,+tags,",
-          ...queryParams,
-        },
-        headers,
-        next,
-        cache: "force-cache",
-      }
-    )
-    .then(({ products, count }) => {
-      const nextPage = count > offset + limit ? pageParam + 1 : null
-
-      return {
-        response: {
-          products,
-          count,
-        },
-        nextPage: nextPage,
-        queryParams,
-      }
-    })
+      .fetch<{ products: HttpTypes.StoreProduct[]; count: number }>(
+          `/store/products`,
+          {
+            method: "GET",
+            query: mappedQuery, // 使用转换后的查询对象
+            headers,
+            next,
+            cache: "no-store", // 调试期间建议设为 no-store，确保过滤即时生效
+          }
+      )
+      .then(({ products, count }) => {
+        const nextPage = count > offset + limit ? pageParam + 1 : null
+        return {
+          response: { products, count },
+          nextPage,
+          queryParams,
+        }
+      })
 }
 
 /**

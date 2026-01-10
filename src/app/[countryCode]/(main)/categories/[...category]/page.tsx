@@ -9,10 +9,16 @@ import { getBaseURL } from "@lib/util/env"
 // 引入语言和营销数据抓取工具
 import { getSelectedLocale } from "@lib/data/locales"
 import { getMarketingBySlug } from "@lib/strapi/market"
-
 type Props = {
   params: Promise<{ category: string[]; countryCode: string }>
-  searchParams: Promise<{ sortBy?: SortOptions; page?: string }>
+  searchParams: Promise<{
+    sortBy?: SortOptions
+    page?: string
+    color?: string | string[]
+    size?: string | string[]
+    material?: string | string[]
+    collection?: string | string[]
+  }>
 }
 
 const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_API_URL;
@@ -79,15 +85,15 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
 }
 
 export default async function CategoryPage(props: Props) {
+  // 1. 获取所有的 searchParams，这包含了 URL 中所有的 ?key=value
   const searchParams = await props.searchParams
   const params = await props.params
   const { sortBy, page } = searchParams
 
-  // 1. 获取当前语言
+  // 2. 获取当前语言
   const localecode = (await getSelectedLocale()) || 'en-US'
 
-  // 2. 并行请求分类数据和 Strapi 营销数据
-  // 注意：params.category 是一个数组，我们取最后一个作为 handle 去查 Strapi
+  // 3. 并行请求分类数据和 Strapi 营销数据
   const categoryHandle = params.category[params.category.length - 1]
 
   const [productCategory, marketingData] = await Promise.all([
@@ -101,11 +107,12 @@ export default async function CategoryPage(props: Props) {
   return (
       <CategoryTemplate
           category={productCategory}
-          marketingData={marketingData} // 把抓到的营销数据传下去
+          marketingData={marketingData}
           allCategoryIds={allCategoryIds}
           sortBy={sortBy}
           page={page}
           countryCode={params.countryCode}
+          searchParams={searchParams}
       />
   )
 }

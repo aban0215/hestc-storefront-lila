@@ -99,39 +99,35 @@ export const listProducts = async ({
  * It will then return the paginated products based on the page and limit parameters.
  */
 export const listProductsWithSort = async ({
-  page = 0,
-  queryParams,
-  sortBy = "created_at",
-  countryCode,
-}: {
+                                             page = 0,
+                                             queryParams,
+                                             sortBy = "created_at",
+                                             countryCode,
+                                           }: {
   page?: number
-  queryParams?: HttpTypes.FindParams & HttpTypes.StoreProductParams
+  queryParams?: any // 这里的类型改为 any
   sortBy?: SortOptions
   countryCode: string
 }): Promise<{
   response: { products: HttpTypes.StoreProduct[]; count: number }
   nextPage: number | null
-  queryParams?: HttpTypes.FindParams & HttpTypes.StoreProductParams
+  queryParams?: any
 }> => {
   const limit = queryParams?.limit || 12
 
-  const {
-    response: { products, count },
-  } = await listProducts({
+  // --- 关键修改：确保 queryParams 里的所有东西（color, size等）都传给 listProducts ---
+  const { response: { products, count } } = await listProducts({
     pageParam: 0,
     queryParams: {
-      ...queryParams,
+      ...queryParams, // 这里的三个点非常重要！它把 color, size, material 全部透传下去
       limit: 100,
     },
     countryCode,
   })
 
   const sortedProducts = sortProducts(products, sortBy)
-
   const pageParam = (page - 1) * limit
-
   const nextPage = count > pageParam + limit ? pageParam + limit : null
-
   const paginatedProducts = sortedProducts.slice(pageParam, pageParam + limit)
 
   return {

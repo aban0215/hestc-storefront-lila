@@ -4,97 +4,127 @@ import React from "react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { clx } from "@medusajs/ui"
 
-export default function DynamicFilters({ facets }: { facets: any }) {
+type FacetSnapshot = {
+    materials?: string[]
+    collections?: string[]
+    dynamic_options?: {
+        title: string
+        values: string[]
+    }[]
+}
+
+export default function DynamicFilters({ facets }: { facets: FacetSnapshot }) {
     const router = useRouter()
     const pathname = usePathname()
     const searchParams = useSearchParams()
 
+    // 核心逻辑：更新 URL 参数
     const handleSelect = (key: string, value: string) => {
         const params = new URLSearchParams(searchParams)
-        const currentFilters = params.getAll(key)
+        const normalizedKey = key.toLowerCase()
+        const currentFilters = params.getAll(normalizedKey)
 
         if (currentFilters.includes(value)) {
+            // 反选：移除已存在的参数
             const newFilters = currentFilters.filter((v) => v !== value)
-            params.delete(key)
-            newFilters.forEach((v) => params.append(key, v))
+            params.delete(normalizedKey)
+            newFilters.forEach((v) => params.append(normalizedKey, v))
         } else {
-            params.append(key, value)
+            // 选中：追加新参数
+            params.append(normalizedKey, value)
         }
-        // 过滤后重置页码到第1页，避免在第5页过滤后结果只有1页导致白屏
+
+        // 每次筛选都重置页码到第1页，防止溢出白屏
         params.delete("page")
+
+        // 平滑滚动到顶部并更新 URL
         router.push(`${pathname}?${params.toString()}`, { scroll: false })
     }
 
-    // 辅助函数：格式化显示，首字母大写
-    const formatLabel = (str: string) => str.charAt(0).toUpperCase() + str.slice(1)
+    // 辅助函数：统一文字风格
+    const formatValue = (str: string) => {
+        if (!str) return ""
+        // 处理类似 90% Nylon + 10% Spandex 这种复杂的 Material 文字，不强行首字母大写
+        if (str.includes("%")) return str
+        return str.charAt(0).toUpperCase() + str.slice(1)
+    }
 
     return (
-        <div className="flex flex-col gap-y-10">
+        <div className="flex flex-col gap-y-12">
 
-            {/* 1. 专门渲染 Collection (如果存在) */}
+            {/* 1. Collection (系列) */}
             {facets.collections && facets.collections.length > 0 && (
-                <div className="flex flex-col gap-y-4">
-                    <h3 className="text-[12px] uppercase tracking-[0.2em] font-bold text-gray-900">
-                        Collection
-                    </h3>
-                    <div className="flex flex-wrap gap-2">
-                        {facets.collections.map((c: string) => {
-                            const isSelected = searchParams.getAll("collection").includes(c)
-                            return (
-                                <button
-                                    key={c}
-                                    onClick={() => handleSelect("collection", c)}
-                                    className={clx(
-                                        "text-[11px] uppercase tracking-widest px-4 py-2 border transition-all duration-200",
-                                        isSelected
-                                            ? "bg-black text-white border-black"
-                                            : "bg-white text-gray-500 border-gray-200 hover:border-gray-900"
-                                    )}
-                                >
-                                    {formatLabel(c)}
-                                </button>
-                            )
-                        })}
-                    </div>
-                </div>
+                <FilterSection
+                    title="Collection"
+                    values={facets.collections}
+                    filterKey="collection"
+                    activeValues={searchParams.getAll("collection")}
+                    onSelect={handleSelect}
+                    formatValue={formatValue}
+                />
             )}
 
-            {/* 2. 专门渲染 Material (如果需要的话，也可以展示) */}
-            {/* {facets.materials && facets.materials.length > 0 && (
-        <div className="flex flex-col gap-y-4">
-          <h3 className="text-[12px] uppercase tracking-[0.2em] font-bold text-gray-900">Material</h3>
-          ...渲染逻辑同上
-        </div>
-      )}
-      */}
+            {/* 2. Material (材质) */}
+            {facets.materials && facets.materials.length > 0 && (
+                <FilterSection
+                    title="Material"
+                    values={facets.materials}
+                    filterKey="material"
+                    activeValues={searchParams.getAll("material")}
+                    onSelect={handleSelect}
+                    formatValue={formatValue}
+                />
+            )}
 
-            {/* 3. 渲染动态属性 (Color, Size 等) */}
-            {facets.dynamic_options?.map((option: any) => (
-                <div key={option.title} className="flex flex-col gap-y-4">
-                    <h3 className="text-[12px] uppercase tracking-[0.2em] font-bold text-gray-900">
-                        {option.title}
-                    </h3>
-                    <div className="flex flex-wrap gap-2">
-                        {option.values.map((value: string) => {
-                            const isSelected = searchParams.getAll(option.title.toLowerCase()).includes(value)
-                            return (
-                                <button
-                                    key={value}
-                                    onClick={() => handleSelect(option.title.toLowerCase(), value)}
-                                    className={clx(
-                                        "text-[11px] uppercase tracking-widest px-4 py-2 border transition-all duration-200",
-                                        isSelected
-                                            ? "bg-black text-white border-black"
-                                            : "bg-white text-gray-500 border-gray-200 hover:border-gray-900"
-                                    )}
-                                >
-                                    {value}
-                                </button>
-                            )
-                        })}
-                    </div>
-                </div>
+            {/* 3. Dynamic Options (Color, Size, etc.) */}
+            {facets.dynamic_options?.map((option) => (
+                <FilterSection
+                    key={option.title}
+                    title={option.title}
+                    values={option.values}
+                    filterKey={option.title.toLowerCase()}
+                    activeValues={searchParams.getAll(option.title.toLowerCase())}
+                    onSelect={handleSelect}
+                    formatValue={formatValue}
+                />
             ))}
+        </div>
+    )
+}
+
+// 内部复用的小组件：保持代码整洁
+function FilterSection({
+                           title,
+                           values,
+                           filterKey,
+                           activeValues,
+                           onSelect,
+                           formatValue
+                       }: any) {
+    return (
+        <div className="flex flex-col gap-y-4">
+            <h3 className="text-[11px] uppercase tracking-[0.25em] font-bold text-gray-900 border-l-2 border-black pl-3">
+                {title}
+            </h3>
+            <div className="flex flex-wrap gap-2">
+                {values.map((v: string) => {
+                    const isSelected = activeValues.includes(v)
+                    return (
+                        <button
+                            key={v}
+                            onClick={() => onSelect(filterKey, v)}
+                            className={clx(
+                                "text-[10px] uppercase tracking-[0.15em] px-3.5 py-2.5 border transition-all duration-300",
+                                isSelected
+                                    ? "bg-black text-white border-black shadow-md"
+                                    : "bg-white text-gray-500 border-gray-100 hover:border-gray-900 hover:text-black"
+                            )}
+                        >
+                            {formatValue(v)}
+                        </button>
+                    )
+                })}
+            </div>
         </div>
     )
 }

@@ -21,6 +21,8 @@ export async function getFacetSnapshot(id: string): Promise<FacetSnapshot | null
         console.warn("MeiliSearch 环境变量未配置")
         return null
     }
+    const url = `${host}/indexes/product_facets/documents/${id}`
+    console.log("正在请求的地址:", url)
 
     try {
         // 直接根据 Document ID 获取单条数据，这是 MeiliSearch 最快的查询方式

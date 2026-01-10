@@ -15,8 +15,8 @@ export type FacetSnapshot = {
  */
 export async function getFacetSnapshot(id: string) {
     // 既然搜索框能用，我们就用搜索框那个域名，但我们要确保 Header 绝对发出去
-    const host = "https://search.hestc-me.site"
-    const apiKey = process.env.NEXT_PUBLIC_MEILISEARCH_API_KEY
+    const host =  process.env.NEXT_PUBLIC_MEILISEARCH_HOST
+    const apiKey = process.env.NEXT_PUBLIC_MEILISEARCH_API_SUPER_KEY
 
     try {
         const response = await fetch(`${host}/indexes/product_facets/documents/${id}`, {

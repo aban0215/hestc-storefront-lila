@@ -114,7 +114,20 @@ export const listProducts = async ({
 
         // --- C. 材质过滤 (Material / Metadata) ---
         if (material) {
-          filtered = filtered.filter(p => safeMatch(material, p.metadata?.material))
+          filtered = filtered.filter(p => {
+            // 1. 获取所有可能的材质来源
+            // 来源A: 产品本身的 metadata
+            const prodMaterial = p.metadata?.material
+
+            // 来源B: 产品下所有变体的 metadata (有些采集工具会存在变体里)
+            const variantMaterials = p.variants?.map(v => v.metadata?.material).filter(Boolean) || []
+
+            // 2. 汇总这些来源
+            const allPossibleValues = [prodMaterial, ...variantMaterials]
+
+            // 3. 执行标准化匹配
+            return allPossibleValues.some(val => safeMatch(material, val))
+          })
         }
 
         // --- 4. 手动处理分页逻辑 ---

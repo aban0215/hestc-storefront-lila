@@ -1,8 +1,8 @@
 "use client"
 
-import React from "react"
+import React, { useState, useEffect } from "react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
-import { clx } from "@medusajs/ui"
+import { clx, Button } from "@medusajs/ui"
 
 type FacetSnapshot = {
     materials?: string[]
@@ -18,48 +18,68 @@ export default function DynamicFilters({ facets }: { facets: FacetSnapshot }) {
     const pathname = usePathname()
     const searchParams = useSearchParams()
 
-    // 核心逻辑：更新 URL 参数
-    const handleSelect = (key: string, value: string) => {
-        const params = new URLSearchParams(searchParams)
+    // --- 1. 核心状态：存放临时的、未提交的筛选条件 ---
+    // 初始化时从 URL 中提取现有参数
+    const [tempFilters, setTempFilters] = useState<Record<string, string | undefined>>({})
+
+    // 同步：当 URL 改变时（比如点 Apply 后或手动清空），同步内部状态
+    useEffect(() => {
+        const initialFilters: Record<string, string> = {}
+        searchParams.forEach((value, key) => {
+            initialFilters[key] = value
+        })
+        setTempFilters(initialFilters)
+    }, [searchParams])
+
+    // --- 2. 处理单选逻辑 ---
+    const handleTempSelect = (key: string, value: string) => {
         const normalizedKey = key.toLowerCase()
-        const currentFilters = params.getAll(normalizedKey)
+        setTempFilters(prev => ({
+            ...prev,
+            // 如果点的是已经选中的，就取消选择；否则直接覆盖旧值（实现单选）
+            [normalizedKey]: prev[normalizedKey] === value ? undefined : value
+        }))
+    }
 
-        if (currentFilters.includes(value)) {
-            // 反选：移除已存在的参数
-            const newFilters = currentFilters.filter((v) => v !== value)
-            params.delete(normalizedKey)
-            newFilters.forEach((v) => params.append(normalizedKey, v))
-        } else {
-            // 选中：追加新参数
-            params.append(normalizedKey, value)
-        }
+    // --- 3. 应用筛选 (真正的 URL 更新) ---
+    const handleApply = () => {
+        const params = new URLSearchParams()
 
-        // 每次筛选都重置页码到第1页，防止溢出白屏
+        // 将 tempFilters 中有值的项写入 URL
+        Object.entries(tempFilters).forEach(([key, value]) => {
+            if (value) {
+                params.set(key, value) // set 会确保同一个 key 只有一个值，实现单选
+            }
+        })
+
+        // 重置页码
         params.delete("page")
 
-        // 平滑滚动到顶部并更新 URL
         router.push(`${pathname}?${params.toString()}`, { scroll: false })
     }
 
-    // 辅助函数：统一文字风格
+    // --- 4. 取消/清空筛选 ---
+    const handleClear = () => {
+        setTempFilters({}) // 清空临时状态
+        router.push(pathname, { scroll: false }) // 清空 URL 参数
+    }
+
     const formatValue = (str: string) => {
         if (!str) return ""
-        // 处理类似 90% Nylon + 10% Spandex 这种复杂的 Material 文字，不强行首字母大写
         if (str.includes("%")) return str
         return str.charAt(0).toUpperCase() + str.slice(1)
     }
 
     return (
-        <div className="flex flex-col gap-y-12">
-
+        <div className="flex flex-col gap-y-12 relative pb-24">
             {/* 1. Collection (系列) */}
             {facets.collections && facets.collections.length > 0 && (
                 <FilterSection
                     title="Collection"
                     values={facets.collections}
                     filterKey="collection"
-                    activeValues={searchParams.getAll("collection")}
-                    onSelect={handleSelect}
+                    selectedValue={tempFilters["collection"]}
+                    onSelect={handleTempSelect}
                     formatValue={formatValue}
                 />
             )}
@@ -70,8 +90,8 @@ export default function DynamicFilters({ facets }: { facets: FacetSnapshot }) {
                     title="Material"
                     values={facets.materials}
                     filterKey="material"
-                    activeValues={searchParams.getAll("material")}
-                    onSelect={handleSelect}
+                    selectedValue={tempFilters["material"]}
+                    onSelect={handleTempSelect}
                     formatValue={formatValue}
                 />
             )}
@@ -83,21 +103,37 @@ export default function DynamicFilters({ facets }: { facets: FacetSnapshot }) {
                     title={option.title}
                     values={option.values}
                     filterKey={option.title.toLowerCase()}
-                    activeValues={searchParams.getAll(option.title.toLowerCase())}
-                    onSelect={handleSelect}
+                    selectedValue={tempFilters[option.title.toLowerCase()]}
+                    onSelect={handleTempSelect}
                     formatValue={formatValue}
                 />
             ))}
+
+            {/* --- 5. 悬浮/底部的控制按钮 --- */}
+            <div className="sticky bottom-0 left-0 right-0 bg-white/80 backdrop-blur-md pt-6 pb-2 border-t flex gap-2">
+                <button
+                    onClick={handleClear}
+                    className="flex-1 text-[10px] uppercase tracking-widest py-4 border border-gray-200 hover:bg-gray-50 transition-colors"
+                >
+                    Clear All
+                </button>
+                <button
+                    onClick={handleApply}
+                    className="flex-1 text-[10px] uppercase tracking-widest py-4 bg-black text-white hover:bg-gray-800 transition-colors"
+                >
+                    Apply Filters
+                </button>
+            </div>
         </div>
     )
 }
 
-// 内部复用的小组件：保持代码整洁
+// 内部小组件
 function FilterSection({
                            title,
                            values,
                            filterKey,
-                           activeValues,
+                           selectedValue,
                            onSelect,
                            formatValue
                        }: any) {
@@ -108,7 +144,8 @@ function FilterSection({
             </h3>
             <div className="flex flex-wrap gap-2">
                 {values.map((v: string) => {
-                    const isSelected = activeValues.includes(v)
+                    // 现在的判断逻辑简单了：直接对比字符串
+                    const isSelected = selectedValue === v
                     return (
                         <button
                             key={v}
@@ -116,7 +153,7 @@ function FilterSection({
                             className={clx(
                                 "text-[10px] uppercase tracking-[0.15em] px-3.5 py-2.5 border transition-all duration-300",
                                 isSelected
-                                    ? "bg-black text-white border-black shadow-md"
+                                    ? "bg-black text-white border-black"
                                     : "bg-white text-gray-500 border-gray-100 hover:border-gray-900 hover:text-black"
                             )}
                         >

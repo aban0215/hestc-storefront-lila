@@ -27,8 +27,7 @@ export default function CollectionTemplate({
 
     return (
         <div className="w-full bg-white relative">
-            {/* 1. 吸顶工具栏：实色、无模糊、物理对齐 */}
-            {/* top 减去 1px 是为了消除滚动时的微小缝隙，确保完全“定住” */}
+            {/* 1. 吸顶工具栏 */}
             <div className="sticky top-[55px] lg:top-[63px] z-[50] bg-white border-b border-gray-100 w-full">
                 <div className="mx-auto px-4 md:px-8 py-4">
                     {/* 数量统计 */}
@@ -54,25 +53,57 @@ export default function CollectionTemplate({
                             </div>
                         </div>
 
-                        {/* 右侧：排序下拉 */}
-                        <div className="relative group flex-shrink-0">
-                            <button className="flex items-center gap-x-2 text-[10px] font-medium tracking-[0.15em] text-gray-900 uppercase">
-                            <span className="pb-0.5 border-b border-transparent group-hover:border-black transition-all">
-                                Sort By
-                            </span>
-                                <svg
-                                    className="w-3 h-3 text-gray-400 transition-transform duration-300 group-hover:rotate-180"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    viewBox="0 0 24 24"
-                                >
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 9l-7 7-7-7" />
-                                </svg>
-                            </button>
+                        {/* 右侧：筛选 + 排序 */}
+                        <div className="flex items-center gap-x-6">
+                            {/* A. 筛选按钮 - 采用侧边栏唤起模式 */}
+                            <div className="relative flex-shrink-0">
+                                {/* 这里通常使用你项目中定义的 Filter 抽屉组件 */}
+                                {/* 假设你的筛选组件是 MobileFilters 或类似形态 */}
+                                <div className="flex items-center">
+                                    {/* 下面是一个模拟 Filter 按钮的 UI，你可以根据项目实际组件替换 */}
+                                    <button className="flex items-center gap-x-2 text-[10px] font-medium tracking-[0.15em] text-gray-900 uppercase group">
+                                        <svg
+                                            width="16"
+                                            height="16"
+                                            viewBox="0 0 24 24"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            strokeWidth="1.5"
+                                            className="text-gray-400 group-hover:text-black transition-colors"
+                                        >
+                                            <path d="M3 6h18M6 12h12m-9 6h6" />
+                                        </svg>
+                                        <span className="pb-0.5 border-b border-transparent group-hover:border-black transition-all">
+                                        Filters
+                                    </span>
+                                        {/* 这里建议放置你的 DynamicFilters 触发逻辑 */}
+                                    </button>
+                                </div>
+                            </div>
 
-                            <div className="absolute top-full right-0 mt-0 py-5 w-48 bg-white shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-[100] border border-gray-100">
-                                <div className="px-6">
-                                    <RefinementList sortBy={sort} />
+                            {/* 分隔点（可选，美观用） */}
+                            <div className="h-3 w-[1px] bg-gray-200 hidden md:block" />
+
+                            {/* B. 排序下拉 */}
+                            <div className="relative group flex-shrink-0">
+                                <button className="flex items-center gap-x-2 text-[10px] font-medium tracking-[0.15em] text-gray-900 uppercase">
+                                <span className="pb-0.5 border-b border-transparent group-hover:border-black transition-all">
+                                    Sort By
+                                </span>
+                                    <svg
+                                        className="w-3 h-3 text-gray-400 transition-transform duration-300 group-hover:rotate-180"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 9l-7 7-7-7" />
+                                    </svg>
+                                </button>
+
+                                <div className="absolute top-full right-0 mt-0 py-5 w-48 bg-white shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-[100] border border-gray-100">
+                                    <div className="px-6">
+                                        <RefinementList sortBy={sort} />
+                                    </div>
                                 </div>
                             </div>
                         </div>

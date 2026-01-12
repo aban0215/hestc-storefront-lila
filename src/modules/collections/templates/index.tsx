@@ -51,15 +51,15 @@ export default async function CollectionTemplate({
                                 <BackButton className="text-black !tracking-[0.1em]" />
                             </div>
 
-                            <div className="h-4 w-[1px] bg-gray-200 flex-shrink-0" />
+                            {/*<div className="h-4 w-[1px] bg-gray-200 flex-shrink-0" />*/}
 
-                            <div className="flex items-center">
-                                <CollectionHeader
-                                    collection={collection}
-                                    collections={collections}
-                                    sort={sort}
-                                />
-                            </div>
+                            {/*<div className="flex items-center">*/}
+                            {/*    <CollectionHeader*/}
+                            {/*        collection={collection}*/}
+                            {/*        collections={collections}*/}
+                            {/*        sort={sort}*/}
+                            {/*    />*/}
+                            {/*</div>*/}
                         </div>
 
                         {/* 右侧：筛选 + 排序 */}

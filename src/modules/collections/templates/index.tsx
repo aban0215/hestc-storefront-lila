@@ -7,14 +7,18 @@ import CollectionHeader from "../collection-header/index"
 import BackButton from "@modules/account/components/back-button";
 import RefinementList from "@modules/store/components/refinement-list";
 
-export default function CollectionTemplate({
-                                               sortBy,
-                                               collection,
-                                               collections,
-                                               page,
-                                               countryCode,
-                                               marketingData,
-                                           }: {
+// 引入获取筛选数据的逻辑和组件
+import { getFacetSnapshot } from "@lib/data/facets"
+import DynamicFilters from "../../../app/components/dynamic-filters";
+
+export default async function CollectionTemplate({
+                                                     sortBy,
+                                                     collection,
+                                                     collections,
+                                                     page,
+                                                     countryCode,
+                                                     marketingData,
+                                                 }: {
     sortBy?: SortOptions
     collection: HttpTypes.StoreCollection
     collections?: HttpTypes.StoreCollection[]
@@ -25,6 +29,9 @@ export default function CollectionTemplate({
     const pageNumber = page ? parseInt(page) : 1
     const sort = sortBy || "created_at"
 
+    // 1. 获取该系列下的动态属性快照 (基于 Collection ID)
+    const facets = await getFacetSnapshot(collection.id)
+
     return (
         <div className="w-full bg-white relative">
             {/* 1. 吸顶工具栏 */}
@@ -32,8 +39,8 @@ export default function CollectionTemplate({
                 <div className="mx-auto px-4 md:px-8 py-4">
                     {/* 数量统计 */}
                     <span className="text-[9px] text-gray-400 uppercase tracking-[0.2em] mb-3 block ml-0.5">
-                    {collection.products?.length || 0} {collection.products?.length === 1 ? 'Result' : 'Results'}
-                </span>
+                        {collection.products?.length || 0} {collection.products?.length === 1 ? 'Result' : 'Results'}
+                    </span>
 
                     <div className="flex items-center justify-between w-full">
                         {/* 左侧：返回键 + 分隔线 + 系列切换 */}
@@ -55,41 +62,43 @@ export default function CollectionTemplate({
 
                         {/* 右侧：筛选 + 排序 */}
                         <div className="flex items-center gap-x-6">
-                            {/* A. 筛选按钮 - 采用侧边栏唤起模式 */}
-                            <div className="relative flex-shrink-0">
-                                {/* 这里通常使用你项目中定义的 Filter 抽屉组件 */}
-                                {/* 假设你的筛选组件是 MobileFilters 或类似形态 */}
-                                <div className="flex items-center">
-                                    {/* 下面是一个模拟 Filter 按钮的 UI，你可以根据项目实际组件替换 */}
-                                    <button className="flex items-center gap-x-2 text-[10px] font-medium tracking-[0.15em] text-gray-900 uppercase group">
+                            {/* A. 筛选按钮 - 逻辑与 Category 保持完全一致 */}
+                            {facets && facets.dynamic_options?.length > 0 && (
+                                <div className="relative group">
+                                    <button className="flex items-center gap-x-2 text-[10px] font-medium tracking-[0.15em] text-gray-900 uppercase">
+                                        <span className="pb-0.5 border-b border-transparent group-hover:border-black transition-all">Filter</span>
                                         <svg
-                                            width="16"
-                                            height="16"
-                                            viewBox="0 0 24 24"
+                                            className="w-3.5 h-3.5 text-gray-400"
                                             fill="none"
                                             stroke="currentColor"
-                                            strokeWidth="1.5"
-                                            className="text-gray-400 group-hover:text-black transition-colors"
+                                            viewBox="0 0 24 24"
                                         >
-                                            <path d="M3 6h18M6 12h12m-9 6h6" />
+                                            <path
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                strokeWidth={1.2}
+                                                d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"
+                                            />
                                         </svg>
-                                        <span className="pb-0.5 border-b border-transparent group-hover:border-black transition-all">
-                                        Filters
-                                    </span>
-                                        {/* 这里建议放置你的 DynamicFilters 触发逻辑 */}
                                     </button>
+                                    {/* 下拉筛选框 */}
+                                    <div className="absolute top-full right-0 mt-0 py-8 w-[280px] sm:w-[320px] bg-white shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-[100] border border-gray-100">
+                                        <div className="px-8 max-h-[60vh] overflow-y-auto no-scrollbar">
+                                            <DynamicFilters facets={facets} />
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
+                            )}
 
-                            {/* 分隔点（可选，美观用） */}
+                            {/* 分隔点 */}
                             <div className="h-3 w-[1px] bg-gray-200 hidden md:block" />
 
                             {/* B. 排序下拉 */}
                             <div className="relative group flex-shrink-0">
                                 <button className="flex items-center gap-x-2 text-[10px] font-medium tracking-[0.15em] text-gray-900 uppercase">
-                                <span className="pb-0.5 border-b border-transparent group-hover:border-black transition-all">
-                                    Sort By
-                                </span>
+                                    <span className="pb-0.5 border-b border-transparent group-hover:border-black transition-all">
+                                        Sort By
+                                    </span>
                                     <svg
                                         className="w-3 h-3 text-gray-400 transition-transform duration-300 group-hover:rotate-180"
                                         fill="none"

@@ -80,16 +80,22 @@ export const listProducts = async ({
           const normalize = (str: string) =>
               String(str)
                   .toLowerCase()
-                  .replace(/%25|%2b/g, '')     // 清除二次编码残留
-                  .replace(/[^a-z0-9]/g, '')   // 只保留字母和数字，彻底消除空格和特殊符号影响
+                  .replace(/%25|%2b/g, '')
+                  .replace(/[^a-z0-9]/g, '')
 
           return targets.some(t => {
             const normT = normalize(t)
             const normV = normalize(String(value))
-            // 只要一方包含另一方，即视为匹配成功
+
+            // --- 核心调试：如果材质匹配不到，看这里打印了什么 ---
+            if (t.includes("%") || String(value).includes("%")) {
+              console.log(`[材质比对中] 标准化目标: ${normT} <==> 标准化数据库值: ${normV}`)
+            }
+
             return normV.includes(normT) || normT.includes(normV)
           })
         }
+
 
         let filtered = products
 

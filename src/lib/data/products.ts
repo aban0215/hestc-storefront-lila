@@ -44,11 +44,10 @@ export const listProducts = async ({
   // 2. 构建基础 Query (只传后端 100% 支持的参数)
   const query: any = {
     ...rest,
-    limit: 100, // 拿回尽可能多的数据供前端过滤
-    offset: 0,  // 前端过滤时，我们手动处理分页，所以 offset 传 0
+    limit: 100, // 拿回足够多的数据供前端进行精准二次过滤
+    offset: 0,
     region_id: region?.id,
     order: order,
-    // 关键：带上所有关联字段，特别是 +variants.options.option
     fields: "*variants.calculated_price,+variants.inventory_quantity,*variants.images,+metadata,+tags,+variants.options,+variants.options.option,+collection",
   }
 
@@ -58,7 +57,7 @@ export const listProducts = async ({
 
   const headers = { ...(await getAuthHeaders()) }
 
-  // 3. 发起请求并在 .then 中执行“降维打击”过滤
+  // 3. 发起请求并在 .then 中执行“脱敏标准化”过滤
   return sdk.client
       .fetch<{ products: HttpTypes.StoreProduct[]; count: number }>(
           `/store/products`,
@@ -70,22 +69,36 @@ export const listProducts = async ({
           }
       )
       .then(({ products, count }) => {
+        /**
+         * 核心辅助工具：标准化字符串并进行比对
+         * 解决 URL 编码 (%25, +)、空格、大小写、特殊符号导致的匹配失败
+         */
+        const safeMatch = (target: string | string[], value: any) => {
+          if (!value) return false
+          const targets = Array.isArray(target) ? target : [target]
+
+          const normalize = (str: string) =>
+              String(str)
+                  .toLowerCase()
+                  .replace(/%25|%2b/g, '')     // 清除二次编码残留
+                  .replace(/[^a-z0-9]/g, '')   // 只保留字母和数字，彻底消除空格和特殊符号影响
+
+          return targets.some(t => {
+            const normT = normalize(t)
+            const normV = normalize(String(value))
+            // 只要一方包含另一方，即视为匹配成功
+            return normV.includes(normT) || normT.includes(normV)
+          })
+        }
+
         let filtered = products
 
         // --- A. 变体过滤 (Color & Size) ---
-        // 逻辑：只要有一个变体满足（选中的颜色 AND 选中的尺码），该产品就保留
         if (color || size) {
-          const targetColors = color ? (Array.isArray(color) ? color : [color]) : null
-          const targetSizes = size ? (Array.isArray(size) ? size : [size]) : null
-
           filtered = filtered.filter(product =>
               product.variants?.some(variant => {
-                const matchesColor = targetColors
-                    ? variant.options?.some(opt => targetColors.includes(opt.value))
-                    : true
-                const matchesSize = targetSizes
-                    ? variant.options?.some(opt => targetSizes.includes(opt.value))
-                    : true
+                const matchesColor = color ? variant.options?.some(opt => safeMatch(color, opt.value)) : true
+                const matchesSize = size ? variant.options?.some(opt => safeMatch(size, opt.value)) : true
                 return matchesColor && matchesSize
               })
           )
@@ -93,22 +106,15 @@ export const listProducts = async ({
 
         // --- B. 系列过滤 (Collection) ---
         if (collection) {
-          const targetCollections = Array.isArray(collection) ? collection : [collection]
           filtered = filtered.filter(p =>
-              p.collection?.handle && targetCollections.includes(p.collection.handle) ||
-              p.collection?.title && targetCollections.includes(p.collection.title)
+              safeMatch(collection, p.collection?.handle) ||
+              safeMatch(collection, p.collection?.title)
           )
         }
 
-        // --- C. 材质过滤 (Material - 匹配 Metadata) ---
+        // --- C. 材质过滤 (Material / Metadata) ---
         if (material) {
-          const targetMaterials = Array.isArray(material) ? material : [material]
-          filtered = filtered.filter(p => {
-            const prodMaterial = p.metadata?.material
-            if (!prodMaterial) return false
-            // 支持模糊匹配，比如 "90% Nylon" 匹配 "Nylon"
-            return targetMaterials.some(m => String(prodMaterial).toLowerCase().includes(m.toLowerCase()))
-          })
+          filtered = filtered.filter(p => safeMatch(material, p.metadata?.material))
         }
 
         // --- 4. 手动处理分页逻辑 ---
@@ -117,11 +123,10 @@ export const listProducts = async ({
         const paginatedProducts = filtered.slice(manualOffset, manualOffset + limit)
 
         console.log(`------------------------------------------`)
-        console.log(`[前端强力过滤报告]`)
-        console.log(`- 筛选条件: Color:${color}, Size:${size}, Collection:${collection}`)
+        console.log(`[脱敏过滤报告]`)
+        console.log(`- 目标材质: ${material}`)
         console.log(`- 原始数据: ${products.length} 条`)
-        console.log(`- 过滤后数据: ${finalCount} 条`)
-        console.log(`- 当前页显示: ${paginatedProducts.length} 条`)
+        console.log(`- 过滤后: ${finalCount} 条`)
         console.log(`------------------------------------------`)
 
         const nextPage = finalCount > manualOffset + limit ? _pageParam + 1 : null
@@ -136,6 +141,7 @@ export const listProducts = async ({
         }
       })
 }
+
 /**
  * This will fetch 100 products to the Next.js cache and sort them based on the sortBy parameter.
  * It will then return the paginated products based on the page and limit parameters.

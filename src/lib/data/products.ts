@@ -26,10 +26,7 @@ export const listProducts = async ({
     throw new Error("Country code or region ID is required")
   }
 
-  const limit = queryParams?.limit || 12
-  const _pageParam = Math.max(pageParam, 1)
-  const offset = (_pageParam - 1) * limit
-
+  // 获取 Region
   let region: HttpTypes.StoreRegion | undefined | null
   if (countryCode) {
     region = await getRegion(countryCode)
@@ -37,96 +34,31 @@ export const listProducts = async ({
     region = await retrieveRegion(regionId!)
   }
 
-  if (!region) {
-    return {
-      response: { products: [], count: 0 },
-      nextPage: null,
-    }
-  }
+  if (!region) return { response: { products: [], count: 0 }, nextPage: null }
 
-  // --- 调试：1. 变量解析检查 ---
-  console.log("------------------------------------------")
-  console.log("[调试-1-变量解析] URL 参数详情:", {
-    color: queryParams?.color,
-    size: queryParams?.size,
-    collection: queryParams?.collection,
-    material: queryParams?.material,
-  })
-
+  // 1. 变量解析
+  const limit = queryParams?.limit || 12
+  const _pageParam = Math.max(pageParam, 1)
   const { color, size, material, collection, category_id, order, ...rest } = queryParams || {}
 
+  // 2. 构建基础 Query (只传后端 100% 支持的参数)
   const query: any = {
     ...rest,
-    limit,
-    offset,
+    limit: 100, // 拿回尽可能多的数据供前端过滤
+    offset: 0,  // 前端过滤时，我们手动处理分页，所以 offset 传 0
     region_id: region?.id,
     order: order,
-    fields: "*variants.calculated_price,+variants.inventory_quantity,*variants.images,+metadata,+tags,+variants.options",
+    // 关键：带上所有关联字段，特别是 +variants.options.option
+    fields: "*variants.calculated_price,+variants.inventory_quantity,*variants.images,+metadata,+tags,+variants.options,+variants.options.option,+collection",
   }
 
   if (category_id) {
     query["category_id"] = Array.isArray(category_id) ? category_id : [category_id]
   }
 
-  // --- 核心修正：拆分 $and 过滤器 ---
-  const andFilters: any[] = []
-
-  // 1. 独立处理 Color
-  if (color) {
-    const colors = Array.isArray(color) ? color : [color]
-    andFilters.push({
-      variants: {
-        options: {
-          value: colors
-        }
-      }
-    })
-  }
-
-  // 2. 独立处理 Size
-  if (size) {
-    const sizes = Array.isArray(size) ? size : [size]
-    andFilters.push({
-      variants: {
-        options: {
-          value: sizes
-        }
-      }
-    })
-  }
-
-  // 3. 处理 Collection (Handle)
-  if (collection) {
-    const collections = Array.isArray(collection) ? collection : [collection]
-    // 自动处理 handle 的中划线格式
-    const normalizedCollections = collections.map(c => c.toLowerCase().trim().replace(/\s+/g, '-'))
-    andFilters.push({
-      collection: {
-        handle: normalizedCollections
-      }
-    })
-  }
-
-  // 4. 处理 Material (Metadata)
-  if (material) {
-    const materials = Array.isArray(material) ? material : [material]
-    andFilters.push({
-      metadata: {
-        material: materials
-      }
-    })
-  }
-
-  if (andFilters.length > 0) {
-    query["$and"] = andFilters
-  }
-
-  // --- 调试：2. 请求体检查 ---
-  console.log("[调试-2-请求JSON] 发往 Medusa 的完整 Query:", JSON.stringify(query, null, 2))
-
   const headers = { ...(await getAuthHeaders()) }
-  const next = { ...(await getCacheOptions("products")) }
 
+  // 3. 发起请求并在 .then 中执行“降维打击”过滤
   return sdk.client
       .fetch<{ products: HttpTypes.StoreProduct[]; count: number }>(
           `/store/products`,
@@ -134,30 +66,76 @@ export const listProducts = async ({
             method: "GET",
             query,
             headers,
-            next,
             cache: "no-store",
           }
       )
       .then(({ products, count }) => {
-        // --- 调试：3. 结果检查 ---
-        console.log(`[调试-3-响应统计] 过滤后返回商品数: ${products.length}, 数据库命中总数: ${count}`)
+        let filtered = products
 
-        if (products.length > 0) {
-          const firstVariantOptions = products[0].variants?.[0]?.options
-          console.log("[调试-3-详情] 第一个商品的第一个变体 Options 结构:", JSON.stringify(firstVariantOptions, null, 2))
+        // --- A. 变体过滤 (Color & Size) ---
+        // 逻辑：只要有一个变体满足（选中的颜色 AND 选中的尺码），该产品就保留
+        if (color || size) {
+          const targetColors = color ? (Array.isArray(color) ? color : [color]) : null
+          const targetSizes = size ? (Array.isArray(size) ? size : [size]) : null
+
+          filtered = filtered.filter(product =>
+              product.variants?.some(variant => {
+                const matchesColor = targetColors
+                    ? variant.options?.some(opt => targetColors.includes(opt.value))
+                    : true
+                const matchesSize = targetSizes
+                    ? variant.options?.some(opt => targetSizes.includes(opt.value))
+                    : true
+                return matchesColor && matchesSize
+              })
+          )
         }
-        console.log("------------------------------------------")
 
-        const nextPage = count > offset + limit ? _pageParam + 1 : null
+        // --- B. 系列过滤 (Collection) ---
+        if (collection) {
+          const targetCollections = Array.isArray(collection) ? collection : [collection]
+          filtered = filtered.filter(p =>
+              p.collection?.handle && targetCollections.includes(p.collection.handle) ||
+              p.collection?.title && targetCollections.includes(p.collection.title)
+          )
+        }
+
+        // --- C. 材质过滤 (Material - 匹配 Metadata) ---
+        if (material) {
+          const targetMaterials = Array.isArray(material) ? material : [material]
+          filtered = filtered.filter(p => {
+            const prodMaterial = p.metadata?.material
+            if (!prodMaterial) return false
+            // 支持模糊匹配，比如 "90% Nylon" 匹配 "Nylon"
+            return targetMaterials.some(m => String(prodMaterial).toLowerCase().includes(m.toLowerCase()))
+          })
+        }
+
+        // --- 4. 手动处理分页逻辑 ---
+        const finalCount = filtered.length
+        const manualOffset = (_pageParam - 1) * limit
+        const paginatedProducts = filtered.slice(manualOffset, manualOffset + limit)
+
+        console.log(`------------------------------------------`)
+        console.log(`[前端强力过滤报告]`)
+        console.log(`- 筛选条件: Color:${color}, Size:${size}, Collection:${collection}`)
+        console.log(`- 原始数据: ${products.length} 条`)
+        console.log(`- 过滤后数据: ${finalCount} 条`)
+        console.log(`- 当前页显示: ${paginatedProducts.length} 条`)
+        console.log(`------------------------------------------`)
+
+        const nextPage = finalCount > manualOffset + limit ? _pageParam + 1 : null
 
         return {
-          response: { products, count },
+          response: {
+            products: paginatedProducts,
+            count: finalCount,
+          },
           nextPage,
           queryParams,
         }
       })
 }
-
 /**
  * This will fetch 100 products to the Next.js cache and sort them based on the sortBy parameter.
  * It will then return the paginated products based on the page and limit parameters.

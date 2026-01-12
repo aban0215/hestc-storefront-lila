@@ -48,7 +48,8 @@ export const listProducts = async ({
     offset: 0,
     region_id: region?.id,
     order: order,
-    fields: "*variants.calculated_price,+variants.inventory_quantity,*variants.images,+metadata,+tags,+variants.options,+variants.options.option,+collection",
+    fields: "title,handle,description,material,*variants.calculated_price,+variants.inventory_quantity,*variants.images,+metadata,+tags,+variants.options,+variants.options.option,+collection",
+    // fields: "*variants.calculated_price,+variants.inventory_quantity,*variants.images,+metadata,+tags,+variants.options,+variants.options.option,+collection",
   }
 
   if (category_id) {
@@ -121,21 +122,19 @@ export const listProducts = async ({
         // --- C. 材质过滤 (Material / Metadata) ---
         if (material) {
           filtered = filtered.filter(p => {
-            // 1. 获取所有可能的材质来源
-            // 来源A: 产品本身的 metadata
-            const prodMaterial = p.metadata?.material
+            // 1. 直接获取产品级别的 material 字段
+            // 注意：有些 SDK 会把自定义字段放在原生的 p 对象下，有些可能在 p.material
+            const prodMaterialValue = (p as any).material
 
-            // 来源B: 产品下所有变体的 metadata (有些采集工具会存在变体里)
-            const variantMaterials = p.variants?.map(v => v.metadata?.material).filter(Boolean) || []
+            // 2. 调试：看看这次能不能拿到值
+            if (material) {
+              console.log(`[自定义字段检查] 商品: ${p.title} | 材质字段值: ${prodMaterialValue}`)
+            }
 
-            // 2. 汇总这些来源
-            const allPossibleValues = [prodMaterial, ...variantMaterials]
-
-            // 3. 执行标准化匹配
-            return allPossibleValues.some(val => safeMatch(material, val))
+            // 3. 执行标准化比对
+            return safeMatch(material, prodMaterialValue)
           })
         }
-
         // --- 4. 手动处理分页逻辑 ---
         const finalCount = filtered.length
         const manualOffset = (_pageParam - 1) * limit

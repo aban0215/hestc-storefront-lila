@@ -68,39 +68,51 @@ export const listProducts = async ({
     query["category_id"] = Array.isArray(category_id) ? category_id : [category_id]
   }
 
+  // --- 核心修正：拆分 $and 过滤器 ---
   const andFilters: any[] = []
 
-  // A. Color & Size
-  if (color || size) {
-    const optionValues: string[] = []
-    if (color) optionValues.push(...(Array.isArray(color) ? color : [color]))
-    if (size) optionValues.push(...(Array.isArray(size) ? size : [size]))
-
-    if (optionValues.length > 0) {
-      andFilters.push({
-        variants: {
-          options: {
-            value: optionValues
-          }
-        }
-      })
-    }
-  }
-
-  // B. Collection
-  if (collection) {
+  // 1. 独立处理 Color
+  if (color) {
+    const colors = Array.isArray(color) ? color : [color]
     andFilters.push({
-      collection: {
-        handle: Array.isArray(collection) ? collection : [collection]
+      variants: {
+        options: {
+          value: colors
+        }
       }
     })
   }
 
-  // C. Material
+  // 2. 独立处理 Size
+  if (size) {
+    const sizes = Array.isArray(size) ? size : [size]
+    andFilters.push({
+      variants: {
+        options: {
+          value: sizes
+        }
+      }
+    })
+  }
+
+  // 3. 处理 Collection (Handle)
+  if (collection) {
+    const collections = Array.isArray(collection) ? collection : [collection]
+    // 自动处理 handle 的中划线格式
+    const normalizedCollections = collections.map(c => c.toLowerCase().trim().replace(/\s+/g, '-'))
+    andFilters.push({
+      collection: {
+        handle: normalizedCollections
+      }
+    })
+  }
+
+  // 4. 处理 Material (Metadata)
   if (material) {
+    const materials = Array.isArray(material) ? material : [material]
     andFilters.push({
       metadata: {
-        material: Array.isArray(material) ? material : [material]
+        material: materials
       }
     })
   }
@@ -110,7 +122,6 @@ export const listProducts = async ({
   }
 
   // --- 调试：2. 请求体检查 ---
-  // 这是发给 Medusa 的最终 Query 对象，你可以对比官方文档看看结构对不对
   console.log("[调试-2-请求JSON] 发往 Medusa 的完整 Query:", JSON.stringify(query, null, 2))
 
   const headers = { ...(await getAuthHeaders()) }
@@ -132,7 +143,6 @@ export const listProducts = async ({
         console.log(`[调试-3-响应统计] 过滤后返回商品数: ${products.length}, 数据库命中总数: ${count}`)
 
         if (products.length > 0) {
-          // 打印第一个产品的变体信息，对比 URL 参数，看看为什么没被过滤掉
           const firstVariantOptions = products[0].variants?.[0]?.options
           console.log("[调试-3-详情] 第一个商品的第一个变体 Options 结构:", JSON.stringify(firstVariantOptions, null, 2))
         }

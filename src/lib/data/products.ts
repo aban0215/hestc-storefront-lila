@@ -14,7 +14,7 @@ export const listProducts = async ({
                                      regionId,
                                    }: {
   pageParam?: number
-  queryParams?: any // 提升兼容性，接收自定义过滤字段
+  queryParams?: any
   countryCode?: string
   regionId?: string
 }): Promise<{
@@ -31,7 +31,6 @@ export const listProducts = async ({
   const offset = (_pageParam - 1) * limit
 
   let region: HttpTypes.StoreRegion | undefined | null
-
   if (countryCode) {
     region = await getRegion(countryCode)
   } else {
@@ -45,39 +44,37 @@ export const listProducts = async ({
     }
   }
 
-  // --- 1. 提取自定义过滤参数 ---
+  // --- 调试：1. 变量解析检查 ---
+  console.log("------------------------------------------")
+  console.log("[调试-1-变量解析] URL 参数详情:", {
+    color: queryParams?.color,
+    size: queryParams?.size,
+    collection: queryParams?.collection,
+    material: queryParams?.material,
+  })
+
   const { color, size, material, collection, category_id, order, ...rest } = queryParams || {}
 
-  // --- 2. 组装 Medusa V2 官方认可的基础参数 ---
   const query: any = {
     ...rest,
     limit,
     offset,
     region_id: region?.id,
     order: order,
-    // 必须包含 variants.options 才能让后端执行选项值匹配
     fields: "*variants.calculated_price,+variants.inventory_quantity,*variants.images,+metadata,+tags,+variants.options",
   }
 
-  // 如果有分类 ID，直接放入
   if (category_id) {
     query["category_id"] = Array.isArray(category_id) ? category_id : [category_id]
   }
 
-  // --- 3. 构建 $and 高级过滤逻辑 ---
   const andFilters: any[] = []
 
-  // A. 处理颜色 (Color) 和 尺码 (Size) - 匹配变体选项
+  // A. Color & Size
   if (color || size) {
     const optionValues: string[] = []
-    if (color) {
-      const colors = Array.isArray(color) ? color : [color]
-      optionValues.push(...colors)
-    }
-    if (size) {
-      const sizes = Array.isArray(size) ? size : [size]
-      optionValues.push(...sizes)
-    }
+    if (color) optionValues.push(...(Array.isArray(color) ? color : [color]))
+    if (size) optionValues.push(...(Array.isArray(size) ? size : [size]))
 
     if (optionValues.length > 0) {
       andFilters.push({
@@ -90,65 +87,66 @@ export const listProducts = async ({
     }
   }
 
-  // B. 处理系列 (Collection) - 支持 Handle 匹配
+  // B. Collection
   if (collection) {
-    const collections = Array.isArray(collection) ? collection : [collection]
     andFilters.push({
       collection: {
-        handle: collections
+        handle: Array.isArray(collection) ? collection : [collection]
       }
     })
   }
 
-  // C. 处理材质 (Material) - 假设存放在产品的 Metadata 中
+  // C. Material
   if (material) {
-    const materials = Array.isArray(material) ? material : [material]
     andFilters.push({
       metadata: {
-        material: materials
+        material: Array.isArray(material) ? material : [material]
       }
     })
   }
 
-  // 将构建好的过滤器注入查询对象
   if (andFilters.length > 0) {
     query["$and"] = andFilters
   }
 
-  const headers = {
-    ...(await getAuthHeaders()),
-  }
+  // --- 调试：2. 请求体检查 ---
+  // 这是发给 Medusa 的最终 Query 对象，你可以对比官方文档看看结构对不对
+  console.log("[调试-2-请求JSON] 发往 Medusa 的完整 Query:", JSON.stringify(query, null, 2))
 
-  const next = {
-    ...(await getCacheOptions("products")),
-  }
+  const headers = { ...(await getAuthHeaders()) }
+  const next = { ...(await getCacheOptions("products")) }
 
-  // --- 4. 发起请求 ---
   return sdk.client
       .fetch<{ products: HttpTypes.StoreProduct[]; count: number }>(
           `/store/products`,
           {
             method: "GET",
-            query, // 此时 query 包含了复杂的 $and 结构
+            query,
             headers,
             next,
-            cache: "no-store", // 建议调试阶段设为 no-store，确保即时生效
+            cache: "no-store",
           }
       )
       .then(({ products, count }) => {
+        // --- 调试：3. 结果检查 ---
+        console.log(`[调试-3-响应统计] 过滤后返回商品数: ${products.length}, 数据库命中总数: ${count}`)
+
+        if (products.length > 0) {
+          // 打印第一个产品的变体信息，对比 URL 参数，看看为什么没被过滤掉
+          const firstVariantOptions = products[0].variants?.[0]?.options
+          console.log("[调试-3-详情] 第一个商品的第一个变体 Options 结构:", JSON.stringify(firstVariantOptions, null, 2))
+        }
+        console.log("------------------------------------------")
+
         const nextPage = count > offset + limit ? _pageParam + 1 : null
 
         return {
-          response: {
-            products,
-            count,
-          },
-          nextPage: nextPage,
+          response: { products, count },
+          nextPage,
           queryParams,
         }
       })
 }
-
 
 /**
  * This will fetch 100 products to the Next.js cache and sort them based on the sortBy parameter.

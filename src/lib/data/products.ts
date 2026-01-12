@@ -48,8 +48,7 @@ export const listProducts = async ({
     offset: 0,
     region_id: region?.id,
     order: order,
-    // fields: "title,handle,description,material,*variants.calculated_price,+variants.inventory_quantity,*variants.images,+metadata,+tags,+variants.options,+variants.options.option,+collection",
-    fields: "material,*variants.calculated_price,+variants.inventory_quantity,*variants.images,+metadata,+tags,+variants.options,+variants.options.option,+collection",
+    fields: "*variants.calculated_price,+variants.inventory_quantity,*variants.images,+metadata,+tags,+material,+variants.options,+variants.options.option,+collection",
   }
 
   if (category_id) {

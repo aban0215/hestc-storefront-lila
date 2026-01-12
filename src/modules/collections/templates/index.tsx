@@ -27,9 +27,9 @@ export default function CollectionTemplate({
 
     return (
         <div className="w-full bg-white relative">
-            {/* 1. 吸顶工具栏：置顶展示 */}
-            {/* 如果没有全局 Header，请将 top-[56px] 改为 top-0 */}
-            <div className="sticky top-[56px] lg:top-[64px] z-[50] bg-white/95 backdrop-blur-md border-b border-gray-100 w-full">
+            {/* 1. 吸顶工具栏：实色、无模糊、物理对齐 */}
+            {/* top 减去 1px 是为了消除滚动时的微小缝隙，确保完全“定住” */}
+            <div className="sticky top-[55px] lg:top-[63px] z-[50] bg-white border-b border-gray-100 w-full">
                 <div className="mx-auto px-4 md:px-8 py-4">
                     {/* 数量统计 */}
                     <span className="text-[9px] text-gray-400 uppercase tracking-[0.2em] mb-3 block ml-0.5">
@@ -80,7 +80,7 @@ export default function CollectionTemplate({
                 </div>
             </div>
 
-            {/* 2. Marketing Banner：挪到工具栏下方 */}
+            {/* 2. Marketing Banner */}
             {marketingData?.maketimg?.url && (
                 <div className="relative w-full h-[55vh] md:h-[75vh] mb-0 overflow-hidden bg-gray-50">
                     {marketingData.maketimg.mime?.includes("video") ? (
@@ -124,5 +124,4 @@ export default function CollectionTemplate({
             </div>
         </div>
     )
-
 }

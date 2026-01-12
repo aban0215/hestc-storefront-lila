@@ -75,9 +75,8 @@ export default async function CategoryTemplate({
 
     return (
         <div className="w-full bg-white">
-            {/* 1. 吸顶工具栏 - 挪到了最上方 */}
-            {/* 注意：如果页面有全局导航栏，top-[56px] 是对的；如果没有，请改为 top-0 */}
-            <div className="sticky top-[56px] lg:top-[64px] z-[40] bg-white/95 backdrop-blur-md border-b border-gray-100">
+            {/* 1. 吸顶工具栏：实色、无模糊、物理对齐 */}
+            <div className="sticky top-[55px] lg:top-[63px] z-[50] bg-white border-b border-gray-100">
                 <div className="w-full px-4 md:px-8 py-4">
                 <span className="text-[9px] text-gray-400 uppercase tracking-[0.2em] mb-3 block ml-0.5">
                     {count} {count === 1 ? 'Result' : 'Results'}
@@ -142,7 +141,7 @@ export default async function CategoryTemplate({
                 </div>
             </div>
 
-            {/* 2. 营销图片/视频区域 - 挪到了工具栏下方 */}
+            {/* 2. 营销图片/视频区域 */}
             {marketingData?.maketimg?.url && (
                 <div className="relative w-full h-[55vh] md:h-[75vh] mb-0 overflow-hidden bg-gray-50">
                     <div className="hidden md:block w-full h-full">

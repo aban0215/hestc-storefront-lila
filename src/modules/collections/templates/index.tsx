@@ -18,6 +18,7 @@ export default async function CollectionTemplate({
                                                      page,
                                                      countryCode,
                                                      marketingData,
+                                                     searchParams,
                                                  }: {
     sortBy?: SortOptions
     collection: HttpTypes.StoreCollection
@@ -25,6 +26,7 @@ export default async function CollectionTemplate({
     page?: string
     countryCode: string
     marketingData?: any
+    searchParams?: any
 }) {
     const pageNumber = page ? parseInt(page) : 1
     const sort = sortBy || "created_at"
@@ -157,6 +159,7 @@ export default async function CollectionTemplate({
                                 page={pageNumber}
                                 collectionId={collection.id}
                                 countryCode={countryCode}
+                                searchParams={searchParams}
                             />
                         </div>
                     </Suspense>

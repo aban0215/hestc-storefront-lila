@@ -89,12 +89,14 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
 }
 
 export default async function CollectionPage(props: Props) {
+  // 1. 获取所有的搜索参数，而不仅仅是 sortBy 和 page
   const searchParams = await props.searchParams
   const params = await props.params
-  const { sortBy, page } = searchParams
+
+  // 解构出基础参数，同时保留其他的（color, size, material 等）
+  const { sortBy, page, ...restSearchParams } = searchParams
+
   const localecode = (await getSelectedLocale()) || 'en-US'
-
-
 
   const [collection, { collections }, marketingData] = await Promise.all([
     getCollectionByHandle(params.handle),
@@ -112,6 +114,8 @@ export default async function CollectionPage(props: Props) {
           sortBy={sortBy}
           countryCode={params.countryCode}
           marketingData={marketingData}
+          // 2. 关键：把剩下的筛选参数全部传进去
+          searchParams={searchParams}
       />
   )
 }

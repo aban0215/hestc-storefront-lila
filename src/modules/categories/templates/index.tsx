@@ -46,14 +46,6 @@ export default async function CategoryTemplate({
     // 2. 获取 MeiliSearch 里的动态属性快照
     const facets = await getFacetSnapshot(category.id)
 
-    // --- 调试开始 ---
-    console.log("--------------------------------")
-    console.log("当前分类 ID:", category.id)
-    console.log("获取到的快照数据:", JSON.stringify(facets, null, 2))
-    if (!facets) console.log("警告：没拿到快照数据，请检查 Meilisearch 或分类 ID")
-    if (facets && !facets.dynamic_options?.length) console.log("警告：快照拿到了，但 dynamic_options 是空的")
-    console.log("--------------------------------")
-// --- 调试结束 ---
 
 
     if (!category || !countryCode) notFound()

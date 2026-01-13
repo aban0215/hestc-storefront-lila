@@ -46,12 +46,12 @@ const StoreTemplate = ({
                   </button>
 
                   {/* 过滤下拉菜单 */}
-                  <div className="absolute top-full right-0 mt-0 py-8 w-[280px] sm:w-[320px] bg-white shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-[100] border border-gray-100">
-                    <div className="px-8 max-h-[60vh] overflow-y-auto no-scrollbar">
-                      {/* 这里放入你的 DynamicFilters 组件，确保它能改变 URL */}
-                      <p className="text-[10px] text-gray-400 uppercase tracking-widest">Select Filters</p>
-                    </div>
-                  </div>
+                  {/*<div className="absolute top-full right-0 mt-0 py-8 w-[280px] sm:w-[320px] bg-white shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-[100] border border-gray-100">*/}
+                  {/*  <div className="px-8 max-h-[60vh] overflow-y-auto no-scrollbar">*/}
+                  {/*    /!* 这里放入你的 DynamicFilters 组件，确保它能改变 URL *!/*/}
+                  {/*    <p className="text-[10px] text-gray-400 uppercase tracking-widest">Select Filters</p>*/}
+                  {/*  </div>*/}
+                  {/*</div>*/}
                 </div>
 
                 {/* Sort By 按钮 */}

@@ -35,24 +35,24 @@ const StoreTemplate = ({
               <div className="flex items-center gap-x-8 md:gap-x-12">
 
                 {/* Filter 按钮 */}
-                <div className="relative group">
-                  <button className="flex items-center gap-x-2 text-[10px] font-medium tracking-[0.15em] text-gray-900 uppercase">
-                  <span className="pb-0.5 border-b border-transparent group-hover:border-black transition-all">
-                    Filter
-                  </span>
-                    <svg className="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
-                    </svg>
-                  </button>
+                {/*<div className="relative group">*/}
+                {/*  <button className="flex items-center gap-x-2 text-[10px] font-medium tracking-[0.15em] text-gray-900 uppercase">*/}
+                {/*  <span className="pb-0.5 border-b border-transparent group-hover:border-black transition-all">*/}
+                {/*    Filter*/}
+                {/*  </span>*/}
+                {/*    <svg className="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">*/}
+                {/*      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />*/}
+                {/*    </svg>*/}
+                {/*  </button>*/}
 
-                  {/* 过滤下拉菜单 */}
-                  {/*<div className="absolute top-full right-0 mt-0 py-8 w-[280px] sm:w-[320px] bg-white shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-[100] border border-gray-100">*/}
-                  {/*  <div className="px-8 max-h-[60vh] overflow-y-auto no-scrollbar">*/}
-                  {/*    /!* 这里放入你的 DynamicFilters 组件，确保它能改变 URL *!/*/}
-                  {/*    <p className="text-[10px] text-gray-400 uppercase tracking-widest">Select Filters</p>*/}
-                  {/*  </div>*/}
-                  {/*</div>*/}
-                </div>
+                {/*  /!* 过滤下拉菜单 *!/*/}
+                {/*  /!*<div className="absolute top-full right-0 mt-0 py-8 w-[280px] sm:w-[320px] bg-white shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-[100] border border-gray-100">*!/*/}
+                {/*  /!*  <div className="px-8 max-h-[60vh] overflow-y-auto no-scrollbar">*!/*/}
+                {/*  /!*    /!* 这里放入你的 DynamicFilters 组件，确保它能改变 URL *!/*!/*/}
+                {/*  /!*    <p className="text-[10px] text-gray-400 uppercase tracking-widest">Select Filters</p>*!/*/}
+                {/*  /!*  </div>*!/*/}
+                {/*  /!*</div>*!/*/}
+                {/*</div>*/}
 
                 {/* Sort By 按钮 */}
                 <div className="relative group">

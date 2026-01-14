@@ -68,37 +68,50 @@ async function getRegionMap(cacheId: string) {
  * @param response
  */
 async function getCountryCode(
-  request: NextRequest,
-  regionMap: Map<string, HttpTypes.StoreRegion | number>
+    request: NextRequest,
+    regionMap: Map<string, HttpTypes.StoreRegion | number>
 ) {
   try {
     let countryCode
 
+    // 1. 获取 Vercel 提供的 IP 国家码 (小写)
     const vercelCountryCode = request.headers
-      .get("x-vercel-ip-country")
-      ?.toLowerCase()
+        .get("x-vercel-ip-country")
+        ?.toLowerCase()
 
+    // 2. 获取 URL 路径中的国家码 (例如 /us/product -> us)
     const urlCountryCode = request.nextUrl.pathname.split("/")[1]?.toLowerCase()
 
+    // --- 逻辑判断开始 ---
+
+    // 情况 A: URL 里的国家码是有效的（存在于 Medusa 后台配置中）
     if (urlCountryCode && regionMap.has(urlCountryCode)) {
       countryCode = urlCountryCode
-    } else if (vercelCountryCode && regionMap.has(vercelCountryCode)) {
+    }
+    // 情况 B: IP 识别的国家码是有效的
+    else if (vercelCountryCode && regionMap.has(vercelCountryCode)) {
       countryCode = vercelCountryCode
-    } else if (regionMap.has(DEFAULT_REGION)) {
+    }
+    // 情况 C: 如果以上都不行，强制检查默认值 us (或者你在 .env 设置的 DEFAULT_REGION)
+    else if (regionMap.has(DEFAULT_REGION)) {
       countryCode = DEFAULT_REGION
-    } else if (regionMap.keys().next().value) {
-      countryCode = regionMap.keys().next().value
+    }
+    // 情况 D: 最后的倔强，如果 us 也没配置，取 Map 里的第一个
+    else {
+      const firstAvailable = regionMap.keys().next().value
+      countryCode = firstAvailable
     }
 
     return countryCode
   } catch (error) {
     if (process.env.NODE_ENV === "development") {
-      console.error(
-        "Middleware.ts: Error getting the country code. Did you set up regions in your Medusa Admin and define a MEDUSA_BACKEND_URL environment variable? Note that the variable is no longer named NEXT_PUBLIC_MEDUSA_BACKEND_URL."
-      )
+      console.error("Middleware.ts: Error getting the country code.", error)
     }
+    // 出错也给个兜底
+    return DEFAULT_REGION
   }
 }
+
 
 /**
  * Middleware to handle region selection and onboarding status.

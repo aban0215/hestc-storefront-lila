@@ -125,25 +125,56 @@ export default async function CollectionTemplate({
             {/* 2. Marketing Banner */}
             {marketingData?.maketimg?.url && (
                 <div className="relative w-full h-[55vh] md:h-[75vh] mb-0 overflow-hidden bg-gray-50">
-                    {marketingData.maketimg.mime?.includes("video") ? (
-                        <video
-                            src={marketingData.maketimg.url}
-                            autoPlay
-                            loop
-                            muted
-                            playsInline
-                            className="absolute inset-0 w-full h-full object-cover"
-                        />
-                    ) : (
-                        <img
-                            src={marketingData.maketimg.url}
-                            alt={collection.title}
-                            className="absolute inset-0 w-full h-full object-cover"
-                        />
-                    )}
+
+                    {/* 桌面端视图 (md 以上显示) */}
+                    <div className="hidden md:block w-full h-full">
+                        {marketingData.maketimg.mime?.includes("video") ? (
+                            <video
+                                src={marketingData.maketimg.url}
+                                autoPlay
+                                loop
+                                muted
+                                playsInline
+                                className="absolute inset-0 w-full h-full object-cover"
+                            />
+                        ) : (
+                            <img
+                                src={marketingData.maketimg.url}
+                                className="absolute inset-0 w-full h-full object-cover"
+                                alt={collection.name}
+                            />
+                        )}
+                    </div>
+
+                    {/* 移动端视图 (md 以下显示) */}
+                    <div className="block md:hidden w-full h-full">
+                        {/* 优先判断 mobileImage 是否为视频，如果移动端也可能传视频的话 */}
+                        {marketingData.mobileImage?.mime?.includes("video") ? (
+                            <video
+                                src={marketingData.mobileImage.url}
+                                autoPlay
+                                loop
+                                muted
+                                playsInline
+                                className="absolute inset-0 w-full h-full object-cover"
+                            />
+                        ) : (
+                            <img
+                                /* 逻辑：有移动端图用移动端图，没有则回退使用桌面端图 */
+                                src={marketingData.mobileImage?.url || marketingData.maketimg.url}
+                                className="absolute inset-0 w-full h-full object-cover"
+                                alt={collection.name}
+                            />
+                        )}
+                    </div>
+
+                    {/* 遮罩层 */}
                     <div className="absolute inset-0 bg-black/5" />
                 </div>
             )}
+
+
+
 
             {/* 3. 商品列表区域 */}
             <div className="w-full relative z-0 mt-8">

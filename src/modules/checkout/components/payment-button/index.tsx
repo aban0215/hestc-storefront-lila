@@ -144,13 +144,21 @@ const StripePaymentButton = ({
     const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
     const onPaymentCompleted = async () => {
-        await placeOrder()
-            .catch((err) => {
-                setErrorMessage(err.message)
-            })
-            .finally(() => {
-                setSubmitting(false)
-            })
+        setSubmitting(true)
+        console.log("DEBUG: 开始调用 placeOrder...");
+        try {
+            const response = await placeOrder();
+            console.log("DEBUG: 下单成功!", response);
+            // 如果这里成功了，页面应该会跳转
+        } catch (err: any) {
+            // 这里是关键！
+            console.error("DEBUG: 下单接口报错详情:", err);
+            // 强制弹窗，看看到底是不是 401 或者 500
+            alert("下单失败，后端返回：" + (err.response?.data?.message || err.message));
+            setErrorMessage(err.message);
+        } finally {
+            setSubmitting(false);
+        }
     }
 
     const stripe = useStripe()

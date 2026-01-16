@@ -102,8 +102,19 @@ const PaypalPaymentButton = ({
                 }}
                 // 用户在 PayPal 弹窗点击付款成功后触发
                 onApprove={async (data, actions) => {
-                    // console.log("PayPal Approved: ", data)
-                    await onPaymentCompleted()
+                    console.log("DEBUG: PayPal 授权成功, data:", data);
+                    try {
+                        // 强制弹窗，确认代码跑到了这里
+                        // alert("PayPal 已授权，正在调取后端完成订单...");
+
+                        await onPaymentCompleted();
+
+                        // alert("恭喜！onPaymentCompleted 执行完毕");
+                    } catch (err) {
+                        // 这一步是抓鬼的关键！
+                        console.error("CRITICAL ERROR in onApprove:", err);
+                        alert("下单失败！错误原因: " + err.message);
+                    }
                 }}
                 // 处理 PayPal 弹窗内部错误
                 onError={(err) => {

@@ -6,11 +6,7 @@ import { listLocales } from "@lib/data/locales"
 import { getLocale } from "@lib/data/locale-actions"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import CartButton from "@modules/layout/components/cart-button"
-import HeaderCountrySelect from "@modules/layout/components/header-country-select"
-import HeaderLanguageSelect from "@modules/layout/components/header-language-select"
-import { User, ShoppingBag,BarsThree  } from "@medusajs/icons" // 引入 Menu 图标
-import ActiveRegion from "@modules/layout/templates/nav/active-region";
-import NavLinks from "@modules/layout/templates/nav/NavLinks";
+import { User, ShoppingBag, MagnifyingGlass } from "@medusajs/icons"
 import MobileMenu from "@modules/layout/templates/nav/mobile-menu";
 import SearchModal from "@modules/search/components/modal"
 
@@ -78,7 +74,14 @@ export default async function Nav() {
               {/* 左侧：菜单图标 (移动端放大) */}
               <div className="flex-1 flex items-center">
                 <div className="lg:hidden transform scale-[1.8] origin-left">
-                  <MobileMenu {...props} /> {/* 简写，实际传入你的参数 */}
+                  {/* ✅ 这里必须传入具体的 props，不能写 {...props} */}
+                  <MobileMenu
+                      menuTree={menuTree}
+                      brandData={brandData}
+                      regions={regions}
+                      locales={locales}
+                      currentLocale={currentLocale}
+                  />
                 </div>
 
                 {/* PC 端：显示原来的图标搜索 */}
@@ -88,10 +91,15 @@ export default async function Nav() {
               </div>
 
               {/* 中间：Logo (移动端放大) */}
-              <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex justify-center">
-                {/* 这里的 logoUrl 逻辑保持你原来的 */}
-                <LocalizedClientLink href="/">
-                  <img src={logoUrl} className="h-[55px] lg:h-[72px] scale-[1.3] lg:scale-100" />
+              <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex justify-center pointer-events-none">
+                <LocalizedClientLink href="/" className="pointer-events-auto">
+                  {logoUrl ? (
+                      <img src={logoUrl} className="h-[50px] lg:h-[72px] transform scale-[1.3] lg:scale-100 object-contain" />
+                  ) : (
+                      <span className="text-[22px] lg:text-[32px] font-bold uppercase tracking-widest">
+                        {brandData?.sitename || "LILA ZEN"}
+                      </span>
+                  )}
                 </LocalizedClientLink>
               </div>
 
@@ -111,7 +119,6 @@ export default async function Nav() {
 
             {/* 第二行：移动端专用大搜索框 */}
             <div className="lg:hidden pb-4 px-2">
-              {/* 调用新做的 searchbar 样式 */}
               <SearchModal variant="searchbar" />
             </div>
 

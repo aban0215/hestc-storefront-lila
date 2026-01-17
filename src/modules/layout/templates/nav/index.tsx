@@ -11,6 +11,7 @@ import DesktopPreferences from "@modules/layout/components/desktop-preferences"
 import { User } from "@medusajs/icons"
 import MobileMenu from "@modules/layout/templates/nav/mobile-menu";
 import SearchModal from "@modules/search/components/modal"
+import NavLinks from "@modules/layout/templates/nav/NavLinks";
 
 async function getCurrentLocale() {
   try {

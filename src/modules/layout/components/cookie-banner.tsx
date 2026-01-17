@@ -43,7 +43,6 @@ const CookieBanner = () => {
             expires={365}
         >
             We use cookies to enhance your shopping experience. By continuing to browse, you agree to our use of cookies.{" "}
-            {/* 这里的 href 已经更新为你实际的页面路径 */}
             <Link
                 href="/us/pages/PrivacyPolicy"
                 className="font-medium underline hover:text-gray-500 ml-1"

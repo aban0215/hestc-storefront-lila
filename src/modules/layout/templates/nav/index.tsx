@@ -68,16 +68,16 @@ export default async function Nav() {
   const logoUrl = brandData?.logo?.url ? `${brandData.logo.url.startsWith('http') ? '' : baseUrl}${brandData.logo.url}` : null
 
   return (
-      <div className="sticky top-0 inset-x-0 z-[100] w-full">
-        <header className="relative bg-white border-b border-gray-100">
+      <div className="sticky top-0 inset-x-0 z-[100] w-full bg-white">
+        <header className="relative border-b border-gray-100">
           <nav className="content-container mx-auto px-4 lg:px-6 relative">
 
-            <div className="flex justify-between items-center h-[60px] lg:h-[80px]">
+            {/* 第一行：图标与 Logo */}
+            <div className="flex justify-between items-center h-[70px] lg:h-[80px]">
 
-              {/* --- 左侧区域 --- */}
-              <div className="flex-1 flex items-center gap-x-4">
-                {/* 移动端逻辑保持不变 */}
-                <div className="lg:hidden">
+              {/* 左侧：菜单图标 (移动端放大) */}
+              <div className="flex-1 flex items-center">
+                <div className="lg:hidden transform scale-[1.5] origin-left">
                   <MobileMenu
                       menuTree={menuTree}
                       brandData={brandData}
@@ -86,8 +86,6 @@ export default async function Nav() {
                       currentLocale={currentLocale}
                   />
                 </div>
-
-                {/* PC端：直接渲染组件，不要包在 absolute 容器里，否则 fixed 定位有时会失效 */}
                 <div className="hidden lg:block">
                   <MobileMenu
                       menuTree={menuTree}
@@ -95,63 +93,61 @@ export default async function Nav() {
                       regions={regions}
                       locales={locales}
                       currentLocale={currentLocale}
-                      isDesktop={true} // 传入这个标记
+                      isDesktop={true}
                   />
                 </div>
 
-                {/* 搜索按钮 */}
-                <div className="flex items-center group cursor-pointer">
+                {/* PC 端保留原搜索位置，移动端隐藏 */}
+                <div className="hidden lg:flex items-center ml-4">
                   <SearchModal />
-                  {/*<span className="text-[10px] uppercase tracking-[0.2em] font-bold hidden lg:block ml-1">Search</span>*/}
                 </div>
               </div>
 
-              {/* --- 中间区域：Logo (绝对居中) --- */}
-              <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full flex justify-center pointer-events-none">
+              {/* 中间：Logo (移动端放大) */}
+              <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex justify-center pointer-events-none">
                 <LocalizedClientLink href="/" className="flex items-center justify-center pointer-events-auto">
                   {logoUrl ? (
                       <img
                           src={logoUrl}
                           alt="Logo"
-                          /* 移动端: h-[50px] (导航栏60px)
-                             PC端: lg:h-[70px] (导航栏80px)
-                             这样上下各留 5px，视觉上直接拉满
-                          */
-                          className="h-[50px] lg:h-[72px] w-auto object-contain transition-all duration-300"
+                          className="h-[55px] lg:h-[72px] w-auto object-contain transition-all duration-300 transform lg:scale-100 scale-[1.2]"
                       />
                   ) : (
-                      /* 文字 Logo 也同步放大 */
-                      <span className="text-[22px] lg:text-[32px] font-bold tracking-[0.3em] uppercase whitespace-nowrap">
-          {brandData?.sitename || "LILA ZEN"}
-        </span>
+                      <span className="text-[26px] lg:text-[32px] font-bold tracking-[0.3em] uppercase">
+                    {brandData?.sitename || "LILA ZEN"}
+                  </span>
                   )}
                 </LocalizedClientLink>
               </div>
 
-              {/* --- 右侧区域 --- */}
-              <div className="flex-1 flex justify-end items-center gap-x-2 lg:gap-x-2">
-
-                {/* 用户图标：加上 w-8 h-8 保持跟购物车按钮底色块一致 */}
+              {/* 右侧：会员与购物车 (移动端图标翻倍) */}
+              <div className="flex-1 flex justify-end items-center gap-x-4 lg:gap-x-2">
                 <LocalizedClientLink
                     href="/account"
-                    className="text-gray-700 hover:text-black hover:bg-ui-bg-subtle-hover w-8 h-8 flex items-center justify-center rounded-md transition-colors"
+                    className="text-gray-700 w-10 h-10 flex items-center justify-center"
                 >
-                  <User size={22} />
+                  {/* 移动端用 scale 放大，PC端保持 22 */}
+                  <User size={22} className="lg:scale-100 scale-[1.8]" />
                 </LocalizedClientLink>
 
-                {/* 购物车：因为内部已有 w-8 h-8，外层只需 items-center */}
-                <Suspense fallback={
-                  <div className="w-8 h-8 flex items-center justify-center text-gray-700">
-                    <ShoppingBag size={22} />
+                <Suspense fallback={<div className="w-10 h-10" />}>
+                  <div className="lg:scale-100 scale-[1.8] transform origin-right">
+                    <CartButton />
                   </div>
-                }>
-                  <CartButton />
                 </Suspense>
-
               </div>
-
-
             </div>
+
+            {/* 第二行：移动端专用搜索框 (仅在移动端显示) */}
+            <div className="lg:hidden pb-4 px-2">
+              <LocalizedClientLink href="/search" className="w-full">
+                <div className="flex items-center w-full h-12 px-4 bg-gray-50 border border-gray-200 rounded-xl text-gray-400">
+                  <MagnifyingGlass size={20} className="mr-3" />
+                  <span className="text-sm">Buscar en MAJA</span>
+                </div>
+              </LocalizedClientLink>
+            </div>
+
           </nav>
         </header>
       </div>

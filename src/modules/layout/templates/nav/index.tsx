@@ -73,7 +73,7 @@ export default async function Nav() {
 
               {/* 左侧：菜单图标 (移动端放大) */}
               <div className="flex-1 flex items-center">
-                <div className="lg:hidden transform scale-[1.8] origin-left">
+                <div className="lg:hidden transform scale-[1.2] origin-left">
                   {/* ✅ 这里必须传入具体的 props，不能写 {...props} */}
                   <MobileMenu
                       menuTree={menuTree}

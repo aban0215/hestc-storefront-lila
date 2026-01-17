@@ -11,20 +11,16 @@ import { usePathname, useParams } from "next/navigation"
 import { MagnifyingGlass } from "@medusajs/icons"
 
 
-export default function SearchModal() {
+export default function SearchModal({ variant = "icon" }: { variant?: "icon" | "searchbar" }) {
     const [isOpen, setIsOpen] = useState(false)
     const pathname = usePathname()
-    // 增加一个 ref 专门给输入框定位
-    const searchInputRef = useRef<HTMLInputElement>(null)
 
     useEffect(() => {
         setIsOpen(false)
     }, [pathname])
 
-    // 💡 关键：移动端需要一个显式的点击来处理 focus
     const handleOpen = () => {
         setIsOpen(true)
-        // 给一点点延迟，确保 Modal 动画开始后再尝试 focus
         setTimeout(() => {
             const input = document.querySelector('.ais-SearchBox-input') as HTMLInputElement
             if (input) input.focus()
@@ -33,17 +29,29 @@ export default function SearchModal() {
 
     return (
         <>
-            <div className="flex items-center h-full">
-                <Button
-                    onClick={handleOpen} // 使用处理过的打开函数
-                    variant="transparent"
-                    className="text-gray-700 hover:text-black transition-all flex items-center justify-center p-0 min-w-[24px] hover:bg-transparent focus:!bg-transparent active:scale-95"
-                >
-                    <MagnifyingGlass size={20} />
-                    <span className="text-[10px] uppercase tracking-[0.2em] font-bold hidden lg:block ml-1">
-                        Search
-                    </span>
-                </Button>
+            <div className="flex items-center w-full h-full">
+                {variant === "icon" ? (
+                    // --- 原有的图标模式 ---
+                    <Button
+                        onClick={handleOpen}
+                        variant="transparent"
+                        className="text-gray-700 hover:text-black transition-all flex items-center justify-center p-0 min-w-[24px] hover:bg-transparent focus:!bg-transparent active:scale-95"
+                    >
+                        <MagnifyingGlass size={20} />
+                        <span className="text-[10px] uppercase tracking-[0.2em] font-bold hidden lg:block ml-1">
+                            Search
+                        </span>
+                    </Button>
+                ) : (
+                    // --- 新增：截图中的搜索条模式 ---
+                    <div
+                        onClick={handleOpen}
+                        className="flex items-center w-full h-12 px-4 bg-gray-50 border border-gray-100 rounded-xl text-gray-400 cursor-pointer active:scale-[0.98] transition-transform"
+                    >
+                        <MagnifyingGlass size={20} className="mr-3" />
+                        <span className="text-sm font-light">Buscar en MAJA</span>
+                    </div>
+                )}
             </div>
 
             <Modal isOpen={isOpen} close={() => setIsOpen(false)}>

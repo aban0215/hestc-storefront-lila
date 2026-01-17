@@ -98,7 +98,7 @@ export default async function Nav() {
                 </div>
                 {/* PC 端 搜索条 */}
                 <div className="hidden lg:block w-full max-w-[600px]">
-                  <SearchModal variant="searchbar" />
+                  <SearchModal />
                 </div>
               </div>
 
@@ -127,7 +127,7 @@ export default async function Nav() {
 
               {/* 移动端显示的搜索框 */}
               <div className="w-full lg:hidden">
-                <SearchModal variant="searchbar" />
+                <SearchModal />
               </div>
 
               {/* PC 端显示的水平主菜单 */}

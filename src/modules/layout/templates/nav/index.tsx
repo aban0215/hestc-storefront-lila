@@ -6,7 +6,8 @@ import { listLocales } from "@lib/data/locales"
 import { getLocale } from "@lib/data/locale-actions"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import CartButton from "@modules/layout/components/cart-button"
-import HeaderCountrySelect from "@modules/layout/components/header-country-select"
+// 引入我们新做的“PC端偏好设置”组件
+import DesktopPreferences from "@modules/layout/components/desktop-preferences"
 import { User } from "@medusajs/icons"
 import MobileMenu from "@modules/layout/templates/nav/mobile-menu";
 import SearchModal from "@modules/search/components/modal"
@@ -67,13 +68,12 @@ export default async function Nav() {
   return (
       <div className="sticky top-0 inset-x-0 z-[100] w-full bg-white border-b border-gray-100">
         <header className="relative">
-          {/* 去掉了 content-container 的最大宽度限制（可选），或者通过 px 控制边缘 */}
           <nav className="mx-auto px-4 lg:px-8">
 
-            {/* --- 第一行：全新布局 --- */}
+            {/* --- 第一行：[Logo] -- [Search] -- [Icons] --- */}
             <div className="flex items-center h-[60px] lg:h-[90px]">
 
-              {/* 左侧：Logo 区域 (不再 flex-1，而是自适应宽度) */}
+              {/* 左侧：Logo */}
               <div className="flex items-center pr-6 lg:pr-12">
                 <div className="lg:hidden">
                   <MobileMenu
@@ -89,23 +89,26 @@ export default async function Nav() {
                 </div>
               </div>
 
-              {/* 中间：搜索框 (使用 flex-grow 占据所有剩余空间) */}
+              {/* 中间：搜索框 (拉长) */}
               <div className="flex-1 flex items-center justify-center lg:justify-start">
-                {/* 移动端 Logo 依然居中 */}
                 <div className="lg:hidden absolute left-1/2 -translate-x-1/2">
                   <Logo logoUrl={logoUrl} sitename={brandData?.sitename} />
                 </div>
-
-                {/* PC 端 搜索条：向左靠，且宽度加长 */}
                 <div className="hidden lg:block w-full max-w-[800px]">
                   <SearchModal />
                 </div>
               </div>
 
-              {/* 右侧：功能图标 (固定宽度，靠右) */}
+              {/* 右侧：功能图标 */}
               <div className="flex items-center gap-x-2 lg:gap-x-5 pl-6 lg:pl-12">
-                <div className="hidden lg:flex items-center">
-                  <HeaderCountrySelect regions={regions} />
+
+                {/* --- 关键修改：PC端偏好设置（国家和语言） --- */}
+                <div className="hidden lg:block">
+                  <DesktopPreferences
+                      regions={regions}
+                      locales={locales}
+                      currentLocale={currentLocale}
+                  />
                 </div>
 
                 <LocalizedClientLink
@@ -121,7 +124,7 @@ export default async function Nav() {
               </div>
             </div>
 
-            {/* --- 第二行：移动端搜索 / PC端菜单 --- */}
+            {/* --- 第二行：主菜单 --- */}
             <div className="flex justify-center items-center pb-4 lg:pb-0 lg:h-[50px] lg:border-t lg:border-gray-50">
               <div className="w-full lg:hidden">
                 <SearchModal />

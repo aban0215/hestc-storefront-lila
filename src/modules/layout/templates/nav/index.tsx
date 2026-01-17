@@ -7,10 +7,7 @@ import { getLocale } from "@lib/data/locale-actions"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import CartButton from "@modules/layout/components/cart-button"
 import HeaderCountrySelect from "@modules/layout/components/header-country-select"
-import HeaderLanguageSelect from "@modules/layout/components/header-language-select"
-import { User, ShoppingBag,BarsThree  } from "@medusajs/icons" // 引入 Menu 图标
-import ActiveRegion from "@modules/layout/templates/nav/active-region";
-import NavLinks from "@modules/layout/templates/nav/NavLinks";
+import { User } from "@medusajs/icons"
 import MobileMenu from "@modules/layout/templates/nav/mobile-menu";
 import SearchModal from "@modules/search/components/modal"
 
@@ -72,11 +69,12 @@ export default async function Nav() {
         <header className="relative">
           <nav className="content-container mx-auto px-4 lg:px-6">
 
-            {/* --- 第一行：Logo 与 功能图标 (移动端/PC端共用) --- */}
-            <div className="flex justify-between items-center h-[60px] lg:h-[80px]">
+            {/* --- 第一行：[移动端: 菜单-Logo-车] | [PC端: Logo-搜索-图标] --- */}
+            <div className="flex justify-between items-center h-[60px] lg:h-[90px] gap-x-4">
 
-              {/* 左侧：移动端菜单 */}
-              <div className="flex-1 flex items-center">
+              {/* 左侧区域 */}
+              <div className="flex-1 lg:flex-none flex items-center">
+                {/* 仅移动端显示菜单图标 */}
                 <div className="lg:hidden">
                   <MobileMenu
                       menuTree={menuTree}
@@ -86,19 +84,31 @@ export default async function Nav() {
                       currentLocale={currentLocale}
                   />
                 </div>
-                {/* PC 端可以在这里放 Country Select 或者留空 */}
+                {/* PC 端 Logo 靠左 */}
                 <div className="hidden lg:block">
-                  <HeaderCountrySelect regions={regions} />
+                  <Logo logoUrl={logoUrl} sitename={brandData?.sitename} />
                 </div>
               </div>
 
-              {/* 中间：Logo (绝对对齐) */}
-              <div className="flex-1 flex justify-center items-center">
-                <Logo logoUrl={logoUrl} sitename={brandData?.sitename} />
+              {/* 中间区域 */}
+              <div className="flex-[2] flex justify-center items-center">
+                {/* 移动端 Logo 居中 */}
+                <div className="lg:hidden">
+                  <Logo logoUrl={logoUrl} sitename={brandData?.sitename} />
+                </div>
+                {/* PC 端 搜索条 */}
+                <div className="hidden lg:block w-full max-w-[600px]">
+                  <SearchModal variant="searchbar" />
+                </div>
               </div>
 
-              {/* 右侧：用户与购物车 */}
-              <div className="flex-1 flex justify-end items-center gap-x-2 lg:gap-x-4">
+              {/* 右侧区域 */}
+              <div className="flex-1 lg:flex-none flex justify-end items-center gap-x-2 lg:gap-x-4">
+                {/* 国家选择器 (PC端显示在右侧功能区) */}
+                <div className="hidden lg:flex items-center">
+                  <HeaderCountrySelect regions={regions} />
+                </div>
+
                 <LocalizedClientLink
                     href="/account"
                     className="text-gray-700 hover:text-black w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-50 transition-all"
@@ -112,19 +122,16 @@ export default async function Nav() {
               </div>
             </div>
 
-            {/* --- 第二行：搜索框 (全平台显示) --- */}
-            {/* 移动端：占满宽度，下方留边距
-              PC端：限制最大宽度并居中，与第一行有视觉区分
-          */}
-            <div className="flex justify-center items-center pb-4 lg:pb-6">
-              <div className="w-full lg:max-w-[700px]">
+            {/* --- 第二行：[移动端: 搜索框] | [PC端: 主菜单] --- */}
+            <div className="flex justify-center items-center pb-4 lg:pb-0 lg:h-[50px] lg:border-t lg:border-gray-50">
+
+              {/* 移动端显示的搜索框 */}
+              <div className="w-full lg:hidden">
                 <SearchModal variant="searchbar" />
               </div>
-            </div>
 
-            {/* --- 第三行：PC端主菜单 (仅PC显示) --- */}
-            <div className="hidden lg:flex justify-center items-center h-[50px] border-t border-gray-50">
-              <ul className="flex items-center gap-x-12">
+              {/* PC 端显示的水平主菜单 */}
+              <ul className="hidden lg:flex items-center gap-x-12">
                 {menuTree.map((item) => (
                     <li key={item.id}>
                       <LocalizedClientLink
@@ -144,7 +151,7 @@ export default async function Nav() {
   )
 }
 
-// Logo 组件：针对响应式做了高度适配
+// Logo 组件：保持响应式缩放
 function Logo({ logoUrl, sitename }: { logoUrl: string | null, sitename?: string }) {
   return (
       <LocalizedClientLink href="/" className="flex items-center">
@@ -152,7 +159,7 @@ function Logo({ logoUrl, sitename }: { logoUrl: string | null, sitename?: string
             <img
                 src={logoUrl}
                 alt="Logo"
-                className="h-[40px] md:h-[50px] lg:h-[60px] w-auto object-contain"
+                className="h-[40px] md:h-[50px] lg:h-[65px] w-auto object-contain"
             />
         ) : (
             <span className="text-[18px] md:text-[22px] lg:text-[26px] font-bold tracking-[0.2em] uppercase whitespace-nowrap">

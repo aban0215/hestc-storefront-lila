@@ -12,12 +12,15 @@ export default async function NewArrivalPromo() {
 
     if (!newArrivalData || !region) return null
 
+    // 抓取 Medusa 商品
     const collectionProducts = await getProductsByCollectionHandle(
         newArrivalData.medusaHandle || "",
         region.id,
         region.currency_code,
-        8
+        15 // 抓 15 个，确保 PC 端滑动顺滑
     )
+
+    const displayProducts = [...collectionProducts]
 
     const getHref = () => {
         const handle = newArrivalData.medusaHandle
@@ -51,37 +54,39 @@ export default async function NewArrivalPromo() {
                 )}
             </div>
 
-            {/* 2. 媒体展示区域 - 纯服务端渲染，保证稳定 */}
+            {/* 2. 海报/视频区域 */}
             <div className="group relative w-full h-[55vh] md:h-[70vh] overflow-hidden bg-gray-100">
                 <div className="absolute inset-0">
+                    {/* 移动端媒体 */}
                     <div className="block md:hidden h-full w-full">
                         {isMobileVideo ? (
                             <video src={mobileMedia?.url} autoPlay muted loop playsInline className="w-full h-full object-cover" />
                         ) : (
-                            mobileMedia?.url && <img src={mobileMedia.url} alt="" className="w-full h-full object-cover" />
+                            mobileMedia?.url && <img src={mobileMedia.url} alt="" className="w-full h-full object-cover transition-transform duration-[2000ms] group-hover:scale-105" />
                         )}
                     </div>
+                    {/* PC端媒体 */}
                     <div className="hidden md:block h-full w-full">
                         {isDesktopVideo ? (
                             <video src={desktopMedia?.url} autoPlay muted loop playsInline className="w-full h-full object-cover" />
                         ) : (
-                            desktopMedia?.url && <img src={desktopMedia.url} alt="" className="w-full h-full object-cover" />
+                            desktopMedia?.url && <img src={desktopMedia.url} alt="" className="w-full h-full object-cover transition-transform duration-[2000ms] group-hover:scale-105" />
                         )}
                     </div>
-                    <div className="absolute inset-0 bg-black/10" />
+                    <div className="absolute inset-0 bg-black/10 group-hover:bg-black/20 transition-colors duration-500" />
                 </div>
                 <div className="relative h-full flex items-end justify-center pb-12">
                     <LocalizedClientLink
                         href={targetHref}
-                        className="px-10 py-3 border border-white text-white text-[10px] font-bold tracking-[0.2em] uppercase backdrop-blur-sm hover:bg-white hover:text-black transition-all"
+                        className="inline-block px-10 py-3 border border-white text-white text-[10px] font-bold tracking-[0.2em] uppercase backdrop-blur-sm hover:bg-white hover:text-black transition-all duration-300"
                     >
                         {newArrivalData.buttonText || "Shop Collection"}
                     </LocalizedClientLink>
                 </div>
             </div>
 
-            {/* 3. 调用客户端滑动组件 */}
-            <NewArrivalCarousel products={collectionProducts} targetHref={targetHref} />
+            {/* 3. 底部商品滑动区 (Client Component) */}
+            <NewArrivalCarousel products={displayProducts} targetHref={targetHref} />
         </section>
     )
 }

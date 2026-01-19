@@ -25,24 +25,32 @@ export default async function PageLayout(props: { children: React.ReactNode }) {
     shippingOptions = shipping_options
   }
 
-  return (
-      <>
-        <Nav />
-        {customer && cart && (
-            <CartMismatchBanner customer={customer} cart={cart} />
-        )}
+    return (
+        <div className="relative flex flex-col min-h-screen">
+            {/* 1. Nav 必须在最顶层 */}
+            <Nav />
 
-        {cart && (
-            <FreeShippingPriceNudge
-                variant="popup"
-                cart={cart}
-                shippingOptions={shippingOptions}
-            />
-        )}
-        {props.children}
-        <Footer />
+            {/* 2. Banner 们应该紧随其后，但不能干扰 Nav */}
+            <div className="relative z-[90]">
+                {customer && cart && (
+                    <CartMismatchBanner customer={customer} cart={cart} />
+                )}
+                {cart && (
+                    <FreeShippingPriceNudge
+                        variant="popup"
+                        cart={cart}
+                        shippingOptions={shippingOptions}
+                    />
+                )}
+            </div>
 
-        <CookieBanner />
-      </>
-  )
+            {/* 3. 页面主体内容 */}
+            <main className="relative flex-1">
+                {props.children}
+            </main>
+
+            <Footer />
+            <CookieBanner />
+        </div>
+    )
 }

@@ -109,13 +109,13 @@ export default async function NewArrivalPromo() {
                     ))}
 
                     {/* View All 模块也要对齐风格 */}
-                    {/*<LocalizedClientLink*/}
-                    {/*    href={targetHref}*/}
-                    {/*    className="min-w-[50%] md:min-w-[25%] snap-start aspect-[3/4] flex flex-col items-center justify-center bg-white group border-l border-gray-100"*/}
-                    {/*>*/}
-                    {/*    <span className="text-[9px] tracking-[0.3em] uppercase text-gray-400 group-hover:text-black transition-colors">Explore All</span>*/}
-                    {/*    <div className="mt-2 w-8 h-[1px] bg-gray-200 group-hover:w-12 group-hover:bg-black transition-all"></div>*/}
-                    {/*</LocalizedClientLink>*/}
+                    <LocalizedClientLink
+                        href={targetHref}
+                        className="min-w-[50%] md:min-w-[25%] snap-start aspect-[3/4] flex flex-col items-center justify-center bg-white group border-l border-gray-100"
+                    >
+                        <span className="text-[9px] tracking-[0.3em] uppercase text-gray-400 group-hover:text-black transition-colors">Explore All</span>
+                        <div className="mt-2 w-8 h-[1px] bg-gray-200 group-hover:w-12 group-hover:bg-black transition-all"></div>
+                    </LocalizedClientLink>
                 </div>
             </div>
         </section>

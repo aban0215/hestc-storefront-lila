@@ -89,10 +89,6 @@ export default async function Home(props: Props) {
         <div className="min-h-screen">
           <HeroSection />
           <div className="py-8 md:py-16">
-            <div className="px-4 mb-8 text-center">
-              <h2 className="text-xl md:text-2xl font-bold uppercase tracking-[0.2em]">Our Favorites</h2>
-              <p className="text-gray-400 text-xs mt-2">Designed for movement, styled for life.</p>
-            </div>
             <BestSellers regionId={region.id} />
           </div>
           <CategoryShowcase />

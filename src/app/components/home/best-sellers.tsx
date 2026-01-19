@@ -47,8 +47,8 @@ export default async function BestSellers({ regionId }: BestSellersProps) {
 
     return (
         <section className="bg-white">
-            {/* 1. 标题区域 - 显著缩小，增加高级感 */}
-            <div className="w-full pt-12 pb-8 px-4 flex flex-col items-center justify-center text-center">
+            {/* 1. 标题区域 */}
+            <div className="w-full pt-12 pb-8 px-4 text-center">
                 <h2 className="text-[14px] md:text-[16px] font-bold text-gray-900 tracking-[0.3em] uppercase">
                     {bestSellerConfig.title}
                 </h2>
@@ -59,16 +59,17 @@ export default async function BestSellers({ regionId }: BestSellersProps) {
                 )}
             </div>
 
-            {/* 2. 商品瀑布流区域 - 2列布局 */}
-            <div className="container mx-auto px-4">
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-2 gap-y-10">
+            {/* 2. 商品瀑布流区域 - 修改点：去掉 px-4，gap 设为 1px 或 0 */}
+            <div className="w-full"> {/* 去掉了 container mx-auto px-4，实现全宽 */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-[1px] bg-gray-100 border-y border-gray-100">
+                    {/* 用 bg-gray-100 加 gap-[1px] 可以制造出非常高级的细线分割感 */}
                     {productsToShow.map((product) => (
                         <LocalizedClientLink
                             href={`/products/${product.handle}`}
                             key={product.handle}
-                            className="group flex flex-col"
+                            className="group flex flex-col bg-white"
                         >
-                            <div className="aspect-[3/4] overflow-hidden bg-gray-50 relative">
+                            <div className="aspect-[3/4] overflow-hidden relative">
                                 {product.thumbnail ? (
                                     <img
                                         src={product.thumbnail}
@@ -84,12 +85,12 @@ export default async function BestSellers({ regionId }: BestSellersProps) {
                                 )}
                             </div>
 
-                            {/* 文字信息 */}
-                            <div className="mt-4 flex flex-col items-center text-center">
-                                <h3 className="text-[11px] font-medium text-gray-900 tracking-wide uppercase truncate w-full">
+                            {/* 文字信息：为了高级感，在铺满图中建议增加一些内边距 */}
+                            <div className="py-6 px-2 flex flex-col items-center text-center">
+                                <h3 className="text-[11px] font-medium text-gray-900 tracking-wide uppercase truncate w-full px-2">
                                     {product.title}
                                 </h3>
-                                <p className="mt-1 text-[10px] text-gray-400 tracking-widest">
+                                <p className="mt-1 text-[10px] text-gray-400 tracking-widest font-light">
                                     {product.price}
                                 </p>
                             </div>
@@ -98,13 +99,13 @@ export default async function BestSellers({ regionId }: BestSellersProps) {
                 </div>
             </div>
 
-            {/* 3. 查看全部 - 移到底部，作为瀑布流的收尾 */}
+            {/* 3. 查看全部 */}
             <div className="py-16 flex justify-center">
                 <LocalizedClientLink
                     href={targetHref}
-                    className="inline-block px-12 py-3 border border-black text-black text-[10px] font-bold tracking-[0.2em] hover:bg-black hover:text-white transition-all duration-300 uppercase"
+                    className="text-[10px] font-bold tracking-[0.2em] border-b border-black pb-1 hover:text-gray-400 hover:border-gray-400 transition-all uppercase"
                 >
-                    {bestSellerConfig.buttonText || "Shop All"}
+                    {bestSellerConfig.buttonText || "Shop Collection"}
                 </LocalizedClientLink>
             </div>
         </section>

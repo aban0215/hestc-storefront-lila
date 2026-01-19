@@ -47,22 +47,32 @@ export default function NavLinks({ menuTree }: { menuTree: any[] }) {
             </div>
 
             {/* --- 全屏滑出面板 --- */}
+            {/* --- 全屏滑出面板 --- */}
             <div
-                className={`absolute top-full left-1/2 -translate-x-1/2 w-screen bg-white border-b border-gray-100 shadow-[0_20px_40px_rgba(0,0,0,0.05)] transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] z-[120] overflow-hidden ${
+                className={`fixed left-0 right-0 w-full bg-white border-b border-gray-100 shadow-[0_20px_40px_rgba(0,0,0,0.05)] transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] z-[120] overflow-hidden ${
                     activeId ? "max-h-[600px] opacity-100 visible" : "max-h-0 opacity-0 invisible"
                 }`}
+                style={{
+                    /* 关键点：top 必须等于 Nav 的总高度。
+                       第一行 90px + 第二行 50px = 140px
+                    */
+                    top: "140px"
+                }}
             >
-                <div className="content-container mx-auto py-12 px-8">
+                {/* 鼠标移入面板也要保持 activeId，防止闪退 */}
+                <div
+                    className="content-container mx-auto py-12 px-8"
+                    onMouseEnter={() => setActiveId(activeId)}
+                >
                     {menuTree.map((item) => (
                         <div
                             key={item.id}
                             className={`grid grid-cols-5 gap-x-12 gap-y-10 transition-all duration-500 ${
-                                activeId === item.id ? "translate-y-0 opacity-100 block" : "translate-y-4 opacity-0 hidden"
+                                activeId === item.id ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0 hidden"
                             }`}
                         >
                             {item.children?.map((child: any) => (
                                 <div key={child.id} className="flex flex-col">
-                                    {/* 二级菜单：作为小标题 */}
                                     <LocalizedClientLink
                                         href={getMenuHref(child.link_type, child.slug)}
                                         className="text-[12px] tracking-[0.2em] text-gray-900 uppercase font-bold mb-4 hover:text-pink-600 transition-colors"
@@ -71,7 +81,6 @@ export default function NavLinks({ menuTree }: { menuTree: any[] }) {
                                         {child.title}
                                     </LocalizedClientLink>
 
-                                    {/* 三级菜单：垂直列表 */}
                                     <div className="flex flex-col gap-y-3 border-l border-gray-50 pl-4">
                                         {child.children?.length > 0 ? (
                                             child.children.map((grandChild: any) => (
@@ -85,7 +94,6 @@ export default function NavLinks({ menuTree }: { menuTree: any[] }) {
                                                 </LocalizedClientLink>
                                             ))
                                         ) : (
-                                            /* 如果没有三级菜单，可以留空或显示查看全部 */
                                             <LocalizedClientLink
                                                 href={getMenuHref(child.link_type, child.slug)}
                                                 className="text-[10px] tracking-[0.1em] text-gray-300 hover:text-pink-400 uppercase italic"
@@ -100,16 +108,15 @@ export default function NavLinks({ menuTree }: { menuTree: any[] }) {
                         </div>
                     ))}
                 </div>
-
-                {/* 面板底部装饰条 */}
                 <div className="h-6 bg-gray-50/50 w-full" />
             </div>
 
-            {/* 遮罩层：当菜单打开时，给页面下方加个半透明蒙层，增加视觉聚焦度 */}
+            {/* 遮罩层：top 也要同步 */}
             <div
-                className={`fixed inset-0 top-[140px] bg-black/10 backdrop-blur-[2px] transition-opacity duration-500 z-[110] pointer-events-none ${
+                className={`fixed inset-0 bg-black/10 backdrop-blur-[2px] transition-opacity duration-500 z-[110] pointer-events-none ${
                     activeId ? "opacity-100" : "opacity-0"
                 }`}
+                style={{ top: "140px" }}
             />
         </div>
     )

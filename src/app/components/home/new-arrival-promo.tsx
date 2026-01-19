@@ -1,32 +1,35 @@
 import { getNewArrivalPromo } from '../../../lib/strapi/home-data'
-import { getProductsByCollectionHandle } from '../../../lib/medusa/products'
+import { listProductsWithSort } from "@lib/data/products" // 引入列表页同款方法
 import { getRegion } from "@lib/data/regions"
 import LocalizedClientLink from '@modules/common/components/localized-client-link'
 import { getSelectedLocale } from "@lib/data/locales"
-import NewArrivalCarousel from "../components/new-arrival-carousel"
+import NewArrivalCarousel from "./new-arrival-carousel";
 
 export default async function NewArrivalPromo() {
     const localecode = (await getSelectedLocale()) || 'en-US'
     const newArrivalData = await getNewArrivalPromo(localecode)
-    const region = await getRegion("us")
+    const countryCode = "us" // 建议根据实际环境获取
+    const region = await getRegion(countryCode)
 
     if (!newArrivalData || !region) return null
 
-    // 抓取 Medusa 商品
-    const collectionProducts = await getProductsByCollectionHandle(
-        newArrivalData.medusaHandle || "",
-        region.id,
-        region.currency_code,
-        20 // 增加抓取量，确保排序后有足够商品显示
-    )
+    // --- 核心修改：使用列表页同款逻辑查询 ---
+    // 构造和 PaginatedProducts 一致的查询参数
+    const queryParams = {
+        limit: 10, // 首页取 10 个够用了
+        collection_id: [newArrivalData.medusaHandle].filter(Boolean),
+        // 关键点：使用 created_at 降序排序，让后加的商品排在最前
+        order: "-created_at"
+    }
 
-    /**
-     * 顺序纠正说明：
-     * 假设列表页顺序是：A, B, C, D, E ... (A是最新的)
-     * 如果你首页显示的是 ... X, Y, Z (最后的几个)
-     * 那么使用 .reverse() 将数组翻转，再用 .slice(0, 10) 截取前 10 个即可对齐列表页首部
-     */
-    const displayProducts = [...collectionProducts].reverse().slice(0, 10)
+    const {
+        response: { products },
+    } = await listProductsWithSort({
+        page: 1,
+        queryParams,
+        sortBy: "created_at", // 对应列表页逻辑
+        countryCode,
+    })
 
     const getHref = () => {
         const handle = newArrivalData.medusaHandle
@@ -35,12 +38,13 @@ export default async function NewArrivalPromo() {
             case 'category': return `/categories/${handle}`
             case 'collection': return `/collections/${handle}`
             case 'product': return `/products/${handle}`
-            case 'external': return handle;
+            case 'external': return handle
             default: return "/"
         }
     }
 
     const targetHref = getHref()
+    // ... 媒体逻辑 (Media Logic) 保持不变 ...
     const desktopMedia = newArrivalData.backgroundImage
     const mobileMedia = newArrivalData.mobileImage || desktopMedia
     const isDesktopVideo = desktopMedia?.mime?.includes('video')
@@ -54,7 +58,7 @@ export default async function NewArrivalPromo() {
                     {newArrivalData.title}
                 </h2>
                 {newArrivalData.subtitle && (
-                    <p className="mt-2 text-[10px] text-gray-400 font-light tracking-[0.15em] uppercase">
+                    <p className="mt-2 text-[10px] text-gray-400 font-light tracking-[0.15em] uppercase text-gray-400">
                         {newArrivalData.subtitle}
                     </p>
                 )}
@@ -67,29 +71,31 @@ export default async function NewArrivalPromo() {
                         {isMobileVideo ? (
                             <video src={mobileMedia?.url} autoPlay muted loop playsInline className="w-full h-full object-cover" />
                         ) : (
-                            mobileMedia?.url && <img src={mobileMedia.url} alt="" className="w-full h-full object-cover transition-transform duration-[2000ms] group-hover:scale-105" />
+                            mobileMedia?.url && <img src={mobileMedia.url} alt="" className="w-full h-full object-cover" />
                         )}
                     </div>
                     <div className="hidden md:block h-full w-full">
                         {isDesktopVideo ? (
                             <video src={desktopMedia?.url} autoPlay muted loop playsInline className="w-full h-full object-cover" />
                         ) : (
-                            desktopMedia?.url && <img src={desktopMedia.url} alt="" className="w-full h-full object-cover transition-transform duration-[2000ms] group-hover:scale-105" />
+                            desktopMedia?.url && <img src={desktopMedia.url} alt="" className="w-full h-full object-cover" />
                         )}
                     </div>
-                    <div className="absolute inset-0 bg-black/10 group-hover:bg-black/20 transition-colors duration-500" />
+                    <div className="absolute inset-0 bg-black/10 group-hover:bg-black/20 transition-colors" />
                 </div>
                 <div className="relative h-full flex items-end justify-center pb-12">
                     <LocalizedClientLink
                         href={targetHref}
-                        className="inline-block px-10 py-3 border border-white text-white text-[10px] font-bold tracking-[0.2em] uppercase backdrop-blur-sm hover:bg-white hover:text-black transition-all duration-300"
+                        className="px-10 py-3 border border-white text-white text-[10px] font-bold tracking-[0.2em] uppercase backdrop-blur-sm hover:bg-white hover:text-black transition-all"
                     >
                         {newArrivalData.buttonText || "Shop Collection"}
                     </LocalizedClientLink>
                 </div>
             </div>
 
-            <NewArrivalCarousel products={displayProducts} targetHref={targetHref} />
+            {/* 3. 调用客户端滑动组件 */}
+            {/* 这里的 products 已经是处理好排序的 Medusa 原始数据对象数组 */}
+            <NewArrivalCarousel products={products} targetHref={targetHref} />
         </section>
     )
 }

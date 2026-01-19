@@ -206,7 +206,6 @@ export async function getProductsByCollectionHandle(
         const collectionId = collectionRes.collections?.[0]?.id
         if (!collectionId) return []
 
-        // 2. 根据 collection_id 查商品
         const response = await sdk.client.fetch<{ products: HttpTypes.StoreProduct[] }>(
             `/store/products`,
             {
@@ -222,7 +221,6 @@ export async function getProductsByCollectionHandle(
             }
         )
 
-        // 3. 转换成简化格式（复用你现有的逻辑）
         return response.products.map(product => ({
             handle: product.handle!,
             title: product.title!,

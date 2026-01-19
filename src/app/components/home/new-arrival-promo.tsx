@@ -17,16 +17,9 @@ export default async function NewArrivalPromo() {
         newArrivalData.medusaHandle || "",
         region.id,
         region.currency_code,
-        20 // 增加抓取量，确保排序后有足够商品显示
+        20
     )
 
-    /**
-     * 顺序纠正说明：
-     * 假设列表页顺序是：A, B, C, D, E ... (A是最新的)
-     * 如果你首页显示的是 ... X, Y, Z (最后的几个)
-     * 那么使用 .reverse() 将数组翻转，再用 .slice(0, 10) 截取前 10 个即可对齐列表页首部
-     */
-    const displayProducts = [...collectionProducts].reverse().slice(0, 10)
 
     const getHref = () => {
         const handle = newArrivalData.medusaHandle
@@ -89,7 +82,7 @@ export default async function NewArrivalPromo() {
                 </div>
             </div>
 
-            <NewArrivalCarousel products={displayProducts} targetHref={targetHref} />
+            <NewArrivalCarousel products={collectionProducts} targetHref={targetHref} />
         </section>
     )
 }

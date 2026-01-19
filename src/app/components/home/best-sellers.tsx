@@ -4,6 +4,7 @@ import { getProductsByCollectionHandle, getProductsByCategoryHandle } from '../.
 import { getRegion } from "@lib/data/regions"
 import { getSelectedLocale } from "@lib/data/locales";
 import ProductCarousel from "./product-carousel"
+import LocalizedClientLink from "@modules/common/components/localized-client-link";
 
 export default async function BestSellers({ regionId }: { regionId: string }) {
     const localecode = (await getSelectedLocale()) || 'en-US';

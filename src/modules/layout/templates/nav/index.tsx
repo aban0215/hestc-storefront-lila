@@ -74,9 +74,9 @@ export default async function Nav() {
             {/* --- 第一行：[Logo] -- [Search] -- [Icons] --- */}
             <div className="flex items-center h-[60px] lg:h-[90px]">
 
-              {/* 左侧：移动端菜单图标 & PC端 Logo */}
-              <div className="flex items-center pr-6 lg:pr-12">
-                <div className="lg:hidden">
+              {/* 左侧：Logo 区域 - PC端给定固定宽度，确保后面搜索框的起点统一 */}
+              <div className="flex items-center lg:w-[240px] xl:w-[280px]">
+                <div className="lg:hidden pr-4">
                   <MobileMenu
                       menuTree={menuTree}
                       brandData={brandData}
@@ -96,15 +96,14 @@ export default async function Nav() {
                 <div className="lg:hidden absolute left-1/2 -translate-x-1/2">
                   <Logo logoUrl={logoUrl} sitename={brandData?.sitename} />
                 </div>
-                {/* PC端 搜索框 (真实搜索组件) */}
+                {/* PC端 搜索框 - 移除左间距，直接顶着 Logo 容器边缘 */}
                 <div className="hidden lg:block w-full max-w-[800px]">
                   <SearchModal />
                 </div>
               </div>
 
-              {/* 右侧：功能图标 */}
-              <div className="flex items-center gap-x-2 lg:gap-x-5 pl-6 lg:pl-12">
-                {/* PC端：国家/语言 偏好设置 */}
+              {/* 右侧：功能图标 - 保持原样 */}
+              <div className="flex items-center gap-x-2 lg:gap-x-5 justify-end lg:w-[240px] xl:w-[280px]">
                 <div className="hidden lg:block">
                   <DesktopPreferences
                       regions={regions}
@@ -112,33 +111,32 @@ export default async function Nav() {
                       currentLocale={currentLocale}
                   />
                 </div>
-
-                {/* 用户账户 */}
                 <LocalizedClientLink
                     href="/account"
                     className="text-gray-700 hover:text-black w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-50 transition-all"
                 >
                   <User size={22} />
                 </LocalizedClientLink>
-
-                {/* 购物车 */}
                 <Suspense fallback={<div className="w-9 h-9" />}>
                   <CartButton />
                 </Suspense>
               </div>
             </div>
 
-            {/* --- 第二行：移动端搜索框 / PC端 联动菜单 --- */}
-            <div className="flex justify-center items-center pb-4 lg:pb-0 lg:h-[50px] lg:border-t lg:border-gray-50">
+            {/* --- 第二行：PC端 联动菜单 --- */}
+            <div className="flex pb-4 lg:pb-0 lg:h-[50px] lg:border-t lg:border-gray-50">
 
               {/* 移动端：显示搜索框 */}
               <div className="w-full lg:hidden">
                 <SearchModal />
               </div>
 
-              {/* PC端：这里必须调用 NavLinks 组件，才能触发滑出面板 */}
-              <NavLinks menuTree={menuTree} />
+              {/* PC端对齐逻辑：左边放一个和 Logo 等宽的占位块，确保菜单起点和搜索框一致 */}
+              <div className="hidden lg:block lg:w-[240px] xl:w-[280px] shrink-0" />
 
+              <div className="hidden lg:flex flex-1 items-center">
+                <NavLinks menuTree={menuTree} />
+              </div>
             </div>
 
           </nav>
@@ -146,6 +144,7 @@ export default async function Nav() {
       </div>
   )
 }
+
 
 function Logo({ logoUrl, sitename }: { logoUrl: string | null, sitename?: string }) {
   return (

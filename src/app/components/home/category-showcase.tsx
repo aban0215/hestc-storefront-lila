@@ -34,6 +34,7 @@ export default async function CategoryShowcase() {
 
             {/* 2. 展示区域：移动端 1 列，PC 端 2 列 */}
             {/* 修改点：使用 grid 布局，gap-[2px] 保持精致分割线 */}
+            {/* 2. 展示区域：移动端 1 列，PC 端 2 列 */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-[2px] bg-gray-100 border-y border-gray-100">
                 {sectionData.featuredCategories.map((category) => {
                     const itemHref = getCategoryHref(category);
@@ -45,8 +46,8 @@ export default async function CategoryShowcase() {
                         <LocalizedClientLink
                             key={category.id}
                             href={itemHref}
-                            // 修改点：PC 端高度稍微压低一点（50vh），防止并排时占满整个首屏
-                            className="relative w-full h-[45vh] md:h-[50vh] group overflow-hidden bg-gray-200"
+                            // --- 修改高度：移动端 60vh, PC 端 75vh ---
+                            className="relative w-full h-[60vh] md:h-[75vh] group overflow-hidden bg-gray-200"
                         >
                             {/* 背景媒体层 */}
                             <div className="absolute inset-0">
@@ -65,29 +66,29 @@ export default async function CategoryShowcase() {
                                         />
                                     )
                                 )}
-                                {/* 遮罩层：PC 端悬浮时稍微加深，增加沉浸感 */}
+                                {/* 遮罩层 */}
                                 <div className="absolute inset-0 bg-black/25 group-hover:bg-black/40 transition-colors duration-500" />
                             </div>
 
                             {/* 文字叠加层 */}
                             <div className="relative h-full flex flex-col items-center justify-center text-white p-8 text-center">
-                                {/* 装饰小字（可选，增加大牌感） */}
-                                <span className="text-[10px] tracking-[0.4em] uppercase mb-3 opacity-0 group-hover:opacity-100 transition-all duration-700 translate-y-4 group-hover:translate-y-0">
+                                {/* 顶部装饰小字 */}
+                                <span className="text-[10px] tracking-[0.4em] uppercase mb-4 opacity-0 group-hover:opacity-100 transition-all duration-700 translate-y-4 group-hover:translate-y-0">
                                     Discover
                                 </span>
 
-                                <h3 className="text-[22px] md:text-[28px] font-bold tracking-[0.2em] uppercase drop-shadow-md transition-transform duration-700 group-hover:-translate-y-2">
+                                <h3 className="text-[26px] md:text-[36px] font-bold tracking-[0.25em] uppercase drop-shadow-md transition-transform duration-700 group-hover:-translate-y-2">
                                     {category.name}
                                 </h3>
 
                                 {category.description && (
-                                    <p className="mt-4 text-[11px] md:text-[12px] tracking-[0.1em] font-light max-w-[85%] opacity-80 line-clamp-2">
+                                    <p className="mt-6 text-[12px] md:text-[14px] tracking-[0.1em] font-light max-w-[85%] opacity-80 line-clamp-2 leading-relaxed">
                                         {category.description}
                                     </p>
                                 )}
 
                                 {/* 底部装饰线 */}
-                                <div className="mt-6 w-0 h-[1px] bg-white transition-all duration-700 group-hover:w-12"></div>
+                                <div className="mt-8 w-0 h-[1px] bg-white transition-all duration-700 group-hover:w-16"></div>
                             </div>
                         </LocalizedClientLink>
                     )

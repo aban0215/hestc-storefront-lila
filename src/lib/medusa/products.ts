@@ -177,3 +177,61 @@ export async function getSimplifiedProducts(
         }))
     }
 }
+
+
+/**
+ * 根据 Collection Handle 获取该系列下的商品
+ */
+export async function getProductsByCollectionHandle(
+    collectionHandle: string,
+    regionId: string,
+    currencyCode: string,
+    limit: number = 6
+): Promise<SimplifiedProduct[]> {
+    try {
+        const headers = { ...(await getAuthHeaders()) };
+        const next = { ...(await getCacheOptions("products")) };
+
+        // 1. 先查出 collection 的真实 ID (Medusa 过滤通常用 collection_id)
+        const collectionRes = await sdk.client.fetch<{ collections: any[] }>(
+            `/store/collections`,
+            {
+                method: "GET",
+                query: { handle: collectionHandle.replace(/^\//, ''), limit: 1 },
+                headers,
+                next,
+            }
+        )
+
+        const collectionId = collectionRes.collections?.[0]?.id
+        if (!collectionId) return []
+
+        // 2. 根据 collection_id 查商品
+        const response = await sdk.client.fetch<{ products: HttpTypes.StoreProduct[] }>(
+            `/store/products`,
+            {
+                method: "GET",
+                query: {
+                    collection_id: [collectionId],
+                    region_id: regionId,
+                    limit: limit,
+                    fields: "*variants.calculated_price,+variants.inventory_quantity,*variants.images",
+                },
+                headers,
+                next,
+            }
+        )
+
+        // 3. 转换成简化格式（复用你现有的逻辑）
+        return response.products.map(product => ({
+            handle: product.handle!,
+            title: product.title!,
+            thumbnail: getProductThumbnail(product),
+            price: getProductPrice(product, currencyCode),
+            originalHandle: product.handle!
+        }))
+    } catch (error) {
+        console.error(`获取 Collection 商品失败:`, error)
+        return []
+    }
+}

@@ -50,37 +50,41 @@ export default function ProductCarousel({ products, targetHref, title }) {
             </div>
 
             {/* 移动端：瀑布流 + 底部 View All */}
-            {/* 2. 移动端布局: 2列网格 */}
             <div className="lg:hidden flex flex-col">
                 <div className="grid grid-cols-2 gap-[1px] bg-gray-100 border-y border-gray-100">
-                    {/* 只显示前 5 个商品 */}
-                    {products.slice(0, 5).map((product) => (
+                    {/* 满打满算显示 6 个商品，保持 3 排整齐 */}
+                    {products.slice(0, 6).map((product) => (
                         <LocalizedClientLink href={`/products/${product.handle}`} key={product.handle} className="bg-white">
                             <div className="aspect-[3/4] overflow-hidden">
                                 <img src={product.thumbnail} className="w-full h-full object-cover" alt={product.title} />
                             </div>
-                            <div className="py-4 px-2 text-center">
-                                <h3 className="text-[10px] font-medium uppercase truncate">{product.title}</h3>
-                                <p className="text-[9px] text-gray-400 mt-1">{product.price}</p>
+                            <div className="py-4 px-2 text-center border-t border-gray-50/50">
+                                <h3 className="text-[10px] font-medium uppercase truncate text-gray-900">{product.title}</h3>
+                                <p className="text-[9px] text-gray-400 mt-1 font-light tracking-widest">{product.price}</p>
                             </div>
                         </LocalizedClientLink>
                     ))}
+                </div>
 
-                    {/* 第 6 个格子：View All 引导块 */}
+                {/* 优化点：右下角轻量化入口 */}
+                <div className="w-full flex justify-end px-4 py-6">
                     <LocalizedClientLink
                         href={targetHref}
-                        className="bg-white flex flex-col items-center justify-center aspect-[3/4] group active:bg-gray-50 transition-colors"
+                        className="flex items-center gap-x-2 group"
                     >
-                        <div className="flex flex-col items-center gap-2">
-        <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-gray-900">
-          View All
-        </span>
-                            {/* 一个精致的小箭头或者装饰线 */}
-                            <div className="w-6 h-[1px] bg-gray-200 group-active:w-10 group-active:bg-black transition-all duration-300"></div>
-                            <span className="text-[9px] text-gray-400 uppercase tracking-widest mt-1">
-          {title}
-        </span>
-                        </div>
+      <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-gray-900 border-b border-black pb-0.5 group-active:text-gray-400 group-active:border-gray-400 transition-all">
+        View All {title}
+      </span>
+                        <svg
+                            width="14" height="14"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="1.5"
+                            className="text-gray-900 group-active:text-gray-400 transition-all"
+                        >
+                            <path d="M9 18l6-6-6-6" />
+                        </svg>
                     </LocalizedClientLink>
                 </div>
             </div>

@@ -22,74 +22,74 @@ export default async function BlogShowcase() {
     const isVideo = media?.mime?.includes('video');
 
     return (
-        <section className="bg-white pt-24 pb-20 border-t border-gray-50">
-            {/* 1. 顶部标题 - 极致缩小对齐全站 */}
-            <div className="w-full mb-16 px-4 text-center">
-                <h2 className="text-[14px] md:text-[16px] font-bold text-gray-900 tracking-[0.4em] uppercase">
+        // 1. 缩减模块顶部边距，从 pt-24 减到 pt-12
+        <section className="bg-white pt-12 pb-16 border-t border-gray-50">
+
+            {/* 2. 标题区域：缩减 mb-16 到 mb-8，让它紧贴图片 */}
+            <div className="w-full mb-8 px-4 text-center">
+                <h2 className="text-[13px] md:text-[15px] font-bold text-gray-900 tracking-[0.3em] uppercase">
                     {settings.moduleTitle}
                 </h2>
-                <div className="mt-4 h-[1px] w-8 bg-gray-200 mx-auto"></div>
+                {/* 装饰线也缩短间距 */}
+                <div className="mt-3 h-[1px] w-6 bg-gray-200 mx-auto"></div>
             </div>
 
-            {/* 2. 杂志感主体区域 */}
-            <div className="container mx-auto px-6 max-w-5xl">
+            {/* 3. 核心区域 */}
+            <div className="container mx-auto px-4 max-w-5xl">
                 <LocalizedClientLink href={targetHref} className="group block">
-                    {/* 图片容器 - 比例调整为更具电影感的 16:9 或 3:2 */}
-                    <div className="relative aspect-video md:aspect-[21/9] overflow-hidden bg-gray-50">
+                    {/* 调整媒体比例为 3:2，在手机上更紧凑 */}
+                    <div className="relative aspect-[3/2] md:aspect-[21/9] overflow-hidden bg-gray-50">
                         {mediaUrl && (
                             isVideo ? (
-                                <video src={mediaUrl} autoPlay muted loop playsInline className="w-full h-full object-cover transition-transform duration-[2000ms] group-hover:scale-105" />
+                                <video src={mediaUrl} autoPlay muted loop playsInline className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
                             ) : (
-                                <img src={mediaUrl} alt={blogPost.title} className="w-full h-full object-cover transition-transform duration-[2000ms] group-hover:scale-105" />
+                                <img src={mediaUrl} alt={blogPost.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
                             )
                         )}
                     </div>
 
-                    {/* 3. 文字内容 - 纯白背景上的排版 */}
-                    <div className="mt-10 flex flex-col items-center text-center">
-                        {/* 标签与日期 */}
-                        <div className="flex items-center gap-4 text-[9px] tracking-[0.2em] text-gray-400 uppercase mb-6">
+                    {/* 4. 文字与按钮区域：全面紧缩 */}
+                    <div className="mt-6 flex flex-col items-center text-center">
+                        {/* 标签与日期：缩减 mb-6 到 mb-3 */}
+                        <div className="flex items-center gap-3 text-[9px] tracking-[0.1em] text-gray-400 uppercase mb-3">
                             {(settings.showCategory && blogPost.lila_blog_category) && (
                                 <span className="text-gray-900 font-bold">{blogPost.lila_blog_category.name}</span>
                             )}
-                            {settings.showPublishDate && (
-                                <span className="w-1 h-1 bg-gray-200 rounded-full"></span>
-                            )}
-                            {settings.showPublishDate && (
-                                <span>{formatDate(blogPost.publishedAt, localecode)}</span>
-                            )}
+                            <span className="w-1 h-1 bg-gray-200 rounded-full"></span>
+                            <span>{formatDate(blogPost.publishedAt, localecode)}</span>
                         </div>
 
-                        {/* 文章标题 - 从 3xl 降为 2xl，增加质感 */}
-                        <h3 className="text-xl md:text-3xl font-medium text-gray-900 mb-6 tracking-tight leading-relaxed max-w-3xl">
+                        {/* 标题：缩减 mb-6 到 mb-3 */}
+                        <h3 className="text-lg md:text-2xl font-medium text-gray-900 mb-3 tracking-tight leading-snug max-w-2xl px-4">
                             {blogPost.title}
                         </h3>
 
-                        {/* 摘要 - 增加行高和字间距 */}
-                        <p className="text-gray-500 text-xs md:text-sm leading-8 max-w-2xl font-light tracking-wide mb-10">
+                        {/* 摘要：缩减 mb-10 到 mb-6，行高从 8 改为 6 */}
+                        <p className="text-gray-500 text-[11px] md:text-sm leading-6 max-w-xl font-light tracking-wide mb-6 line-clamp-2">
                             {blogPost.excerpt}
                         </p>
 
-                        {/* 按钮 - 极细线设计 */}
-                        <div className="inline-block border-b border-black pb-1 text-[10px] font-bold tracking-[0.2em] uppercase transition-all group-hover:text-gray-400 group-hover:border-gray-400">
-                            {settings.readButtonText || 'Read Article'}
+                        {/* 5. 按钮重组：将两个链接放在同一排或紧凑排列 */}
+                        <div className="flex flex-col items-center gap-6">
+                            <div className="inline-block border-b border-black pb-1 text-[10px] font-bold tracking-[0.2em] uppercase transition-all group-hover:text-gray-400 group-hover:border-gray-400">
+                                {settings.readButtonText || 'Read More'}
+                            </div>
+
+                            {/* “查看全部”紧跟其后，减少间距 */}
+                            <LocalizedClientLink
+                                href="/blog"
+                                className="text-[9px] tracking-[0.2em] text-gray-300 uppercase hover:text-black transition-colors"
+                            >
+                                — {settings.viewAllButtonText || 'All Stories'} —
+                            </LocalizedClientLink>
                         </div>
                     </div>
                 </LocalizedClientLink>
-
-                {/* 4. 底部的 View All */}
-                <div className="mt-20 flex justify-center">
-                    <LocalizedClientLink
-                        href="/blog"
-                        className="text-[9px] tracking-[0.3em] text-gray-300 uppercase hover:text-black transition-colors"
-                    >
-                        {settings.viewAllButtonText || 'Discover All Stories'}
-                    </LocalizedClientLink>
-                </div>
             </div>
         </section>
     )
 }
+
 
 function formatDate(dateString: string, locale: string): string {
     try {

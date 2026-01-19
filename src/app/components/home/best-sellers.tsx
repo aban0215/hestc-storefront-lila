@@ -1,60 +1,57 @@
+// BestSellers/index.tsx
 import { getBestSellerConfig } from '../../../lib/strapi/home-data'
-import { getSimplifiedProducts } from '../../../lib/medusa/products'
-import LocalizedClientLink from '@modules/common/components/localized-client-link'
+import { getProductsByCollectionHandle, getProductsByCategoryHandle } from '../../../lib/medusa/products'
+import { getRegion } from "@lib/data/regions"
 import { getSelectedLocale } from "@lib/data/locales";
-import { sdk } from "@lib/config"
-import ProductCarousel from "./product-carousel";
+import ProductCarousel from "./product-carousel"
 
-async function getCurrencyCodeFromRegion(regionId: string) {
-    const { region } = await sdk.store.region.retrieve(regionId)
-    return region.currency_code
-}
-
-interface BestSellersProps {
-    regionId: string;
-}
-
-export default async function BestSellers({ regionId }: BestSellersProps) {
-    const currencycode = await getCurrencyCodeFromRegion(regionId);
+export default async function BestSellers({ regionId }: { regionId: string }) {
     const localecode = (await getSelectedLocale()) || 'en-US';
-    const bestSellerConfig = await getBestSellerConfig(localecode ?? '')
+    const bestSellerConfig = await getBestSellerConfig(localecode)
 
-    if (!bestSellerConfig) return null;
+    // 1. 获取 Region 和 货币信息
+    const region = await getRegion("us") // 建议根据实际情况获取
+    if (!bestSellerConfig || !region) return null;
 
-    const getHref = () => {
-        const handle = bestSellerConfig.medusaHandle;
-        if (!handle) return "/";
-        switch (bestSellerConfig.linkType) {
-            case 'category': return `/categories/${handle}`;
-            case 'collection': return `/collections/${handle}`;
-            case 'product': return `/products/${handle}`;
-            case 'external': return handle;
-            default: return "/";
+    const handle = bestSellerConfig.medusaHandle;
+    const type = bestSellerConfig.linkType; // 'collection' 或 'category'
+
+    // 2. 核心逻辑：直接从 Medusa 抓取该分类/系列下的前 15 个商品
+    let products = [];
+    try {
+        if (type === 'collection') {
+            products = await getProductsByCollectionHandle(
+                handle,
+                region.id,
+                region.currency_code,
+                15 // 抓 15 个给 PC 端滑动
+            )
+        } else {
+            products = await getProductsByCategoryHandle(
+                handle,
+                region.id,
+                region.currency_code,
+                15
+            )
         }
+    } catch (e) {
+        console.error("Medusa fetch error:", e)
+    }
+
+    if (!products.length) return null;
+
+    // 3. 构建跳转链接
+    const getHref = () => {
+        if (!handle) return "/";
+        return type === 'collection' ? `/collections/${handle}` : `/categories/${handle}`;
     };
-
     const targetHref = getHref();
-    const productHandles = bestSellerConfig.products.map(p => p.producthandle)
-    const products = await getSimplifiedProducts(productHandles, regionId, currencycode)
-
-    const sortedProducts = [...products].sort((a, b) => {
-        const aIndex = bestSellerConfig.products.findIndex(p => p.producthandle === a.originalHandle)
-        const bIndex = bestSellerConfig.products.findIndex(p => p.producthandle === b.originalHandle)
-        return aIndex - bIndex
-    })
-
-    // 控制首页瀑布流显示的数量，建议 4 或 6 个
-    const productsToShow = sortedProducts.slice(0, bestSellerConfig.displayCount || 4)
-
-    const productsForCarousel = sortedProducts.slice(0, 15)
 
     return (
         <section className="bg-white pt-10">
-            {/* 1. 标题区域：PC端增加 View All 链接 */}
-            <div className="w-full pb-8 px-4 lg:px-8 flex items-end justify-between">
-                {/* 占位，保持标题居中效果或靠左展示 */}
+            {/* 1. 标题区域 */}
+            <div className="w-full pb-8 px-4 lg:px-10 flex items-end justify-between">
                 <div className="hidden lg:block w-32"></div>
-
                 <div className="text-center">
                     <h2 className="text-[14px] md:text-[16px] font-bold text-gray-900 tracking-[0.3em] uppercase">
                         {bestSellerConfig.title}
@@ -65,8 +62,6 @@ export default async function BestSellers({ regionId }: BestSellersProps) {
                         </p>
                     )}
                 </div>
-
-                {/* PC端标题行右侧 View All */}
                 <div className="hidden lg:flex w-32 justify-end">
                     <LocalizedClientLink
                         href={targetHref}
@@ -77,9 +72,9 @@ export default async function BestSellers({ regionId }: BestSellersProps) {
                 </div>
             </div>
 
-            {/* 2. 交互展示区域 */}
+            {/* 2. 调用客户端展示组件 */}
             <ProductCarousel
-                products={productsForCarousel}
+                products={products}
                 targetHref={targetHref}
                 title={bestSellerConfig.title}
             />

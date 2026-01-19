@@ -23,7 +23,7 @@ export default async function BlogShowcase() {
 
     return (
         // 1. 缩减模块顶部边距，从 pt-24 减到 pt-12
-        <section className="bg-white pt-12 pb-16 border-t border-gray-50">
+        <section className="bg-white pt-2 pb-16 border-t border-gray-50">
 
             {/* 2. 标题区域：缩减 mb-16 到 mb-8，让它紧贴图片 */}
             <div className="w-full mb-8 px-4 text-center">

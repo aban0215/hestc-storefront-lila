@@ -40,8 +40,8 @@ export default async function NewArrivalPromo() {
     const isMobileVideo = mobileMedia?.mime?.includes('video');
 
     return (
-        <section className="relative w-full bg-white pb-20 overflow-hidden">
-            {/* 1. 标题区域：保持你的精致排版，调小字号对齐大牌感 */}
+        <section className="relative w-full bg-white pb-12 overflow-hidden">
+            {/* 1. 标题区域 */}
             <div className="w-full pt-16 pb-8 px-10 flex flex-col items-center justify-center text-center">
                 <h2 className="text-[14px] md:text-[16px] font-bold text-gray-900 tracking-[0.3em] uppercase">
                     {newArrivalData.title}
@@ -53,10 +53,9 @@ export default async function NewArrivalPromo() {
                 )}
             </div>
 
-            {/* 2. 媒体展示区域：高度压到 50vh-60vh，保留你的视频逻辑 */}
-            <div className="group relative w-full h-[50vh] md:h-[65vh] overflow-hidden bg-gray-100">
+            {/* 2. 媒体展示区域 - 确保高度足够展示宣传图核心 */}
+            <div className="group relative w-full h-[55vh] md:h-[70vh] overflow-hidden bg-gray-100">
                 <div className="absolute inset-0">
-                    {/* 手机端媒体 */}
                     <div className="block md:hidden h-full w-full">
                         {isMobileVideo ? (
                             <video src={mobileMedia.url} autoPlay muted loop playsInline className="w-full h-full object-cover" />
@@ -64,7 +63,6 @@ export default async function NewArrivalPromo() {
                             <img src={mobileMedia.url} alt={newArrivalData.title} className="w-full h-full object-cover transition-transform duration-[2000ms] group-hover:scale-105" />
                         )}
                     </div>
-                    {/* PC 端媒体 */}
                     <div className="hidden md:block h-full w-full">
                         {isDesktopVideo ? (
                             <video src={desktopMedia.url} autoPlay muted loop playsInline className="w-full h-full object-cover" />
@@ -72,55 +70,52 @@ export default async function NewArrivalPromo() {
                             <img src={desktopMedia.url} alt={newArrivalData.title} className="w-full h-full object-cover transition-transform duration-[2000ms] group-hover:scale-105" />
                         )}
                     </div>
-                    <div className="absolute inset-0 bg-black/10 group-hover:bg-black/30 transition-colors duration-500" />
+                    <div className="absolute inset-0 bg-black/10 group-hover:bg-black/25 transition-colors duration-500" />
                 </div>
 
-                {/* 内容层：保留你的 Description 和按钮 */}
-                <div className="relative h-full flex items-center justify-center">
-                    <div className="max-w-3xl px-6 text-center text-white">
-                        <div className="hidden md:block text-white text-sm mb-8 opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-700 ease-out font-light tracking-widest">
-                            {newArrivalData.description}
-                        </div>
-                        <LocalizedClientLink
-                            href={targetHref}
-                            className="inline-block px-10 py-3 border border-white text-white text-[10px] font-bold tracking-[0.2em] uppercase hover:bg-white hover:text-black transition-all duration-300"
-                        >
-                            {newArrivalData.buttonText || "Discover Collection"}
-                        </LocalizedClientLink>
-                    </div>
+                {/* 内容层 - 仅保留按钮，文字可去掉或放轻 */}
+                <div className="relative h-full flex items-end justify-center pb-12">
+                    <LocalizedClientLink
+                        href={targetHref}
+                        className="inline-block px-10 py-3 border border-white text-white text-[10px] font-bold tracking-[0.2em] uppercase backdrop-blur-sm hover:bg-white hover:text-black transition-all duration-300"
+                    >
+                        {newArrivalData.buttonText || "Shop Collection"}
+                    </LocalizedClientLink>
                 </div>
             </div>
 
-            {/* 3. 核心：商品横向滑动轮播 - 采用“压屏”设计 */}
-            <div className="mt-[-60px] md:mt-[-80px] relative z-30">
-                <div className="flex overflow-x-auto snap-x snap-mandatory no-scrollbar px-6 gap-4">
+            {/* 3. 商品横向滑动 - 优化点：去掉负边距，去掉空隙，全宽显示 */}
+            <div className="mt-1 bg-gray-100"> {/* 用 bg-gray-100 做极细缝隙的底色 */}
+                <div className="flex overflow-x-auto snap-x snap-mandatory no-scrollbar gap-[1px]">
                     {collectionProducts.map((product) => (
                         <LocalizedClientLink
                             key={product.handle}
                             href={`/products/${product.handle}`}
-                            className="min-w-[60%] md:min-w-[22%] snap-start bg-white p-2 shadow-xl flex flex-col group"
+                            className="min-w-[50%] md:min-w-[25%] snap-start bg-white flex flex-col group"
                         >
-                            <div className="aspect-[3/4] overflow-hidden bg-gray-50">
+                            <div className="aspect-[3/4] overflow-hidden">
                                 <img
                                     src={product.thumbnail || ""}
-                                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                                     alt={product.title}
                                 />
                             </div>
-                            <div className="mt-4 px-1 pb-2">
-                                <h3 className="text-[10px] font-bold uppercase tracking-wider text-gray-900 truncate">{product.title}</h3>
+                            {/* 商品信息：缩窄高度，更加精致 */}
+                            <div className="py-4 px-2 text-center">
+                                <h3 className="text-[10px] font-medium uppercase tracking-wider text-gray-900 truncate">{product.title}</h3>
                                 <p className="text-[9px] text-gray-400 mt-1 font-light tracking-widest">{product.price}</p>
                             </div>
                         </LocalizedClientLink>
                     ))}
 
-                    {/* 最后的“查看全部”引导 */}
-                    <LocalizedClientLink
-                        href={targetHref}
-                        className="min-w-[40%] md:min-w-[15%] snap-start aspect-[3/4] flex flex-col items-center justify-center border border-dashed border-gray-200 bg-gray-50/50 hover:bg-black group transition-all"
-                    >
-                        <span className="text-[9px] tracking-[0.3em] uppercase group-hover:text-white">Full Series</span>
-                    </LocalizedClientLink>
+                    {/* View All 模块也要对齐风格 */}
+                    {/*<LocalizedClientLink*/}
+                    {/*    href={targetHref}*/}
+                    {/*    className="min-w-[50%] md:min-w-[25%] snap-start aspect-[3/4] flex flex-col items-center justify-center bg-white group border-l border-gray-100"*/}
+                    {/*>*/}
+                    {/*    <span className="text-[9px] tracking-[0.3em] uppercase text-gray-400 group-hover:text-black transition-colors">Explore All</span>*/}
+                    {/*    <div className="mt-2 w-8 h-[1px] bg-gray-200 group-hover:w-12 group-hover:bg-black transition-all"></div>*/}
+                    {/*</LocalizedClientLink>*/}
                 </div>
             </div>
         </section>

@@ -28,7 +28,7 @@ export default async function CategoryShowcase() {
     return (
         <section className="bg-white">
             {/* 1. 标题区域 - 统一风格，小字高级感 */}
-            <div className="w-full pt-16 pb-10 px-4 text-center">
+            <div className="w-full pt-4 pb-10 px-4 text-center">
                 <h2 className="text-[14px] md:text-[16px] font-bold text-gray-900 tracking-[0.3em] uppercase">
                     {sectionData.title || "Shop by Category"}
                 </h2>

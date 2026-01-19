@@ -48,7 +48,7 @@ export default async function BestSellers({ regionId }: BestSellersProps) {
     return (
         <section className="bg-white">
             {/* 1. 标题区域 */}
-            <div className="w-full pt-12 pb-8 px-4 text-center">
+            <div className="w-full pt-2 pb-8 px-4 text-center">
                 <h2 className="text-[14px] md:text-[16px] font-bold text-gray-900 tracking-[0.3em] uppercase">
                     {bestSellerConfig.title}
                 </h2>

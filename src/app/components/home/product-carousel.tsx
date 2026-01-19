@@ -73,7 +73,7 @@ export default function ProductCarousel({ products, targetHref, title }) {
                         className="flex items-center gap-x-2 group"
                     >
       <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-gray-900 border-b border-black pb-0.5 group-active:text-gray-400 group-active:border-gray-400 transition-all">
-        View All {title}
+        View All
       </span>
                         <svg
                             width="14" height="14"

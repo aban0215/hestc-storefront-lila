@@ -8,17 +8,17 @@ export default async function NewArrivalPromo() {
     const localecode = (await getSelectedLocale()) || 'en-US';
     const newArrivalData = await getNewArrivalPromo(localecode)
 
-    // 假设默认获取 'us' 的 region，或者从上层组件透传 countryCode
+    // 获取 region 信息用于价格显示
     const region = await getRegion("us")
 
     if (!newArrivalData || !region) return null;
 
-    // 核心逻辑：根据 Strapi 的 handle 去 Medusa 抓货
+    // 核心逻辑：从 Medusa 抓取该系列下的商品
     const collectionProducts = await getProductsByCollectionHandle(
         newArrivalData.medusaHandle || "",
         region.id,
         region.currency_code,
-        8 // 抓 8 个，保证轮播够长
+        8 // 抓取 8 个用于横向滑动
     )
 
     const getHref = () => {
@@ -40,10 +40,9 @@ export default async function NewArrivalPromo() {
     const isMobileVideo = mobileMedia?.mime?.includes('video');
 
     return (
-        // 优化1：pb-12 -> pb-0，彻底消除组件底部的多余留白
         <section className="relative w-full bg-white pb-0 overflow-hidden">
 
-            {/* 1. 标题区域 - 也可以稍微缩减 pt-16 到 pt-12 */}
+            {/* 1. 标题区域 - 紧凑布局 */}
             <div className="w-full pt-12 pb-8 px-10 flex flex-col items-center justify-center text-center">
                 <h2 className="text-[14px] md:text-[16px] font-bold text-gray-900 tracking-[0.3em] uppercase">
                     {newArrivalData.title}
@@ -55,9 +54,52 @@ export default async function NewArrivalPromo() {
                 )}
             </div>
 
-            {/* 2. 媒体展示区域 - 保持原样 */}
+            {/* 2. 媒体展示区域 - 修复灰色方块问题 */}
             <div className="group relative w-full h-[55vh] md:h-[70vh] overflow-hidden bg-gray-100">
-                {/* ... 视频/图片逻辑 ... */}
+                <div className="absolute inset-0">
+                    {/* 移动端渲染逻辑 */}
+                    <div className="block md:hidden h-full w-full">
+                        {isMobileVideo ? (
+                            <video
+                                src={mobileMedia?.url}
+                                autoPlay muted loop playsInline
+                                className="w-full h-full object-cover"
+                            />
+                        ) : (
+                            mobileMedia?.url && (
+                                <img
+                                    src={mobileMedia.url}
+                                    alt={newArrivalData.title}
+                                    className="w-full h-full object-cover transition-transform duration-[2000ms] group-hover:scale-105"
+                                />
+                            )
+                        )}
+                    </div>
+
+                    {/* PC 端渲染逻辑 */}
+                    <div className="hidden md:block h-full w-full">
+                        {isDesktopVideo ? (
+                            <video
+                                src={desktopMedia?.url}
+                                autoPlay muted loop playsInline
+                                className="w-full h-full object-cover"
+                            />
+                        ) : (
+                            desktopMedia?.url && (
+                                <img
+                                    src={desktopMedia.url}
+                                    alt={newArrivalData.title}
+                                    className="w-full h-full object-cover transition-transform duration-[2000ms] group-hover:scale-105"
+                                />
+                            )
+                        )}
+                    </div>
+
+                    {/* 遮罩层：增加悬浮深度感 */}
+                    <div className="absolute inset-0 bg-black/10 group-hover:bg-black/20 transition-colors duration-500" />
+                </div>
+
+                {/* 海报上的按钮 */}
                 <div className="relative h-full flex items-end justify-center pb-12">
                     <LocalizedClientLink
                         href={targetHref}
@@ -68,7 +110,7 @@ export default async function NewArrivalPromo() {
                 </div>
             </div>
 
-            {/* 3. 商品横向滑动 */}
+            {/* 3. 商品横向滑动区域 */}
             <div className="mt-1 bg-gray-100">
                 <div className="flex overflow-x-auto snap-x snap-mandatory no-scrollbar gap-[1px]">
                     {collectionProducts.map((product) => (
@@ -78,28 +120,36 @@ export default async function NewArrivalPromo() {
                             className="min-w-[50%] md:min-w-[25%] snap-start bg-white flex flex-col group"
                         >
                             <div className="aspect-[3/4] overflow-hidden">
-                                <img
-                                    src={product.thumbnail || ""}
-                                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                                    alt={product.title}
-                                />
+                                {product.thumbnail && (
+                                    <img
+                                        src={product.thumbnail}
+                                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                        alt={product.title}
+                                    />
+                                )}
                             </div>
-                            {/* 优化2：py-4 -> pt-3 pb-5，收紧商品信息区域 */}
+
+                            {/* 商品详情：精简 py-4 -> pt-3 pb-5 */}
                             <div className="pt-3 pb-5 px-2 text-center">
-                                <h3 className="text-[10px] font-medium uppercase tracking-wider text-gray-900 truncate">{product.title}</h3>
-                                <p className="text-[9px] text-gray-400 mt-1 font-light tracking-widest">{product.price}</p>
+                                <h3 className="text-[10px] font-medium uppercase tracking-wider text-gray-900 truncate">
+                                    {product.title}
+                                </h3>
+                                <p className="text-[9px] text-gray-400 mt-1 font-light tracking-widest">
+                                    {product.price}
+                                </p>
                             </div>
                         </LocalizedClientLink>
                     ))}
 
-                    {/* View All 模块 */}
+                    {/* 末尾 View All 卡片 */}
                     <LocalizedClientLink
                         href={targetHref}
                         className="min-w-[50%] md:min-w-[25%] snap-start bg-white group border-l border-gray-100 flex flex-col items-center justify-center"
                     >
-                        {/* 优化3：确保这里的容器高度感知上与左侧一致 */}
                         <div className="flex flex-col items-center justify-center py-10">
-                            <span className="text-[9px] tracking-[0.3em] uppercase text-gray-400 group-hover:text-black transition-colors">Explore All</span>
+                            <span className="text-[9px] tracking-[0.3em] uppercase text-gray-400 group-hover:text-black transition-colors">
+                                Explore All
+                            </span>
                             <div className="mt-2 w-8 h-[1px] bg-gray-200 group-hover:w-12 group-hover:bg-black transition-all"></div>
                         </div>
                     </LocalizedClientLink>

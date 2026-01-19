@@ -100,14 +100,14 @@ export default async function BestSellers({ regionId }: BestSellersProps) {
             </div>
 
             {/* 3. 查看全部 */}
-            <div className="py-16 flex justify-center">
-                <LocalizedClientLink
-                    href={targetHref}
-                    className="text-[10px] font-bold tracking-[0.2em] border-b border-black pb-1 hover:text-gray-400 hover:border-gray-400 transition-all uppercase"
-                >
-                    {bestSellerConfig.buttonText || "Shop Collection"}
-                </LocalizedClientLink>
-            </div>
+            {/*<div className="py-16 flex justify-center">*/}
+            {/*    <LocalizedClientLink*/}
+            {/*        href={targetHref}*/}
+            {/*        className="text-[10px] font-bold tracking-[0.2em] border-b border-black pb-1 hover:text-gray-400 hover:border-gray-400 transition-all uppercase"*/}
+            {/*    >*/}
+            {/*        {bestSellerConfig.buttonText || "Shop Collection"}*/}
+            {/*    </LocalizedClientLink>*/}
+            {/*</div>*/}
         </section>
     )
 }

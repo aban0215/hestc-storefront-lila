@@ -50,9 +50,11 @@ export default function ProductCarousel({ products, targetHref, title }) {
             </div>
 
             {/* 移动端：瀑布流 + 底部 View All */}
+            {/* 2. 移动端布局: 2列网格 */}
             <div className="lg:hidden flex flex-col">
                 <div className="grid grid-cols-2 gap-[1px] bg-gray-100 border-y border-gray-100">
-                    {products.slice(0, 6).map((product) => (
+                    {/* 只显示前 5 个商品 */}
+                    {products.slice(0, 5).map((product) => (
                         <LocalizedClientLink href={`/products/${product.handle}`} key={product.handle} className="bg-white">
                             <div className="aspect-[3/4] overflow-hidden">
                                 <img src={product.thumbnail} className="w-full h-full object-cover" alt={product.title} />
@@ -63,13 +65,22 @@ export default function ProductCarousel({ products, targetHref, title }) {
                             </div>
                         </LocalizedClientLink>
                     ))}
-                </div>
-                <div className="px-6 py-10 bg-white">
+
+                    {/* 第 6 个格子：View All 引导块 */}
                     <LocalizedClientLink
                         href={targetHref}
-                        className="w-full h-12 border border-gray-200 flex items-center justify-center text-[10px] font-bold tracking-[0.2em] uppercase active:bg-black active:text-white transition-all"
+                        className="bg-white flex flex-col items-center justify-center aspect-[3/4] group active:bg-gray-50 transition-colors"
                     >
-                        View All {title}
+                        <div className="flex flex-col items-center gap-2">
+        <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-gray-900">
+          View All
+        </span>
+                            {/* 一个精致的小箭头或者装饰线 */}
+                            <div className="w-6 h-[1px] bg-gray-200 group-active:w-10 group-active:bg-black transition-all duration-300"></div>
+                            <span className="text-[9px] text-gray-400 uppercase tracking-widest mt-1">
+          {title}
+        </span>
+                        </div>
                     </LocalizedClientLink>
                 </div>
             </div>

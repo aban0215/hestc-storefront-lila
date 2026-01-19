@@ -190,22 +190,23 @@ export async function getProductsByCollectionHandle(
 ): Promise<SimplifiedProduct[]> {
     try {
         const headers = { ...(await getAuthHeaders()) };
-        const next = { ...(await getCacheOptions("products")) };
 
-        // 1. 先查出 collection 的真实 ID (Medusa 过滤通常用 collection_id)
+        // 1. 获取 Collection ID
         const collectionRes = await sdk.client.fetch<{ collections: any[] }>(
             `/store/collections`,
             {
                 method: "GET",
                 query: { handle: collectionHandle.replace(/^\//, ''), limit: 1 },
                 headers,
-                next,
+                // 统一缓存策略，确保排序和新商品实时更新
+                cache: "no-store",
             }
         )
 
         const collectionId = collectionRes.collections?.[0]?.id
         if (!collectionId) return []
 
+        // 2. 查询商品
         const response = await sdk.client.fetch<{ products: HttpTypes.StoreProduct[] }>(
             `/store/products`,
             {
@@ -214,10 +215,13 @@ export async function getProductsByCollectionHandle(
                     collection_id: [collectionId],
                     region_id: regionId,
                     limit: limit,
-                    fields: "*variants.calculated_price,+variants.inventory_quantity,*variants.images",
+                    // 排序对齐：列表页用的是 created_at，这里加上负号确保新货在前
+                    order: "-created_at",
+                    // 字段对齐：参考 listProducts 补充了 metadata, tags, material 等
+                    fields: "*variants.calculated_price,+variants.inventory_quantity,*variants.images,+metadata,+tags,+material,+variants.options,+variants.options.option,+collection",
                 },
                 headers,
-                next,
+                cache: "no-store",
             }
         )
 
@@ -233,3 +237,4 @@ export async function getProductsByCollectionHandle(
         return []
     }
 }
+

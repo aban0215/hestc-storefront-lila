@@ -1,3 +1,5 @@
+// src/components/home/category-showcase/index.tsx
+
 import { getHomeCategorySection } from '../../../lib/strapi/home-data'
 import LocalizedClientLink from '@modules/common/components/localized-client-link'
 import { getSelectedLocale } from "@lib/data/locales";
@@ -24,22 +26,17 @@ export default async function CategoryShowcase() {
     };
 
     return (
-        <section className="py-12 bg-white overflow-hidden">
-            {/* 标题区域 - 极简风 */}
-            <div className="w-full py-6 px-10 flex flex-col items-center justify-center border-b border-gray-50 text-center">
-                <h2 className="text-3xl md:text-4xl font-serif font-bold text-gray-900 leading-tight">
-                    {sectionData.title}
+        <section className="bg-white">
+            {/* 1. 标题区域 - 统一风格，小字高级感 */}
+            <div className="w-full pt-16 pb-10 px-4 text-center">
+                <h2 className="text-[14px] md:text-[16px] font-bold text-gray-900 tracking-[0.3em] uppercase">
+                    {sectionData.title || "Shop by Category"}
                 </h2>
-                {sectionData.subtitle && (
-                    <p className="mt-2 text-sm md:text-base text-gray-400 font-light tracking-widest italic uppercase">
-                        {sectionData.subtitle}
-                    </p>
-                )}
             </div>
 
-
-            {/* 网格展示区域 - 一行4个 */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-y-12 gap-x-4 px-4 md:px-10 w-full">
+            {/* 2. 横条展示区域 - 一行一个，全宽或近乎全宽 */}
+            <div className="flex flex-col gap-[2px] bg-gray-100">
+                {/* 使用 gap-[2px] 制造细微缝隙 */}
                 {sectionData.featuredCategories.map((category) => {
                     const itemHref = getCategoryHref(category);
                     const media = category.image;
@@ -47,52 +44,50 @@ export default async function CategoryShowcase() {
                     const isVideo = media?.mime?.includes('video');
 
                     return (
-                        <div key={category.id} className="group flex flex-col items-center w-full">
-                            {/* 媒体容器 */}
-                            <LocalizedClientLink
-                                href={itemHref}
-                                className="relative aspect-[3/4] overflow-hidden w-full bg-[#f6f6f6]"
-                            >
-                                <div className="absolute inset-0">
-                                    {mediaUrl && (
-                                        isVideo ? (
-                                            <video
-                                                src={mediaUrl}
-                                                autoPlay
-                                                muted
-                                                loop
-                                                playsInline
-                                                className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
-                                            />
-                                        ) : (
-                                            <img
-                                                src={mediaUrl}
-                                                alt={media.alternativeText || category.name}
-                                                className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
-                                                loading="lazy"
-                                            />
-                                        )
-                                    )}
-                                </div>
-                            </LocalizedClientLink>
+                        <LocalizedClientLink
+                            key={category.id}
+                            href={itemHref}
+                            className="relative w-full h-[45vh] md:h-[60vh] group overflow-hidden bg-gray-200"
+                        >
+                            {/* 背景媒体层 */}
+                            <div className="absolute inset-0">
+                                {mediaUrl && (
+                                    isVideo ? (
+                                        <video
+                                            src={mediaUrl}
+                                            autoPlay muted loop playsInline
+                                            className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
+                                        />
+                                    ) : (
+                                        <img
+                                            src={mediaUrl}
+                                            alt={media.alternativeText || category.name}
+                                            className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
+                                        />
+                                    )
+                                )}
+                                {/* 暗色遮罩层 - 确保文字清晰 */}
+                                <div className="absolute inset-0 bg-black/20 group-hover:bg-black/30 transition-colors duration-500" />
+                            </div>
 
-                            {/* 文字区域 - 放在图片下方 */}
-                            <div className="mt-5 flex flex-col items-start text-left w-full">
-                                <LocalizedClientLink href={itemHref} className="group">
-                                    {/* 标题：从 14px 提到 18px-20px 足够了，关键是 tracking(字间距) 和 粗细 */}
-                                    <h3 className="text-[18px] md:text-[20px] font-medium tracking-tight text-gray-900 group-hover:text-gray-500 transition-colors duration-300">
-                                        {category.name}
-                                    </h3>
-                                </LocalizedClientLink>
+                            {/* 文字叠加层 - 居中设计 */}
+                            <div className="relative h-full flex flex-col items-center justify-center text-white p-4">
+                                <h3 className="text-[24px] md:text-[32px] font-bold tracking-[0.25em] uppercase text-center drop-shadow-sm">
+                                    {category.name}
+                                </h3>
 
-                                {/* 描述：稍微比标题小一点，用灰色拉开层级 */}
                                 {category.description && (
-                                    <p className="mt-1 text-[14px] md:text-[15px] text-gray-500 font-light leading-snug line-clamp-2">
+                                    <p className="mt-4 text-[12px] md:text-[14px] tracking-[0.1em] font-light max-w-[80%] text-center opacity-90">
                                         {category.description}
                                     </p>
                                 )}
+
+                                {/* 伪按钮效果 */}
+                                {/*<div className="mt-8 px-6 py-2 border border-white text-[10px] tracking-[0.2em] uppercase backdrop-blur-sm transition-all group-hover:bg-white group-hover:text-black">*/}
+                                {/*    Explore More*/}
+                                {/*</div>*/}
                             </div>
-                        </div>
+                        </LocalizedClientLink>
                     )
                 })}
             </div>

@@ -2,6 +2,7 @@ import { getBaseURL } from "@lib/util/env"
 import { Metadata } from "next"
 import "styles/globals.css"
 import { getGlobalSeoSetting } from "@lib/strapi/seo";
+import { SpeedInsights } from '@vercel/speed-insights/next';
 
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -60,6 +61,7 @@ export default function RootLayout(props: { children: React.ReactNode }) {
             放在 body 上比较常见 */}
         <body className="relative" suppressHydrationWarning>
         <main>{props.children}</main>
+        <SpeedInsights />
         </body>
         </html>
     )

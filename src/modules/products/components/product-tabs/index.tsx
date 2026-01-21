@@ -9,97 +9,93 @@ import { useState, useEffect } from "react"
 import { createPortal } from "react-dom"
 
 type ProductTabsProps = {
-  product: HttpTypes.StoreProduct
-  strapiContent?: LilaProductContent | null
+    product: HttpTypes.StoreProduct
+    strapiContent?: LilaProductContent | null
 }
 
 const ProductTabs = ({ product, strapiContent }: ProductTabsProps) => {
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  const [mounted, setMounted] = useState(false)
+    const [isModalOpen, setIsModalOpen] = useState(false)
+    const [mounted, setMounted] = useState(false)
 
-  useEffect(() => {
-    setMounted(true)
-  }, [])
+    useEffect(() => {
+        setMounted(true)
+    }, [])
 
-  useEffect(() => {
-    if (isModalOpen) {
-      document.body.style.overflow = "hidden"
-    } else {
-      document.body.style.overflow = "unset"
-    }
-  }, [isModalOpen])
+    useEffect(() => {
+        if (isModalOpen) {
+            document.body.style.overflow = "hidden"
+        } else {
+            document.body.style.overflow = "unset"
+        }
+    }, [isModalOpen])
 
-  const tabs = [
-  ]
+    const tabs = []
 
-  if (strapiContent?.size_guide) {
-    tabs.push({
-      label: "Size Guide",
-      component: (
-          <div className="flex flex-col py-4">
-            <div
-                className="relative w-full aspect-[1245/805] cursor-zoom-in hover:opacity-90 transition-opacity"
-                onClick={() => setIsModalOpen(true)}
-            >
-              <Image
-                  src={strapiContent.size_guide.url}
-                  alt="Size Guide"
-                  fill
-                  className="object-contain"
-              />
-            </div>
+    if (strapiContent?.size_guide) {
+        tabs.push({
+            label: "Size Guide",
+            component: (
+                <div className="flex flex-col py-4">
+                    <div
+                        className="relative w-full aspect-[1245/805] cursor-zoom-in hover:opacity-90 transition-opacity"
+                        onClick={() => setIsModalOpen(true)}
+                    >
+                        <Image
+                            src={strapiContent.size_guide.url}
+                            alt="Size Guide"
+                            fill
+                            className="object-contain"
+                        />
+                    </div>
 
-            {isModalOpen && mounted &&
-            createPortal(
-                <div
-                    className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/90 p-4 md:p-10 cursor-zoom-out"
-                    onClick={() => setIsModalOpen(false)}
-                >
-                  <button
-                      className="absolute top-6 right-6 text-white hover:text-ui-fg-subtle transition-colors z-[100000]"
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        setIsModalOpen(false)
-                      }}
-                  >
-                    <XMark size={32} />
-                  </button>
-                  <div className="relative w-full h-full max-w-5xl max-h-[90vh]">
-                    <Image
-                        src={strapiContent.size_guide.url}
-                        alt="Size Guide Full"
-                        fill
-                        className="object-contain"
-                        priority
-                    />
-                  </div>
-                </div>,
-                document.body
-            )}
-          </div>
-      ),
-    })
-  }
-
-  // 4. FAQ 逻辑保持不变
-  if (strapiContent?.lilafaqitem && strapiContent.lilafaqitem.length > 0) {
-    tabs.push({
-      label: "FAQ",
-      component: (
-          <div className="flex flex-col py-4 gap-y-6">
-            {strapiContent.lilafaqitem.map((item) => (
-                <div key={item.id} className="text-small-regular">
-                  <p className="font-bold mb-1 text-black">{item.question}</p>
-                  <p className="text-ui-fg-subtle leading-relaxed">{item.answer}</p>
+                    {isModalOpen && mounted &&
+                    createPortal(
+                        <div
+                            className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/90 p-4 md:p-10 cursor-zoom-out"
+                            onClick={() => setIsModalOpen(false)}
+                        >
+                            <button
+                                className="absolute top-6 right-6 text-white hover:text-ui-fg-subtle transition-colors z-[100000]"
+                                onClick={(e) => {
+                                    e.stopPropagation()
+                                    setIsModalOpen(false)
+                                }}
+                            >
+                                <XMark size={32} />
+                            </button>
+                            <div className="relative w-full h-full max-w-5xl max-h-[90vh]">
+                                <Image
+                                    src={strapiContent.size_guide.url}
+                                    alt="Size Guide Full"
+                                    fill
+                                    className="object-contain"
+                                    priority
+                                />
+                            </div>
+                        </div>,
+                        document.body
+                    )}
                 </div>
-            ))}
-          </div>
-      ),
-    })
-  }
+            ),
+        })
+    }
 
-  // 5. 保养说明保持不变
-    // 3. 注入保养说明 (Care Instructions)
+    if (strapiContent?.lilafaqitem && strapiContent.lilafaqitem.length > 0) {
+        tabs.push({
+            label: "FAQ",
+            component: (
+                <div className="flex flex-col py-4 gap-y-6">
+                    {strapiContent.lilafaqitem.map((item) => (
+                        <div key={item.id} className="text-small-regular">
+                            <p className="font-bold mb-1 text-black">{item.question}</p>
+                            <p className="text-ui-fg-subtle leading-relaxed">{item.answer}</p>
+                        </div>
+                    ))}
+                </div>
+            ),
+        })
+    }
+
     if (strapiContent?.care_instructions) {
         tabs.push({
             label: "Care Instructions",
@@ -111,41 +107,48 @@ const ProductTabs = ({ product, strapiContent }: ProductTabsProps) => {
         })
     }
 
-  return (
+    return (
+        <div className="w-full">
+            <div className="text-small-regular py-8">
+                {/* --- 新增的描述区域 --- */}
+                <div className="mb-8">
+                    <span className="font-semibold block mb-2 text-ui-fg-base">Details & Description</span>
+                    <p className="text-ui-fg-subtle leading-relaxed whitespace-pre-line">
+                        {product.description ? product.description : "-"}
+                    </p>
+                </div>
+                {/* --------------------- */}
 
-      <div className="w-full">
-          <div className="text-small-regular py-8">
-              <div className="grid grid-cols-2 gap-x-8">
-                  <div className="flex flex-col gap-y-4">
-                      <div>
-                          <span className="font-semibold">Material</span>
-                          <p>{product.material ? product.material : "-"}</p>
-                      </div>
-                      <div>
-                          <span className="font-semibold">Country of origin</span>
-                          <p>{product.origin_country ? product.origin_country : "-"}</p>
-                      </div>
-                      <div>
-                          <span className="font-semibold">Type</span>
-                          <p>{product.type ? product.type.value : "-"}</p>
-                      </div>
-                      <div>
-                          <span className="font-semibold">Weight</span>
-                          <p>{product.weight ? `${product.weight} g` : "-"}</p>
-                      </div>
-                  </div>
-              </div>
-          </div>
-        <Accordion type="multiple">
-          {tabs.map((tab, i) => (
-              <Accordion.Item key={i} title={tab.label} value={tab.label}>
-                {tab.component}
-              </Accordion.Item>
-          ))}
-        </Accordion>
-      </div>
-  )
+                <div className="grid grid-cols-2 gap-x-8">
+                    <div className="flex flex-col gap-y-4">
+                        <div>
+                            <span className="font-semibold">Material</span>
+                            <p>{product.material ? product.material : "-"}</p>
+                        </div>
+                        <div>
+                            <span className="font-semibold">Country of origin</span>
+                            <p>{product.origin_country ? product.origin_country : "-"}</p>
+                        </div>
+                        <div>
+                            <span className="font-semibold">Type</span>
+                            <p>{product.type ? product.type.value : "-"}</p>
+                        </div>
+                        <div>
+                            <span className="font-semibold">Weight</span>
+                            <p>{product.weight ? `${product.weight} g` : "-"}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <Accordion type="multiple">
+                {tabs.map((tab, i) => (
+                    <Accordion.Item key={i} title={tab.label} value={tab.label}>
+                        {tab.component}
+                    </Accordion.Item>
+                ))}
+            </Accordion>
+        </div>
+    )
 }
-
 
 export default ProductTabs

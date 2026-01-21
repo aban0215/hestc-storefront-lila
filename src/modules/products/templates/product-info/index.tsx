@@ -1,5 +1,5 @@
 import { HttpTypes } from "@medusajs/types"
-import { Heading, Text } from "@medusajs/ui"
+import { Heading } from "@medusajs/ui"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 
 type ProductInfoProps = {
@@ -7,12 +7,10 @@ type ProductInfoProps = {
 }
 
 const ProductInfo = ({ product }: ProductInfoProps) => {
-    // 调试辅助：检查控制台看看 subtitle 是否有数据
-
     return (
         <div id="product-info">
             <div className="flex flex-col gap-y-4 lg:max-w-[500px] mx-auto">
-                {/* 系列链接 */}
+                {/* 系列链接 - 保留原样 */}
                 {product.collection && (
                     <LocalizedClientLink
                         href={`/collections/${product.collection.handle}`}
@@ -23,7 +21,7 @@ const ProductInfo = ({ product }: ProductInfoProps) => {
                 )}
 
                 <div className="flex flex-col gap-y-2">
-                    {/* 主标题 */}
+                    {/* 主标题 - 字体大小、样式、ID均未变动 */}
                     <Heading
                         level="h2"
                         className="text-3xl leading-10 text-ui-fg-base"
@@ -31,25 +29,9 @@ const ProductInfo = ({ product }: ProductInfoProps) => {
                     >
                         {product.title || "Untitled Product"}
                     </Heading>
-
-                    {/* 副标题 - 仅在存在时显示 */}
-                    {product.subtitle && (
-                        <Text
-                            className="text-lg text-ui-fg-subtle"
-                            data-testid="product-subtitle"
-                        >
-                            {product.subtitle}
-                        </Text>
-                    )}
                 </div>
 
-                {/* 商品描述 - 调整为 text-xl，比之前稍微缩小一点点 */}
-                <Text
-                    className="text-xl leading-normal text-ui-fg-base whitespace-pre-line"
-                    data-testid="product-description"
-                >
-                    {product.description}
-                </Text>
+                {/* 副标题和描述已移除 */}
             </div>
         </div>
     )

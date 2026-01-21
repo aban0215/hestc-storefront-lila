@@ -56,9 +56,6 @@ export default function RootLayout(props: { children: React.ReactNode }) {
                 }}
             />
         </head>
-        {/* 注意：suppressHydrationWarning 放在 html 或 body 上都是可以的，
-            针对第三方插件（如翻译、主题、UC浏览器）注入样式导致的差异，
-            放在 body 上比较常见 */}
         <body className="relative" suppressHydrationWarning>
         <main>{props.children}</main>
         <SpeedInsights />

@@ -73,16 +73,16 @@ export default function DynamicFilters({ facets }: { facets: FacetSnapshot }) {
     return (
         <div className="flex flex-col gap-y-12 relative pb-24">
             {/* 1. Collection (系列) */}
-            {facets.collections && facets.collections.length > 0 && (
-                <FilterSection
-                    title="Collection"
-                    values={facets.collections}
-                    filterKey="collection"
-                    selectedValue={tempFilters["collection"]}
-                    onSelect={handleTempSelect}
-                    formatValue={formatValue}
-                />
-            )}
+            {/*{facets.collections && facets.collections.length > 0 && (*/}
+            {/*    <FilterSection*/}
+            {/*        title="Collection"*/}
+            {/*        values={facets.collections}*/}
+            {/*        filterKey="collection"*/}
+            {/*        selectedValue={tempFilters["collection"]}*/}
+            {/*        onSelect={handleTempSelect}*/}
+            {/*        formatValue={formatValue}*/}
+            {/*    />*/}
+            {/*)}*/}
 
             {/* 2. Material (材质) */}
             {facets.materials && facets.materials.length > 0 && (

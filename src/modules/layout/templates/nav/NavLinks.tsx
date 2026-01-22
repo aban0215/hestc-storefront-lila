@@ -35,18 +35,16 @@ export default function NavLinks({ menuTree }: { menuTree: any[] }) {
             className="hidden lg:flex relative items-center justify-center h-[50px] border-t border-gray-100 bg-white"
             onMouseLeave={handleMouseLeave}
         >
-            {/* 1. 核心背景层：全宽平铺，不透明白底 */}
+            {/* 1. 核心背景层：高度现在随内容自适应了 */}
             <div
-                className={`fixed left-0 right-0 bg-white border-b border-gray-100 shadow-[0_20px_40px_rgba(0,0,0,0.08)] transition-all duration-300 ease-in-out z-[110] ${
+                className={`fixed left-0 right-0 bg-white border-b border-gray-100 shadow-[0_20px_40px_rgba(0,0,0,0.08)] transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] z-[110] ${
                     activeId && hasChildren
-                        ? "max-h-[600px] opacity-100 visible"
+                        ? "max-h-[500px] opacity-100 visible"
                         : "max-h-0 opacity-0 invisible"
                 }`}
                 style={{ top: "140px" }}
                 onMouseEnter={() => { if (timeoutRef.current) clearTimeout(timeoutRef.current) }}
             >
-                {/* 占位层：确保背景有足够的高度撑起内容 */}
-                <div className="h-[600px] w-full" />
             </div>
 
             {/* 2. 导航菜单主体 */}
@@ -73,10 +71,10 @@ export default function NavLinks({ menuTree }: { menuTree: any[] }) {
                                 }`} />
                             </LocalizedClientLink>
 
-                            {/* 3. 动态内容层 */}
+                            {/* 3. 内容层逻辑优化 */}
                             {activeId === item.id && itemHasChildren && (
                                 isThreeLevel ? (
-                                    /* 情况 A：三级菜单 - 全宽居中对齐容器 */
+                                    /* 三级菜单：Mega Menu */
                                     <div
                                         className="fixed left-0 right-0 top-[140px] w-full z-[120]"
                                         onMouseEnter={() => { if (timeoutRef.current) clearTimeout(timeoutRef.current) }}
@@ -111,12 +109,13 @@ export default function NavLinks({ menuTree }: { menuTree: any[] }) {
                                         </div>
                                     </div>
                                 ) : (
-                                    /* 情况 B：二级菜单 - 贴在一级菜单下方左对齐 */
+                                    /* 二级菜单：精准垂直排列 */
                                     <div
-                                        className="absolute top-[50px] left-0 pt-10 z-[120] min-w-[200px]"
+                                        className="absolute top-[50px] left-0 z-[120] min-w-[200px]"
                                         onMouseEnter={() => { if (timeoutRef.current) clearTimeout(timeoutRef.current) }}
                                     >
-                                        <ul className="flex flex-col space-y-5">
+                                        {/* 这里加了 py-10 确保和三级菜单的间距一致，背景会包住这个高度 */}
+                                        <ul className="flex flex-col space-y-5 py-10 bg-transparent">
                                             {item.children.map((child: any) => (
                                                 <li key={child.id}>
                                                     <LocalizedClientLink

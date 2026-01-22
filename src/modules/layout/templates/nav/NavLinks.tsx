@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useRef } from "react"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 
 const getMenuHref = (linkType: string, slug: string) => {

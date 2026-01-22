@@ -27,55 +27,61 @@ export default function NavLinks({ menuTree }: { menuTree: any[] }) {
         timeoutRef.current = setTimeout(() => setActiveId(null), 200)
     }
 
+    const activeItem = menuTree?.find(i => i.id === activeId)
+    const hasChildren = activeItem?.children?.length > 0
+
     return (
         <nav
             className="hidden lg:flex relative items-center justify-center h-[50px] border-t border-gray-100 bg-white"
             onMouseLeave={handleMouseLeave}
         >
-            {/* 1. 全宽背景层：只负责显示白底和阴影，不包内容 */}
+            {/* 1. 核心背景层：全宽平铺，不透明白底 */}
             <div
-                className={`fixed left-0 right-0 bg-white border-b border-gray-100 shadow-[0_20px_40px_rgba(0,0,0,0.05)] transition-all duration-300 ease-in-out z-[110] overflow-hidden ${
-                    activeId && menuTree?.find(i => i.id === activeId)?.children?.length > 0
+                className={`fixed left-0 right-0 bg-white border-b border-gray-100 shadow-[0_20px_40px_rgba(0,0,0,0.08)] transition-all duration-300 ease-in-out z-[110] ${
+                    activeId && hasChildren
                         ? "max-h-[600px] opacity-100 visible"
                         : "max-h-0 opacity-0 invisible"
                 }`}
                 style={{ top: "140px" }}
                 onMouseEnter={() => { if (timeoutRef.current) clearTimeout(timeoutRef.current) }}
-            />
+            >
+                {/* 占位层：确保背景有足够的高度撑起内容 */}
+                <div className="h-[600px] w-full" />
+            </div>
 
             {/* 2. 导航菜单主体 */}
-            <ul className="flex items-center gap-x-10 h-full">
+            <ul className="flex items-center gap-x-10 h-full relative z-[130]">
                 {menuTree?.map((item) => {
-                    const hasChildren = item.children?.length > 0
+                    const itemHasChildren = item.children?.length > 0
                     const isThreeLevel = item.children?.some((child: any) => child.children?.length > 0)
 
                     return (
                         <li
                             key={item.id}
-                            className="relative flex items-center h-full" // 注意这里的 relative
+                            className="relative flex items-center h-full px-2"
                             onMouseEnter={() => handleMouseEnter(item.id)}
                         >
                             <LocalizedClientLink
                                 href={getMenuHref(item.link_type, item.slug)}
-                                className={`relative py-1 text-[11px] tracking-[0.2em] font-bold uppercase transition-colors z-[130] ${
+                                className={`relative py-1 text-[11px] tracking-[0.2em] font-bold uppercase transition-colors ${
                                     activeId === item.id ? 'text-pink-600' : 'text-gray-700 hover:text-pink-600'
                                 }`}
                             >
                                 {item.title}
                                 <span className={`absolute -bottom-[19px] left-0 h-[2px] bg-pink-600 transition-all duration-300 ${
-                                    activeId === item.id && hasChildren ? 'w-full' : 'w-0'
+                                    activeId === item.id && itemHasChildren ? 'w-full' : 'w-0'
                                 }`} />
                             </LocalizedClientLink>
 
                             {/* 3. 动态内容层 */}
-                            {activeId === item.id && hasChildren && (
+                            {activeId === item.id && itemHasChildren && (
                                 isThreeLevel ? (
-                                    /* 三级菜单：全宽对齐内容容器 (Mega Menu 模式) */
+                                    /* 情况 A：三级菜单 - 全宽居中对齐容器 */
                                     <div
-                                        className="fixed left-0 right-0 top-[140px] w-full z-[120] pointer-events-none"
+                                        className="fixed left-0 right-0 top-[140px] w-full z-[120]"
                                         onMouseEnter={() => { if (timeoutRef.current) clearTimeout(timeoutRef.current) }}
                                     >
-                                        <div className="content-container mx-auto py-10 px-8 pointer-events-auto">
+                                        <div className="content-container mx-auto py-10 px-8">
                                             <div className="flex flex-wrap gap-x-16 gap-y-10">
                                                 {item.children.map((child: any) => (
                                                     <div key={child.id} className="min-w-[160px]">
@@ -105,8 +111,7 @@ export default function NavLinks({ menuTree }: { menuTree: any[] }) {
                                         </div>
                                     </div>
                                 ) : (
-                                    /* 二级菜单：精准对齐当前菜单下方 (Drop Down 模式) */
-                                    /* 这里的 top-[50px] 对应 nav 的高度，确保它正好贴在下面 */
+                                    /* 情况 B：二级菜单 - 贴在一级菜单下方左对齐 */
                                     <div
                                         className="absolute top-[50px] left-0 pt-10 z-[120] min-w-[200px]"
                                         onMouseEnter={() => { if (timeoutRef.current) clearTimeout(timeoutRef.current) }}
@@ -133,7 +138,7 @@ export default function NavLinks({ menuTree }: { menuTree: any[] }) {
             </ul>
 
             {/* 背景遮罩 */}
-            {activeId && (
+            {activeId && hasChildren && (
                 <div className="fixed inset-0 bg-black/5 backdrop-blur-[1px] z-[100] pointer-events-none top-[140px]" />
             )}
         </nav>

@@ -21,14 +21,25 @@ type Props = {
 
 
 
-async function getCollectionSeoPatch() {
-  const query = `${STRAPI_URL}/api/lila-seo-extensions?filters[key][$eq]=collection-key&locale=en-US&populate[lilaSeo][populate]=shareImage`
+async function getCollectionSeoPatch(handle: string, locale: string = "en-US") {
+  // 【关键修改点】：将原来的 'collection-key' 替换为 ${handle}
+  const query = `${STRAPI_URL}/api/lila-seo-extensions?filters[key][$eq]=${handle}&locale=${locale}&populate[lilaSeo][populate]=shareImage`
+
   try {
-    const res = await fetch(query, { next: { revalidate: 3600 } })
+    const res = await fetch(query, {
+      next: { revalidate: 3600 } // 缓存一小时，性能起飞
+    })
     const { data } = await res.json()
+
+    // 返回匹配到 handle 的那一条 SEO 配置
     return data?.[0]?.lilaSeo?.[0] || null
-  } catch (e) { return null }
+  } catch (e) {
+    console.error("Strapi SEO Fetch Error:", e)
+    return null
+  }
 }
+
+
 
 export async function generateStaticParams() {
   const { collections } = await listCollections({
@@ -64,29 +75,36 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata(props: Props): Promise<Metadata> {
-  const { handle } = await props.params
+  const { handle, countryCode } = await props.params
+  const localecode = (await getSelectedLocale()) || 'en-US'
 
+  // 并行请求：一个去 Medusa 拿分类详情，一个去 Strapi 拿对应的 SEO 补丁
   const [collection, seoPatch] = await Promise.all([
     getCollectionByHandle(handle),
-    getCollectionSeoPatch()
+    getCollectionSeoPatch(handle, localecode) // 这里传入当前分类的 handle
   ])
 
   if (!collection) notFound()
 
   const baseUrl = getBaseURL()
-  const canonicalUrl = `${baseUrl}/us/collections/${handle}`
+  const title = seoPatch?.metaTitle || `${collection.title} | lilazen`
+  const description = seoPatch?.metaDescription || `Shop the latest ${collection.title} yoga wear at lilazen.`
 
   return {
-    title: seoPatch?.metaTitle || collection.title,
-    description: seoPatch?.metaDescription || `${collection.title} collection`,
+    title: title,
+    description: description,
     keywords: seoPatch?.keywords,
-    alternates: { canonical: canonicalUrl },
+    alternates: {
+      canonical: `${baseUrl}/${countryCode}/collections/${handle}`
+    },
     openGraph: {
-      title: seoPatch?.metaTitle || collection.title,
+      title: title,
+      description: description,
       images: seoPatch?.shareImage?.[0]?.url ? [seoPatch.shareImage[0].url] : [],
     }
   }
 }
+
 
 export default async function CollectionPage(props: Props) {
   // 1. 获取所有的搜索参数，而不仅仅是 sortBy 和 page

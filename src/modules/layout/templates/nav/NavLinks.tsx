@@ -23,8 +23,7 @@ export default function NavLinks({ menuTree }: { menuTree: any[] }) {
         if (timeoutRef.current) clearTimeout(timeoutRef.current)
         setActiveId(item.id)
 
-        // 【关键点】获取当前一级菜单文字相对于屏幕左侧的距离
-        // 使用 e.currentTarget 确保拿到的是 <li> 的位置
+        // 计算偏移量保持对齐
         const rect = e.currentTarget.getBoundingClientRect()
         setLeftOffset(rect.left)
     }
@@ -41,7 +40,7 @@ export default function NavLinks({ menuTree }: { menuTree: any[] }) {
             className="hidden lg:flex relative items-center justify-center h-[50px] border-t border-gray-100 bg-white"
             onMouseLeave={handleMouseLeave}
         >
-            {/* 1. 一级导航：保持居中排列 */}
+            {/* 一级导航 */}
             <ul className="flex items-center gap-x-12 h-full z-[130]">
                 {menuTree?.map((item) => (
                     <li
@@ -51,43 +50,39 @@ export default function NavLinks({ menuTree }: { menuTree: any[] }) {
                     >
                         <LocalizedClientLink
                             href={getMenuHref(item.link_type, item.slug)}
-                            className={`relative py-1 text-[11px] tracking-[0.2em] font-bold uppercase transition-all duration-300 ${
-                                activeId === item.id ? 'text-pink-600' : 'text-gray-800'
+                            className={`relative py-1 text-[11px] tracking-[0.2em] font-bold uppercase transition-all duration-300 ease-in-out ${
+                                activeId === item.id
+                                    ? 'text-pink-600 scale-105' // 激活时文字略微放大，增加灵动感
+                                    : 'text-gray-800 hover:text-pink-600'
                             }`}
                         >
                             {item.title}
-                            <span className={`absolute -bottom-[19px] left-0 h-[2px] bg-pink-600 transition-all duration-300 ${
-                                activeId === item.id ? 'w-full' : 'w-0'
-                            }`} />
+                            {/* 大哥帮你把原来的 span 下划线代码删掉了 */}
                         </LocalizedClientLink>
                     </li>
                 ))}
             </ul>
 
-            {/* 2. 下拉全宽背景 & 内容 */}
+            {/* 下拉面板 */}
             <div
-                className={`fixed left-0 right-0 bg-white border-b border-gray-100 shadow-[0_20px_40px_rgba(0,0,0,0.05)] z-[120] transition-all duration-300 ease-in-out overflow-hidden ${
+                className={`fixed left-0 right-0 bg-white border-b border-gray-100 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.08)] z-[120] transition-all duration-400 ease-[cubic-bezier(0.23,1,0.32,1)] overflow-hidden ${
                     activeId && activeItem?.children?.length > 0 ? "max-h-[600px] opacity-100 visible" : "max-h-0 opacity-0 invisible"
                 }`}
                 style={{ top: "140px" }}
                 onMouseEnter={() => { if (timeoutRef.current) clearTimeout(timeoutRef.current) }}
             >
-                {/* 关键容器：如果是三级菜单，我们居中对齐；
-                    如果是二级菜单，我们直接用计算出来的 leftOffset 设置 paddingLeft
-                */}
                 <div
-                    className={`w-full py-12 transition-all duration-500 ease-out`}
+                    className={`w-full py-12 transition-all duration-500`}
                     style={!isThreeLevel ? { paddingLeft: `${leftOffset}px` } : {}}
                 >
                     {isThreeLevel ? (
-                        /* 三级菜单：依然使用 content-container 居中排列，显得大气 */
                         <div className="content-container mx-auto px-8">
                             <div className="flex flex-wrap gap-x-16 gap-y-10">
                                 {activeItem?.children.map((child: any) => (
                                     <div key={child.id} className="min-w-[180px]">
                                         <LocalizedClientLink
                                             href={getMenuHref(child.link_type, child.slug)}
-                                            className="text-[12px] font-black tracking-widest mb-4 block uppercase hover:text-pink-600"
+                                            className="text-[12px] font-black tracking-widest mb-5 block uppercase hover:text-pink-600 transition-colors"
                                             onClick={() => setActiveId(null)}
                                         >
                                             {child.title}
@@ -97,7 +92,7 @@ export default function NavLinks({ menuTree }: { menuTree: any[] }) {
                                                 <LocalizedClientLink
                                                     key={grand.id}
                                                     href={getMenuHref(grand.link_type, grand.slug)}
-                                                    className="text-[11px] text-gray-500 hover:text-black uppercase tracking-wider"
+                                                    className="text-[11px] text-gray-500 hover:text-pink-600 uppercase tracking-wider transition-colors"
                                                     onClick={() => setActiveId(null)}
                                                 >
                                                     {grand.title}
@@ -109,7 +104,6 @@ export default function NavLinks({ menuTree }: { menuTree: any[] }) {
                             </div>
                         </div>
                     ) : (
-                        /* 二级菜单：精准对齐一级菜单起始位置 */
                         <ul className="flex flex-col space-y-6">
                             {activeItem?.children.map((child: any) => (
                                 <li key={child.id}>
@@ -127,7 +121,7 @@ export default function NavLinks({ menuTree }: { menuTree: any[] }) {
                 </div>
             </div>
 
-            {/* 3. 背景遮罩 */}
+            {/* 遮罩 */}
             <div
                 className={`fixed inset-0 bg-black/5 backdrop-blur-[2px] z-[110] pointer-events-none transition-opacity duration-500 ${
                     activeId && activeItem?.children?.length > 0 ? "opacity-100" : "opacity-0"

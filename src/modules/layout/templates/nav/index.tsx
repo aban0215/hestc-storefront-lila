@@ -67,7 +67,8 @@ export default async function Nav() {
   const logoUrl = brandData?.logo?.url ? `${brandData.logo.url.startsWith('http') ? '' : baseUrl}${brandData.logo.url}` : null
 
   return (
-      <div className="sticky top-0 inset-x-0 z-[100] w-full bg-white border-b border-gray-100">
+      // <div className="sticky top-0 inset-x-0 z-[100] w-full bg-white border-b border-gray-100">
+        <div className="sticky top-0 inset-x-0 z-[100] w-full bg-white border-b border-gray-200 shadow-[0_1px_2px_rgba(0,0,0,0.03)]">
         <header className="relative">
           <nav className="mx-auto px-4 lg:px-8">
 

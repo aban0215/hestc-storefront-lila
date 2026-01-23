@@ -88,7 +88,7 @@ export default async function Home(props: Props) {
       <>
         <div className="min-h-screen">
           <HeroSection />
-          <div className="py-8 md:py-16">
+          <div className="py-2 md:py-4">
             <BestSellers regionId={region.id} />
           </div>
           <CategoryShowcase />

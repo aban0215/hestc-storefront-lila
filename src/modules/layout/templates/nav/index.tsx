@@ -6,7 +6,6 @@ import { listLocales } from "@lib/data/locales"
 import { getLocale } from "@lib/data/locale-actions"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import CartButton from "@modules/layout/components/cart-button"
-// 引入我们新做的“PC端偏好设置”组件
 import DesktopPreferences from "@modules/layout/components/desktop-preferences"
 import { User } from "@medusajs/icons"
 import MobileMenu from "@modules/layout/templates/nav/mobile-menu";
@@ -67,15 +66,14 @@ export default async function Nav() {
   const logoUrl = brandData?.logo?.url ? `${brandData.logo.url.startsWith('http') ? '' : baseUrl}${brandData.logo.url}` : null
 
   return (
-      // <div className="sticky top-0 inset-x-0 z-[100] w-full bg-white border-b border-gray-100">
-        <div className="sticky top-0 inset-x-0 z-[100] w-full bg-white border-b border-gray-200 shadow-[0_1px_2px_rgba(0,0,0,0.03)]">
+      // 最外层容器：只负责定位、背景和投影，不再直接写 border-b
+      <div className="sticky top-0 inset-x-0 z-[100] w-full bg-white shadow-[0_1px_0_0_rgba(0,0,0,0.05)]">
         <header className="relative">
-          <nav className="mx-auto px-4 lg:px-8">
 
-            {/* --- 第一行：[Logo] -- [Search] -- [Icons] --- */}
+          {/* 第一行容器：包含内边距 */}
+          <div className="mx-auto px-4 lg:px-8">
             <div className="flex items-center h-[60px] lg:h-[90px]">
-
-              {/* 左侧：Logo 区域 - PC端给定固定宽度，确保后面搜索框的起点统一 */}
+              {/* 左侧：Logo 区域 */}
               <div className="flex items-center lg:w-[240px] xl:w-[280px]">
                 <div className="lg:hidden pr-4">
                   <MobileMenu
@@ -91,19 +89,17 @@ export default async function Nav() {
                 </div>
               </div>
 
-              {/* 中间：移动端 Logo & PC端 搜索框 */}
+              {/* 中间：搜索框 */}
               <div className="flex-1 flex items-center justify-center lg:justify-start">
-                {/* 移动端 Logo (绝对居中) */}
                 <div className="lg:hidden absolute left-1/2 -translate-x-1/2">
                   <Logo logoUrl={logoUrl} sitename={brandData?.sitename} />
                 </div>
-                {/* PC端 搜索框 - 移除左间距，直接顶着 Logo 容器边缘 */}
                 <div className="hidden lg:block w-full max-w-[800px]">
                   <SearchModal />
                 </div>
               </div>
 
-              {/* 右侧：功能图标 - 保持原样 */}
+              {/* 右侧：功能图标 */}
               <div className="flex items-center gap-x-2 lg:gap-x-5 justify-end lg:w-[240px] xl:w-[280px]">
                 <div className="hidden lg:block">
                   <DesktopPreferences
@@ -123,29 +119,34 @@ export default async function Nav() {
                 </Suspense>
               </div>
             </div>
+          </div>
 
-            {/* --- 第二行：PC端 联动菜单 --- */}
-            <div className="flex pb-4 lg:pb-0 lg:h-[50px] lg:border-t lg:border-gray-50">
+          {/* --- 关键：第一行和第二行之间的全屏分割线 --- */}
+          <div className="hidden lg:block w-full h-[px] border-t border-gray-100" />
 
+          {/* 第二行容器：包含内边距 */}
+          <div className="mx-auto px-4 lg:px-8">
+            <div className="flex pb-4 lg:pb-0 lg:h-[50px]">
               {/* 移动端：显示搜索框 */}
-              <div className="w-full lg:hidden">
+              <div className="w-full lg:hidden pt-2">
                 <SearchModal />
               </div>
 
-              {/* PC端对齐逻辑：左边放一个和 Logo 等宽的占位块，确保菜单起点和搜索框一致 */}
+              {/* PC端占位块 */}
               <div className="hidden lg:block lg:w-[240px] xl:w-[280px] shrink-0" />
 
               <div className="hidden lg:flex flex-1 items-center">
                 <NavLinks menuTree={menuTree} />
               </div>
             </div>
+          </div>
 
-          </nav>
+          <div className="w-full h-[px] border-b border-gray-100" />
+
         </header>
       </div>
   )
 }
-
 
 function Logo({ logoUrl, sitename }: { logoUrl: string | null, sitename?: string }) {
   return (

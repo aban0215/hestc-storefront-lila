@@ -6,9 +6,9 @@ import { StoreRegion } from "@medusajs/types"
 import CategoryTemplate from "@modules/categories/templates"
 import { SortOptions } from "@modules/store/components/refinement-list/sort-products"
 import { getBaseURL } from "@lib/util/env"
-// 引入语言和营销数据抓取工具
 import { getSelectedLocale } from "@lib/data/locales"
 import { getMarketingBySlug } from "@lib/strapi/market"
+
 type Props = {
   params: Promise<{ category: string[]; countryCode: string }>
   searchParams: Promise<{
@@ -23,13 +23,15 @@ type Props = {
 
 const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_API_URL;
 
-async function getCategorySeoPatch() {
-  const query = `${STRAPI_URL}/api/lila-seo-extensions?filters[key][$eq]=category-key&locale=en-US&populate[lilaSeo][populate]=shareImage`
+async function getCategorySeoPatch(handle: string, locale: string = "en-US") {
+  const query = `${STRAPI_URL}/api/lila-seo-extensions?filters[key][$eq]=${handle}&locale=${locale}&populate[lilaSeo][populate]=shareImage`
   try {
     const res = await fetch(query, { next: { revalidate: 3600 } })
     const { data } = await res.json()
     return data?.[0]?.lilaSeo?.[0] || null
-  } catch (e) { return null }
+  } catch (e) {
+    return null
+  }
 }
 
 function getAllCategoryIds(category: any): string[] {
@@ -61,16 +63,22 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata(props: Props): Promise<Metadata> {
-  const { category } = await props.params
+  const { category, countryCode } = await props.params
+
+  if (!category || category.length === 0) notFound()
+
+  const categoryHandle = category[category.length - 1]
+  const localecode = (await getSelectedLocale()) || 'en-US'
+
   const [productCategory, seoPatch] = await Promise.all([
     getCategoryByHandle(category),
-    getCategorySeoPatch()
+    getCategorySeoPatch(categoryHandle, localecode) // 这里传的是 string
   ])
 
   if (!productCategory) notFound()
 
   const baseUrl = getBaseURL()
-  const canonicalUrl = `${baseUrl}/us/categories/${category.join("/")}`
+  const canonicalUrl = `${baseUrl}/${countryCode}/categories/${category.join("/")}`
 
   return {
     title: seoPatch?.metaTitle || productCategory.name,
@@ -79,25 +87,27 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
     alternates: { canonical: canonicalUrl },
     openGraph: {
       title: seoPatch?.metaTitle || productCategory.name,
+      description: seoPatch?.metaDescription || productCategory.description,
       images: seoPatch?.shareImage?.[0]?.url ? [seoPatch.shareImage[0].url] : [],
     }
   }
 }
 
 export default async function CategoryPage(props: Props) {
-  // 1. 获取所有的 searchParams，这包含了 URL 中所有的 ?key=value
   const searchParams = await props.searchParams
   const params = await props.params
   const { sortBy, page } = searchParams
+  const { category, countryCode } = params
 
-  // 2. 获取当前语言
+  if (!category || category.length === 0) notFound()
+
   const localecode = (await getSelectedLocale()) || 'en-US'
 
-  // 3. 并行请求分类数据和 Strapi 营销数据
-  const categoryHandle = params.category[params.category.length - 1]
+  // 获取分类层级的最后一个 handle
+  const categoryHandle = category[category.length - 1]
 
   const [productCategory, marketingData] = await Promise.all([
-    getCategoryByHandle(params.category),
+    getCategoryByHandle(category),
     getMarketingBySlug(categoryHandle, localecode)
   ])
 
@@ -111,7 +121,7 @@ export default async function CategoryPage(props: Props) {
           allCategoryIds={allCategoryIds}
           sortBy={sortBy}
           page={page}
-          countryCode={params.countryCode}
+          countryCode={countryCode}
           searchParams={searchParams}
       />
   )

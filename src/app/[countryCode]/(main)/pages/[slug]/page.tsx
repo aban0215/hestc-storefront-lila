@@ -17,29 +17,13 @@ export default async function LilaDynamicPage(props: {
         return notFound()
     }
 
-    // --- 新增：清洗数据的逻辑 ---
-    const cleanHtml = (rawHtml: string) => {
-        return rawHtml
-            // 1. 去掉 Strapi 自动添加的 pre/code 包装
-            .replace(/<pre><code>/g, "")
-            .replace(/<\/code><\/pre>/g, "")
-            // 2. 将转义字符还原
-            .replace(/&lt;/g, "<")
-            .replace(/&gt;/g, ">")
-            .replace(/&quot;/g, '"')
-            .replace(/&#39;/g, "'")
-            .replace(/&amp;/g, "&")
-            .replace(/&nbsp;/g, " ");
-    };
-
-    const sanitizedContent = cleanHtml(pageData.content || "");
     // --------------------------
 
     return (
         <div className="bg-white min-h-screen">
             <main className="content-container pt-8 md:pt-16 pb-24">
                 <div className="max-w-4xl mx-auto">
-                    {/* 返回键代码... */}
+                    {/* 返回键部分保持原样 */}
                     <div className="sticky top-[60px] md:static bg-white/90 backdrop-blur-sm z-40 py-4 -mx-4 px-4 md:mx-0 md:px-0 mb-6 transition-all">
                         <BackButton />
                     </div>
@@ -50,16 +34,17 @@ export default async function LilaDynamicPage(props: {
                         </h1>
                     </header>
 
-                    {/* 注意：这里改用 sanitizedContent */}
+                    {/* 2. 修改这里：直接渲染 HTML */}
                     <article className="prose prose-sm max-w-none">
-                        <div className="text-gray-700 leading-[1.7] tracking-[0.02em] font-light">
-                            <ReactMarkdown rehypePlugins={[rehypeRaw]}>
-                                {sanitizedContent}
-                            </ReactMarkdown>
-                        </div>
+                        <div
+                            className="text-gray-700 leading-[1.7] tracking-[0.02em] font-light"
+                            // 直接将 Strapi 的 HTML 注入到这里
+                            dangerouslySetInnerHTML={{ __html: pageData.content }}
+                        />
                     </article>
                 </div>
             </main>
         </div>
     )
+
 }

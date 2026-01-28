@@ -1,154 +1,131 @@
 "use client"
 
-import { HttpTypes } from "@medusajs/types"
-import Accordion from "./accordion"
-import { LilaProductContent } from "../../../../lib/strapi/product-content"
-import Image from "next/image"
-import { XMark } from "@medusajs/icons"
-import { useState, useEffect } from "react"
-import { createPortal } from "react-dom"
+import { useState, useRef } from "react"
+import LocalizedClientLink from "@modules/common/components/localized-client-link"
 
-type ProductTabsProps = {
-    product: HttpTypes.StoreProduct
-    strapiContent?: LilaProductContent | null
+const getMenuHref = (linkType: string, slug: string) => {
+    if (!slug) return "/"
+    const cleanSlug = slug.trim().toLowerCase().replace(/\s+/g, "-").replace(/^\//, "")
+    switch (linkType) {
+        case "category": return `/categories/${cleanSlug}`
+        case "collection": return `/collections/${cleanSlug}`
+        case "blog": return `/blog`
+        default: return `/${cleanSlug}`
+    }
 }
 
-const ProductTabs = ({ product, strapiContent }: ProductTabsProps) => {
-    const [isModalOpen, setIsModalOpen] = useState(false)
-    const [mounted, setMounted] = useState(false)
+export default function NavLinks({ menuTree }: { menuTree: any[] }) {
+    const [activeId, setActiveId] = useState<number | null>(null)
+    const [leftOffset, setLeftOffset] = useState(0)
+    const timeoutRef = useRef<NodeJS.Timeout | null>(null)
 
-    useEffect(() => {
-        setMounted(true)
-    }, [])
+    const handleMouseEnter = (item: any, e: React.MouseEvent) => {
+        if (timeoutRef.current) clearTimeout(timeoutRef.current)
+        setActiveId(item.id)
 
-    useEffect(() => {
-        if (isModalOpen) {
-            document.body.style.overflow = "hidden"
-        } else {
-            document.body.style.overflow = "unset"
-        }
-    }, [isModalOpen])
-
-    const tabs = []
-
-    if (strapiContent?.size_guide) {
-        tabs.push({
-            label: "Size Guide",
-            component: (
-                <div className="flex flex-col py-4">
-                    <div
-                        className="relative w-full aspect-[1245/805] cursor-zoom-in hover:opacity-90 transition-opacity"
-                        onClick={() => setIsModalOpen(true)}
-                    >
-                        <Image
-                            src={strapiContent.size_guide.url}
-                            alt="Size Guide"
-                            fill
-                            className="object-contain"
-                        />
-                    </div>
-
-                    {isModalOpen && mounted &&
-                    createPortal(
-                        <div
-                            className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/90 p-4 md:p-10 cursor-zoom-out"
-                            onClick={() => setIsModalOpen(false)}
-                        >
-                            <button
-                                className="absolute top-6 right-6 text-white hover:text-ui-fg-subtle transition-colors z-[100000]"
-                                onClick={(e) => {
-                                    e.stopPropagation()
-                                    setIsModalOpen(false)
-                                }}
-                            >
-                                <XMark size={32} />
-                            </button>
-                            <div className="relative w-full h-full max-w-5xl max-h-[90vh]">
-                                <Image
-                                    src={strapiContent.size_guide.url}
-                                    alt="Size Guide Full"
-                                    fill
-                                    className="object-contain"
-                                    priority
-                                />
-                            </div>
-                        </div>,
-                        document.body
-                    )}
-                </div>
-            ),
-        })
+        const rect = e.currentTarget.getBoundingClientRect()
+        setLeftOffset(rect.left)
     }
 
-    if (strapiContent?.lilafaqitem && strapiContent.lilafaqitem.length > 0) {
-        tabs.push({
-            label: "FAQ",
-            component: (
-                <div className="flex flex-col py-4 gap-y-6">
-                    {strapiContent.lilafaqitem.map((item) => (
-                        <div key={item.id} className="text-small-regular">
-                            <p className="font-bold mb-1 text-black">{item.question}</p>
-                            <p className="text-ui-fg-subtle leading-relaxed">{item.answer}</p>
-                        </div>
-                    ))}
-                </div>
-            ),
-        })
+    const handleMouseLeave = () => {
+        timeoutRef.current = setTimeout(() => setActiveId(null), 200)
     }
 
-    if (strapiContent?.care_instructions) {
-        tabs.push({
-            label: "Care Instructions",
-            component: (
-                <div className="text-small-regular text-ui-fg-subtle py-4 leading-relaxed max-w-full break-words whitespace-pre-line">
-                    <p>{strapiContent.care_instructions}</p>
-                </div>
-            ),
-        })
-    }
+    const activeItem = menuTree?.find(i => i.id === activeId)
+    const isThreeLevel = activeItem?.children?.some((child: any) => child.children?.length > 0)
 
     return (
-        <div className="w-full">
-            <div className="text-small-regular py-8">
-                {/* --- 新增的描述区域 --- */}
-                <div className="mb-8">
-                    <span className="font-semibold text-2xl block mb-2 text-ui-fg-base">Details & Description</span>
-                    <p className="text-ui-fg-subtle text-xl leading-relaxed whitespace-pre-line">
-                        {product.description ? product.description : "-"}
-                    </p>
-                </div>
-                {/* --------------------- */}
+        <nav
+            className="hidden lg:flex relative items-center justify-center h-[56px] border-t border-gray-100 bg-white"
+            onMouseLeave={handleMouseLeave}
+        >
+            {/* 一级导航 */}
+            <ul className="flex items-center gap-x-10 h-full z-[130]">
+                {menuTree?.map((item) => (
+                    <li
+                        key={item.id}
+                        className="flex items-center h-full cursor-pointer"
+                        onMouseEnter={(e) => handleMouseEnter(item, e)}
+                    >
+                        <LocalizedClientLink
+                            href={getMenuHref(item.link_type, item.slug)}
+                            className={`relative py-1 text-[13px] tracking-[0.15em] font-bold uppercase transition-all duration-300 ease-in-out ${
+                                activeId === item.id
+                                    ? 'text-pink-600'
+                                    : 'text-gray-800 hover:text-pink-600'
+                            }`}
+                        >
+                            {item.title}
+                        </LocalizedClientLink>
+                    </li>
+                ))}
+            </ul>
 
-                <div className="grid grid-cols-2 gap-x-8">
-                    <div className="flex flex-col gap-y-4">
-                        <div>
-                            <span className="font-semibold text-2xl">Material</span>
-                            <p className="text-xl">{product.material ? product.material : "-"}</p>
+            {/* 下拉面板 */}
+            <div
+                className={`fixed left-0 right-0 bg-white border-b border-gray-100 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.08)] z-[120] transition-all duration-400 ease-[cubic-bezier(0.23,1,0.32,1)] overflow-hidden ${
+                    activeId && activeItem?.children?.length > 0 ? "max-h-[600px] opacity-100 visible" : "max-h-0 opacity-0 invisible"
+                }`}
+                style={{ top: "140px" }}
+                onMouseEnter={() => { if (timeoutRef.current) clearTimeout(timeoutRef.current) }}
+            >
+                <div
+                    className="w-full py-10 transition-all duration-500"
+                    style={!isThreeLevel ? { paddingLeft: `${leftOffset}px` } : {}}
+                >
+                    {isThreeLevel ? (
+                        <div className="content-container mx-auto px-8">
+                            <div className="flex flex-wrap gap-x-14 gap-y-10">
+                                {activeItem?.children.map((child: any) => (
+                                    <div key={child.id} className="min-w-[160px]">
+                                        <LocalizedClientLink
+                                            href={getMenuHref(child.link_type, child.slug)}
+                                            className="text-[15px] font-black tracking-widest mb-4 block uppercase hover:text-pink-600 transition-colors"
+                                            onClick={() => setActiveId(null)}
+                                        >
+                                            {child.title}
+                                        </LocalizedClientLink>
+                                        <div className="flex flex-col gap-y-2.5">
+                                            {child.children?.map((grand: any) => (
+                                                <LocalizedClientLink
+                                                    key={grand.id}
+                                                    href={getMenuHref(grand.link_type, grand.slug)}
+                                                    className="text-[12px] text-gray-500 hover:text-pink-600 uppercase tracking-wider transition-colors"
+                                                    onClick={() => setActiveId(null)}
+                                                >
+                                                    {grand.title}
+                                                </LocalizedClientLink>
+                                            ))}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
                         </div>
-                        <div className="flex items-baseline gap-x-2">
-                            <span className="font-semibold text-2xl">Country of origin:</span>
-                            <p className="text-xl">{product.origin_country ? product.origin_country : "-"}</p>
-                        </div>
-                        <div>
-                            <span className="font-semibold text-2xl">Type</span>
-                            <p className="text-xl">{product.type ? product.type.value : "-"}</p>
-                        </div>
-                        <div>
-                            <span className="font-semibold text-2xl">Weight</span>
-                            <p className="text-xl">{product.weight ? `${product.weight} g` : "-"}</p>
-                        </div>
-                    </div>
+                    ) : (
+                        <ul className="flex flex-col space-y-5">
+                            {activeItem?.children.map((child: any) => (
+                                <li key={child.id}>
+                                    <LocalizedClientLink
+                                        href={getMenuHref(child.link_type, child.slug)}
+                                        className="text-[13px] tracking-[0.15em] font-bold text-gray-900 hover:text-pink-600 uppercase transition-all inline-block"
+                                        onClick={() => setActiveId(null)}
+                                    >
+                                        {child.title}
+                                    </LocalizedClientLink>
+                                </li>
+                            ))}
+                        </ul>
+                    )}
                 </div>
             </div>
-            <Accordion type="multiple">
-                {tabs.map((tab, i) => (
-                    <Accordion.Item key={i} title={tab.label} value={tab.label}>
-                        {tab.component}
-                    </Accordion.Item>
-                ))}
-            </Accordion>
-        </div>
+
+            {/* 遮罩 */}
+            <div
+                className={`fixed inset-0 bg-black/5 backdrop-blur-[2px] z-[110] pointer-events-none transition-opacity duration-500 ${
+                    activeId && activeItem?.children?.length > 0 ? "opacity-100" : "opacity-0"
+                }`}
+                style={{ top: "140px" }}
+            />
+        </nav>
     )
 }
-
-export default ProductTabs

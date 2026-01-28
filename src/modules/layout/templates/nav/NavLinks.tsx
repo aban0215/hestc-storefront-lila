@@ -37,11 +37,11 @@ export default function NavLinks({ menuTree }: { menuTree: any[] }) {
 
     return (
         <nav
-            className="hidden lg:flex relative items-center justify-center h-[60px] border-t border-gray-100 bg-white" // 大哥建议把导航条高度从 50px 提到 60px，不然大字憋屈
+            className="hidden lg:flex relative items-center justify-center h-[56px] border-t border-gray-100 bg-white"
             onMouseLeave={handleMouseLeave}
         >
-            {/* 一级导航 */}
-            <ul className="flex items-center gap-x-12 h-full z-[130]">
+            {/* 一级导航：gap-x-10 是个安全距离，既不拥挤也不松散 */}
+            <ul className="flex items-center gap-x-10 h-full z-[130]">
                 {menuTree?.map((item) => (
                     <li
                         key={item.id}
@@ -50,9 +50,10 @@ export default function NavLinks({ menuTree }: { menuTree: any[] }) {
                     >
                         <LocalizedClientLink
                             href={getMenuHref(item.link_type, item.slug)}
-                            className={`relative py-1 text-sm tracking-[0.15em] font-bold uppercase transition-all duration-300 ease-in-out ${
+                            {/* 字体定格在 13px，字间距略微收紧到 0.15em */}
+                            className={`relative py-1 text-[13px] tracking-[0.15em] font-bold uppercase transition-all duration-300 ease-in-out ${
                                 activeId === item.id
-                                    ? 'text-pink-600 scale-105'
+                                    ? 'text-pink-600'
                                     : 'text-gray-800 hover:text-pink-600'
                             }`}
                         >
@@ -71,27 +72,29 @@ export default function NavLinks({ menuTree }: { menuTree: any[] }) {
                 onMouseEnter={() => { if (timeoutRef.current) clearTimeout(timeoutRef.current) }}
             >
                 <div
-                    className={`w-full py-12 transition-all duration-500`}
+                    className={`w-full py-10 transition-all duration-500`}
                     style={!isThreeLevel ? { paddingLeft: `${leftOffset}px` } : {}}
                 >
                     {isThreeLevel ? (
                         <div className="content-container mx-auto px-8">
-                            <div className="flex flex-wrap gap-x-16 gap-y-10">
+                            <div className="flex flex-wrap gap-x-14 gap-y-10">
                                 {activeItem?.children.map((child: any) => (
-                                    <div key={child.id} className="min-w-[180px]">
+                                    <div key={child.id} className="min-w-[160px]">
                                         <LocalizedClientLink
                                             href={getMenuHref(child.link_type, child.slug)}
-                                            className="text-base font-black tracking-widest mb-5 block uppercase hover:text-pink-600 transition-colors"
+                                            {/* 二级标题调至 15px */}
+                                            className="text-[15px] font-black tracking-widest mb-4 block uppercase hover:text-pink-600 transition-colors"
                                             onClick={() => setActiveId(null)}
                                         >
                                             {child.title}
                                         </LocalizedClientLink>
-                                        <div className="flex flex-col gap-y-3">
+                                        <div className="flex flex-col gap-y-2.5">
                                             {child.children?.map((grand: any) => (
                                                 <LocalizedClientLink
                                                     key={grand.id}
                                                     href={getMenuHref(grand.link_type, grand.slug)}
-                                                    className="text-[13px] text-gray-600 hover:text-pink-600 uppercase tracking-wider transition-colors"
+                                                    {/* 三级内容调至 12px */}
+                                                    className="text-[12px] text-gray-500 hover:text-pink-600 uppercase tracking-wider transition-colors"
                                                     onClick={() => setActiveId(null)}
                                                 >
                                                     {grand.title}
@@ -103,12 +106,12 @@ export default function NavLinks({ menuTree }: { menuTree: any[] }) {
                             </div>
                         </div>
                     ) : (
-                        <ul className="flex flex-col space-y-6">
+                        <ul className="flex flex-col space-y-5">
                             {activeItem?.children.map((child: any) => (
                                 <li key={child.id}>
                                     <LocalizedClientLink
                                         href={getMenuHref(child.link_type, child.slug)}
-                                        className="text-sm tracking-[0.2em] font-bold text-gray-900 hover:text-pink-600 uppercase transition-all inline-block"
+                                        className="text-[13px] tracking-[0.15em] font-bold text-gray-900 hover:text-pink-600 uppercase transition-all inline-block"
                                         onClick={() => setActiveId(null)}
                                     >
                                         {child.title}
@@ -119,7 +122,14 @@ export default function NavLinks({ menuTree }: { menuTree: any[] }) {
                     )}
                 </div>
             </div>
-            {/* 遮罩部分保持不变 */}
+
+            {/* 遮罩 */}
+            <div
+                className={`fixed inset-0 bg-black/5 backdrop-blur-[2px] z-[110] pointer-events-none transition-opacity duration-500 ${
+                    activeId && activeItem?.children?.length > 0 ? "opacity-100" : "opacity-0"
+                }`}
+                style={{ top: "140px" }}
+            />
         </nav>
     )
 }

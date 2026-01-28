@@ -23,7 +23,6 @@ export default function NavLinks({ menuTree }: { menuTree: any[] }) {
         if (timeoutRef.current) clearTimeout(timeoutRef.current)
         setActiveId(item.id)
 
-        // 计算偏移量保持对齐
         const rect = e.currentTarget.getBoundingClientRect()
         setLeftOffset(rect.left)
     }
@@ -40,7 +39,6 @@ export default function NavLinks({ menuTree }: { menuTree: any[] }) {
             className="hidden lg:flex relative items-center justify-center h-[56px] border-t border-gray-100 bg-white"
             onMouseLeave={handleMouseLeave}
         >
-            {/* 一级导航：gap-x-10 是个安全距离，既不拥挤也不松散 */}
             <ul className="flex items-center gap-x-10 h-full z-[130]">
                 {menuTree?.map((item) => (
                     <li
@@ -50,7 +48,6 @@ export default function NavLinks({ menuTree }: { menuTree: any[] }) {
                     >
                         <LocalizedClientLink
                             href={getMenuHref(item.link_type, item.slug)}
-                            {/* 字体定格在 13px，字间距略微收紧到 0.15em */}
                             className={`relative py-1 text-[13px] tracking-[0.15em] font-bold uppercase transition-all duration-300 ease-in-out ${
                                 activeId === item.id
                                     ? 'text-pink-600'
@@ -63,7 +60,6 @@ export default function NavLinks({ menuTree }: { menuTree: any[] }) {
                 ))}
             </ul>
 
-            {/* 下拉面板 */}
             <div
                 className={`fixed left-0 right-0 bg-white border-b border-gray-100 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.08)] z-[120] transition-all duration-400 ease-[cubic-bezier(0.23,1,0.32,1)] overflow-hidden ${
                     activeId && activeItem?.children?.length > 0 ? "max-h-[600px] opacity-100 visible" : "max-h-0 opacity-0 invisible"
@@ -72,7 +68,7 @@ export default function NavLinks({ menuTree }: { menuTree: any[] }) {
                 onMouseEnter={() => { if (timeoutRef.current) clearTimeout(timeoutRef.current) }}
             >
                 <div
-                    className={`w-full py-10 transition-all duration-500`}
+                    className="w-full py-10 transition-all duration-500"
                     style={!isThreeLevel ? { paddingLeft: `${leftOffset}px` } : {}}
                 >
                     {isThreeLevel ? (
@@ -82,7 +78,6 @@ export default function NavLinks({ menuTree }: { menuTree: any[] }) {
                                     <div key={child.id} className="min-w-[160px]">
                                         <LocalizedClientLink
                                             href={getMenuHref(child.link_type, child.slug)}
-                                            {/* 二级标题调至 15px */}
                                             className="text-[15px] font-black tracking-widest mb-4 block uppercase hover:text-pink-600 transition-colors"
                                             onClick={() => setActiveId(null)}
                                         >
@@ -93,7 +88,6 @@ export default function NavLinks({ menuTree }: { menuTree: any[] }) {
                                                 <LocalizedClientLink
                                                     key={grand.id}
                                                     href={getMenuHref(grand.link_type, grand.slug)}
-                                                    {/* 三级内容调至 12px */}
                                                     className="text-[12px] text-gray-500 hover:text-pink-600 uppercase tracking-wider transition-colors"
                                                     onClick={() => setActiveId(null)}
                                                 >
@@ -106,7 +100,7 @@ export default function NavLinks({ menuTree }: { menuTree: any[] }) {
                             </div>
                         </div>
                     ) : (
-                        <ul className="flex flex-col space-y-5">
+                        <ul className="flex flex-col space-y-5 px-8">
                             {activeItem?.children.map((child: any) => (
                                 <li key={child.id}>
                                     <LocalizedClientLink
@@ -123,7 +117,6 @@ export default function NavLinks({ menuTree }: { menuTree: any[] }) {
                 </div>
             </div>
 
-            {/* 遮罩 */}
             <div
                 className={`fixed inset-0 bg-black/5 backdrop-blur-[2px] z-[110] pointer-events-none transition-opacity duration-500 ${
                     activeId && activeItem?.children?.length > 0 ? "opacity-100" : "opacity-0"

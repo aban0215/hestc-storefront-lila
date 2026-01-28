@@ -125,8 +125,8 @@ const ProductTabs = ({ product, strapiContent }: ProductTabsProps) => {
                             <span className="font-semibold text-2xl">Material</span>
                             <p className="text-xl">{product.material ? product.material : "-"}</p>
                         </div>
-                        <div>
-                            <span className="font-semibold text-2xl">Country of origin</span>
+                        <div className="flex items-baseline gap-x-2">
+                            <span className="font-semibold text-2xl">Country of origin:</span>
                             <p className="text-xl">{product.origin_country ? product.origin_country : "-"}</p>
                         </div>
                         <div>

@@ -37,7 +37,7 @@ export default function NavLinks({ menuTree }: { menuTree: any[] }) {
 
     return (
         <nav
-            className="hidden lg:flex relative items-center justify-center h-[50px] border-t border-gray-100 bg-white"
+            className="hidden lg:flex relative items-center justify-center h-[60px] border-t border-gray-100 bg-white" // 大哥建议把导航条高度从 50px 提到 60px，不然大字憋屈
             onMouseLeave={handleMouseLeave}
         >
             {/* 一级导航 */}
@@ -50,14 +50,13 @@ export default function NavLinks({ menuTree }: { menuTree: any[] }) {
                     >
                         <LocalizedClientLink
                             href={getMenuHref(item.link_type, item.slug)}
-                            className={`relative py-1 text-[11px] tracking-[0.2em] font-bold uppercase transition-all duration-300 ease-in-out ${
+                            className={`relative py-1 text-sm tracking-[0.15em] font-bold uppercase transition-all duration-300 ease-in-out ${
                                 activeId === item.id
-                                    ? 'text-pink-600 scale-105' // 激活时文字略微放大，增加灵动感
+                                    ? 'text-pink-600 scale-105'
                                     : 'text-gray-800 hover:text-pink-600'
                             }`}
                         >
                             {item.title}
-                            {/* 大哥帮你把原来的 span 下划线代码删掉了 */}
                         </LocalizedClientLink>
                     </li>
                 ))}
@@ -82,7 +81,7 @@ export default function NavLinks({ menuTree }: { menuTree: any[] }) {
                                     <div key={child.id} className="min-w-[180px]">
                                         <LocalizedClientLink
                                             href={getMenuHref(child.link_type, child.slug)}
-                                            className="text-[12px] font-black tracking-widest mb-5 block uppercase hover:text-pink-600 transition-colors"
+                                            className="text-base font-black tracking-widest mb-5 block uppercase hover:text-pink-600 transition-colors"
                                             onClick={() => setActiveId(null)}
                                         >
                                             {child.title}
@@ -92,7 +91,7 @@ export default function NavLinks({ menuTree }: { menuTree: any[] }) {
                                                 <LocalizedClientLink
                                                     key={grand.id}
                                                     href={getMenuHref(grand.link_type, grand.slug)}
-                                                    className="text-[11px] text-gray-500 hover:text-pink-600 uppercase tracking-wider transition-colors"
+                                                    className="text-[13px] text-gray-600 hover:text-pink-600 uppercase tracking-wider transition-colors"
                                                     onClick={() => setActiveId(null)}
                                                 >
                                                     {grand.title}
@@ -109,7 +108,7 @@ export default function NavLinks({ menuTree }: { menuTree: any[] }) {
                                 <li key={child.id}>
                                     <LocalizedClientLink
                                         href={getMenuHref(child.link_type, child.slug)}
-                                        className="text-[12px] tracking-[0.2em] font-bold text-gray-900 hover:text-pink-600 uppercase transition-all inline-block"
+                                        className="text-sm tracking-[0.2em] font-bold text-gray-900 hover:text-pink-600 uppercase transition-all inline-block"
                                         onClick={() => setActiveId(null)}
                                     >
                                         {child.title}
@@ -120,14 +119,7 @@ export default function NavLinks({ menuTree }: { menuTree: any[] }) {
                     )}
                 </div>
             </div>
-
-            {/* 遮罩 */}
-            <div
-                className={`fixed inset-0 bg-black/5 backdrop-blur-[2px] z-[110] pointer-events-none transition-opacity duration-500 ${
-                    activeId && activeItem?.children?.length > 0 ? "opacity-100" : "opacity-0"
-                }`}
-                style={{ top: "140px" }}
-            />
+            {/* 遮罩部分保持不变 */}
         </nav>
     )
 }

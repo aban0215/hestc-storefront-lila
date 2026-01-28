@@ -23,7 +23,11 @@ const OptionSelect: React.FC<OptionSelectProps> = ({
 
     return (
         <div className="flex flex-col gap-y-3">
-            <span className="text-sm">Select {title}</span>
+            {/* 大哥改了这里：text-base 是 16px，font-bold 是加粗 */}
+            <span className="text-base font-bold text-ui-fg-base uppercase tracking-wide">
+                Select {title}
+            </span>
+
             <div
                 className="flex flex-wrap gap-2"
                 data-testid={dataTestId}
@@ -39,7 +43,8 @@ const OptionSelect: React.FC<OptionSelectProps> = ({
                                 "border text-small-regular rounded-lg px-3 py-1.5 min-w-0",
                                 "max-w-full truncate transition-all duration-150",
                                 {
-                                    "border-ui-border-interactive": isSelected, // 仅修改这里
+                                    // 选中状态：边框加粗一点，颜色深一点
+                                    "border-ui-border-interactive ring-1 ring-ui-border-interactive": isSelected,
                                     "border-ui-border-base bg-ui-bg-subtle text-ui-fg-base hover:bg-ui-bg-subtle-hover":
                                         !isSelected && !disabled,
                                     "border-ui-border-base bg-ui-bg-disabled text-ui-fg-disabled cursor-not-allowed":
@@ -51,12 +56,12 @@ const OptionSelect: React.FC<OptionSelectProps> = ({
                             style={{
                                 minWidth: '80px',
                                 maxWidth: '120px',
-                                flex: '0 0 auto' // 防止按钮拉伸
+                                flex: '0 0 auto'
                             }}
                         >
-              <span className="truncate block text-sm" title={v}>
-                {v}
-              </span>
+                            <span className="truncate block text-sm" title={v}>
+                                {v}
+                            </span>
                         </button>
                     )
                 })}

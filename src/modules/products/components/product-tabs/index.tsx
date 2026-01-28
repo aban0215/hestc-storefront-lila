@@ -112,8 +112,8 @@ const ProductTabs = ({ product, strapiContent }: ProductTabsProps) => {
             <div className="text-small-regular py-8">
                 {/* --- 新增的描述区域 --- */}
                 <div className="mb-8">
-                    <span className="font-semibold block mb-2 text-ui-fg-base">Details & Description</span>
-                    <p className="text-ui-fg-subtle leading-relaxed whitespace-pre-line">
+                    <span className="font-semibold text-2xl block mb-2 text-ui-fg-base">Details & Description</span>
+                    <p className="text-ui-fg-subtle text-xl leading-relaxed whitespace-pre-line">
                         {product.description ? product.description : "-"}
                     </p>
                 </div>
@@ -122,20 +122,20 @@ const ProductTabs = ({ product, strapiContent }: ProductTabsProps) => {
                 <div className="grid grid-cols-2 gap-x-8">
                     <div className="flex flex-col gap-y-4">
                         <div>
-                            <span className="font-semibold">Material</span>
-                            <p>{product.material ? product.material : "-"}</p>
+                            <span className="font-semibold text-2xl">Material</span>
+                            <p className="text-xl">{product.material ? product.material : "-"}</p>
                         </div>
                         <div>
-                            <span className="font-semibold">Country of origin</span>
-                            <p>{product.origin_country ? product.origin_country : "-"}</p>
+                            <span className="font-semibold text-2xl">Country of origin</span>
+                            <p className="text-xl">{product.origin_country ? product.origin_country : "-"}</p>
                         </div>
                         <div>
-                            <span className="font-semibold">Type</span>
-                            <p>{product.type ? product.type.value : "-"}</p>
+                            <span className="font-semibold text-2xl">Type</span>
+                            <p className="text-xl">{product.type ? product.type.value : "-"}</p>
                         </div>
                         <div>
-                            <span className="font-semibold">Weight</span>
-                            <p>{product.weight ? `${product.weight} g` : "-"}</p>
+                            <span className="font-semibold text-2xl">Weight</span>
+                            <p className="text-xl">{product.weight ? `${product.weight} g` : "-"}</p>
                         </div>
                     </div>
                 </div>

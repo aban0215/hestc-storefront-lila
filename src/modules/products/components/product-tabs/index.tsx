@@ -39,7 +39,6 @@ export default function NavLinks({ menuTree }: { menuTree: any[] }) {
             className="hidden lg:flex relative items-center justify-center h-[56px] border-t border-gray-100 bg-white"
             onMouseLeave={handleMouseLeave}
         >
-            {/* 一级导航 */}
             <ul className="flex items-center gap-x-10 h-full z-[130]">
                 {menuTree?.map((item) => (
                     <li
@@ -61,7 +60,6 @@ export default function NavLinks({ menuTree }: { menuTree: any[] }) {
                 ))}
             </ul>
 
-            {/* 下拉面板 */}
             <div
                 className={`fixed left-0 right-0 bg-white border-b border-gray-100 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.08)] z-[120] transition-all duration-400 ease-[cubic-bezier(0.23,1,0.32,1)] overflow-hidden ${
                     activeId && activeItem?.children?.length > 0 ? "max-h-[600px] opacity-100 visible" : "max-h-0 opacity-0 invisible"
@@ -102,7 +100,7 @@ export default function NavLinks({ menuTree }: { menuTree: any[] }) {
                             </div>
                         </div>
                     ) : (
-                        <ul className="flex flex-col space-y-5">
+                        <ul className="flex flex-col space-y-5 px-8">
                             {activeItem?.children.map((child: any) => (
                                 <li key={child.id}>
                                     <LocalizedClientLink
@@ -119,7 +117,6 @@ export default function NavLinks({ menuTree }: { menuTree: any[] }) {
                 </div>
             </div>
 
-            {/* 遮罩 */}
             <div
                 className={`fixed inset-0 bg-black/5 backdrop-blur-[2px] z-[110] pointer-events-none transition-opacity duration-500 ${
                     activeId && activeItem?.children?.length > 0 ? "opacity-100" : "opacity-0"

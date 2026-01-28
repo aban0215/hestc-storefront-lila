@@ -125,14 +125,14 @@ const ProductTabs = ({ product, strapiContent }: ProductTabsProps) => {
                             <span className="font-semibold text-2xl">Material</span>
                             <p className="text-xl">{product.material ? product.material : "-"}</p>
                         </div>
-                        <div className="flex items-baseline gap-x-2">
-                            <span className="font-semibold text-2xl">Country of origin:</span>
-                            <p className="text-xl">{product.origin_country ? product.origin_country : "-"}</p>
-                        </div>
-                        <div>
-                            <span className="font-semibold text-2xl">Type</span>
-                            <p className="text-xl">{product.type ? product.type.value : "-"}</p>
-                        </div>
+                        {/*<div className="flex items-baseline gap-x-2">*/}
+                        {/*    <span className="font-semibold text-2xl">Country of origin:</span>*/}
+                        {/*    <p className="text-xl">{product.origin_country ? product.origin_country : "-"}</p>*/}
+                        {/*</div>*/}
+                        {/*<div>*/}
+                        {/*    <span className="font-semibold text-2xl">Type</span>*/}
+                        {/*    <p className="text-xl">{product.type ? product.type.value : "-"}</p>*/}
+                        {/*</div>*/}
                         <div>
                             <span className="font-semibold text-2xl">Weight</span>
                             <p className="text-xl">{product.weight ? `${product.weight} g` : "-"}</p>

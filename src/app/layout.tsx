@@ -3,7 +3,7 @@ import { Metadata } from "next"
 import "styles/globals.css"
 import { getGlobalSeoSetting } from "@lib/strapi/seo";
 import { SpeedInsights } from '@vercel/speed-insights/next';
-
+import { Analytics } from "@vercel/analytics/next"
 
 export async function generateMetadata(): Promise<Metadata> {
     const globalSeo = await getGlobalSeoSetting();
@@ -59,6 +59,7 @@ export default function RootLayout(props: { children: React.ReactNode }) {
         <body className="relative" suppressHydrationWarning>
         <main>{props.children}</main>
         <SpeedInsights />
+        <Analytics />
         </body>
         </html>
     )

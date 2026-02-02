@@ -4,48 +4,68 @@ import { listCategories } from "@lib/data/categories"
 import { getBlogPosts } from "@lib/strapi/blog-data"
 import { getBaseURL } from "@lib/util/env"
 
+export const revalidate = 0
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const baseUrl = getBaseURL()
-    const mainCountry = "us" // 遵循你的单中心索引策略，sitemap 只放主版本
+    const mainCountry = "us"
 
-    // 1. 获取所有商品数据
-    const { response: { products } } = await listProducts({
-        countryCode: mainCountry,
-        queryParams: { limit: 100 }
-    })
+    let allProducts: any[] = []
+    let hasMore = true
+    let offset = 0
+    const BATCH_SIZE = 100 // 每次抓 100 个
 
-    // 2. 获取所有分类数据
+    while (hasMore) {
+        const { response: { products, count } } = await listProducts({
+            countryCode: mainCountry,
+            queryParams: {
+                limit: BATCH_SIZE,
+                offset: offset
+            }
+        })
+
+        allProducts = [...allProducts, ...products]
+        offset += BATCH_SIZE
+
+        if (allProducts.length >= count || products.length === 0) {
+            hasMore = false
+        }
+    }
+
     const categories = await listCategories()
 
-    // 3. 获取 Strapi 博客数据 (强制英文)
-    const posts = await getBlogPosts("en-US")
+    let posts = []
+    try {
+        posts = await getBlogPosts("en-US")
+    } catch (e) {
+        console.error("Sitemap: 获取博客失败", e)
+    }
 
-    // --- 开始构建静态页面 ---
     const routes = ["", "/blog", "/about", "/contact"].map((route) => ({
         url: `${baseUrl}/${mainCountry}${route}`,
         lastModified: new Date(),
+        changeFrequency: 'daily' as const,
         priority: route === "" ? 1 : 0.8,
     }))
 
-    // --- 构建商品页面 ---
-    const productEntries = products.map((product) => ({
+    const productEntries = allProducts.map((product) => ({
         url: `${baseUrl}/${mainCountry}/products/${product.handle}`,
-        lastModified: product.updated_at,
+        lastModified: new Date(product.updated_at),
         changeFrequency: 'weekly' as const,
         priority: 0.7,
     }))
 
-    // --- 构建分类页面 ---
     const categoryEntries = categories.map((category) => ({
         url: `${baseUrl}/${mainCountry}/categories/${category.handle}`,
         lastModified: new Date(),
+        changeFrequency: 'weekly' as const,
         priority: 0.6,
     }))
 
-    // --- 构建博客页面 ---
-    const blogEntries = posts.map((post) => ({
+    const blogEntries = posts.map((post: any) => ({
         url: `${baseUrl}/${mainCountry}/blog/${post.slug}`,
-        lastModified: post.publishedAt,
+        lastModified: new Date(post.publishedAt),
+        changeFrequency: 'weekly' as const,
         priority: 0.5,
     }))
 

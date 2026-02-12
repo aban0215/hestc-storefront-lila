@@ -179,7 +179,7 @@ export const listProductsWithSort = async ({
     pageParam: 0,
     queryParams: {
       ...queryParams, // 这里的三个点非常重要！它把 color, size, material 全部透传下去
-      limit: 100,
+      limit: 1000,
     },
     countryCode,
   })

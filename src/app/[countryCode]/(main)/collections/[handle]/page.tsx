@@ -22,7 +22,6 @@ type Props = {
 
 
 async function getCollectionSeoPatch(handle: string, locale: string = "en-US") {
-  // 【关键修改点】：将原来的 'collection-key' 替换为 ${handle}
   const query = `${STRAPI_URL}/api/lila-seo-extensions?filters[key][$eq]=${handle}&locale=${locale}&populate[lilaSeo][populate]=shareImage`
 
   try {
@@ -78,10 +77,9 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
   const { handle, countryCode } = await props.params
   const localecode = (await getSelectedLocale()) || 'en-US'
 
-  // 并行请求：一个去 Medusa 拿分类详情，一个去 Strapi 拿对应的 SEO 补丁
   const [collection, seoPatch] = await Promise.all([
     getCollectionByHandle(handle),
-    getCollectionSeoPatch(handle, localecode) // 这里传入当前分类的 handle
+    getCollectionSeoPatch(handle, localecode)
   ])
 
   if (!collection) notFound()
@@ -132,7 +130,6 @@ export default async function CollectionPage(props: Props) {
           sortBy={sortBy}
           countryCode={params.countryCode}
           marketingData={marketingData}
-          // 2. 关键：把剩下的筛选参数全部传进去
           searchParams={searchParams}
       />
   )

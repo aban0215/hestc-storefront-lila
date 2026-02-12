@@ -44,7 +44,7 @@ export const listProducts = async ({
   // 2. 构建基础 Query
   const query: any = {
     ...rest,
-    limit: 100, // 拿回足够多的数据供前端过滤
+    limit: 1000, // 拿回足够多的数据供前端过滤
     offset: 0,
     region_id: region?.id,
     order: order,

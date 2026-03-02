@@ -4,7 +4,7 @@ export async function getAnnouncements() {
 
     // Strapi v5 的 API 路径
     // 过滤只显示激活的条目
-    const res = await fetch(`${STRAPI_BASE_URL}/api/announcements?filters[is_active][$eq]=true`, {
+    const res = await fetch(`${STRAPI_BASE_URL}/api/lila-announcements?filters[is_active][$eq]=true`, {
         next: { revalidate: 3600 }, // 每小时更新一次缓存 (ISR)
     });
 

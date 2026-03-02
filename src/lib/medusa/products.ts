@@ -238,3 +238,70 @@ export async function getProductsByCollectionHandle(
     }
 }
 
+
+
+/**
+ * 根据 Category Handle 获取该分类下的商品
+ */
+export async function getProductsByCategoryHandle(
+    categoryHandle: string,
+    regionId: string,
+    currencyCode: string,
+    limit: number = 6
+): Promise<SimplifiedProduct[]> {
+    try {
+        const headers = { ...(await getAuthHeaders()) };
+
+        // 1. 获取 Category ID
+        // 注意：Medusa v2 存储分类 handle 的方式，查询时建议去掉前导斜杠
+        const categoryRes = await sdk.client.fetch<{ product_categories: any[] }>(
+            `/store/product-categories`,
+            {
+                method: "GET",
+                query: {
+                    handle: categoryHandle.replace(/^\//, ''),
+                    limit: 1,
+                    // 确保只查询已激活的分类
+                    is_active: true
+                },
+                headers,
+                cache: "no-store",
+            }
+        )
+
+        const categoryId = categoryRes.product_categories?.[0]?.id
+        if (!categoryId) {
+            console.warn(`未找到分类: ${categoryHandle}`)
+            return []
+        }
+
+        // 2. 查询该分类下的商品
+        const response = await sdk.client.fetch<{ products: HttpTypes.StoreProduct[] }>(
+            `/store/products`,
+            {
+                method: "GET",
+                query: {
+                    category_id: [categoryId], // 使用 category_id 数组过滤
+                    region_id: regionId,
+                    limit: limit,
+                    order: "-created_at", // 保持新货在前
+                    fields: "*variants.calculated_price,+variants.inventory_quantity,*variants.images,+metadata,+tags,+material,+variants.options,+variants.options.option,+collection",
+                },
+                headers,
+                cache: "no-store",
+            }
+        )
+
+        // 3. 转换为前端简化的商品格式
+        return response.products.map(product => ({
+            handle: product.handle!,
+            title: product.title!,
+            thumbnail: getProductThumbnail(product),
+            price: getProductPrice(product, currencyCode),
+            originalHandle: product.handle!
+        }))
+    } catch (error) {
+        console.error(`获取 Category 商品失败 (${categoryHandle}):`, error)
+        return []
+    }
+}

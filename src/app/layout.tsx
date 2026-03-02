@@ -4,12 +4,9 @@ import "styles/globals.css"
 import { getGlobalSeoSetting } from "@lib/strapi/seo";
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import { Analytics } from "@vercel/analytics/next"
-import AnnouncementBar from "../modules/layout/announcement-bar"
-import { getAnnouncements } from "@lib/get-announcements"
 
 export async function generateMetadata(): Promise<Metadata> {
     const globalSeo = await getGlobalSeoSetting();
-
 
     return {
         // 将 metadataBase 移入此处
@@ -37,13 +34,11 @@ export async function generateMetadata(): Promise<Metadata> {
     };
 }
 
-export default async function RootLayout(props: { children: React.ReactNode }) {
-
-    const announcements = await getAnnouncements()
-
+export default function RootLayout(props: { children: React.ReactNode }) {
     return (
         <html lang="en" data-mode="light">
         <head>
+            {/* 这里的脚本保持不变，它能有效处理你提到的 React DevTools 和 UC 浏览器导致的水合问题 */}
             <script
                 dangerouslySetInnerHTML={{
                     __html: `
@@ -62,8 +57,6 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
             />
         </head>
         <body className="relative" suppressHydrationWarning>
-        {/* 3. 现在传给组件的就是真实的 array 数据了 */}
-        <AnnouncementBar announcements={announcements} />
         <main>{props.children}</main>
         <SpeedInsights />
         <Analytics />

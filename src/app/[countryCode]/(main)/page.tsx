@@ -7,7 +7,7 @@ import NewArrivalPromo from '../../components/home/new-arrival-promo'
 import BestSellers from '../../components/home/best-sellers'
 import BlogShowcase from '../../components/home/blog-showcase'
 import { getBaseURL } from "@lib/util/env"
-
+import LotteryModal from "@modules/home/components/lottery-modal"
 
 const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_API_URL;
 
@@ -86,6 +86,7 @@ export default async function Home(props: Props) {
 
   return (
       <>
+        <LotteryModal />
         <div className="min-h-screen">
           <HeroSection />
           <div className="py-2 md:py-4">

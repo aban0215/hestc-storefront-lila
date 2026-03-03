@@ -37,7 +37,7 @@ export default async function CollectionTemplate({
     return (
         <div className="w-full bg-white relative">
             {/* 1. 吸顶工具栏 */}
-            <div className="sticky top-[55px] lg:top-[140px] z-[50] bg-white border-b border-gray-100 w-full">
+            <div className="sticky top-[55px] lg:top-[80px] z-[50] bg-white border-b border-gray-100 w-full">
                 <div className="mx-auto px-4 md:px-8 py-4">
                     {/* 数量统计 */}
                     <span className="text-[9px] text-gray-400 uppercase tracking-[0.2em] mb-3 block ml-0.5">

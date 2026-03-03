@@ -5,7 +5,35 @@ import LocalizedClientLink from "@modules/common/components/localized-client-lin
 export default function ProductCarousel({ products, targetHref, title }) {
     const [currentIndex, setCurrentIndex] = useState(0)
 
-    // PC 切换逻辑：每次移动 100% (即5个位置)
+    /**
+     * 价格转换函数：将类似 "10$" 转换为 "$10.00 USD"
+     * 1. 提取数字并强制两位小数
+     * 2. 提取符号并映射到货币代码
+     */
+    const formatPrice = (priceStr) => {
+        if (!priceStr) return ""
+
+        // 提取数字部分
+        const numericValue = priceStr.replace(/[^0-9.]/g, '')
+        // 提取货币符号
+        const symbolMatch = priceStr.match(/[^0-9. ]/)
+        const symbol = symbolMatch ? symbolMatch[0] : '$'
+
+        const currencyMap = {
+            '$': 'USD',
+            '€': 'EUR',
+            '£': 'GBP',
+            '¥': 'CNY',
+            'HK$': 'HKD'
+        }
+        const currencyCode = currencyMap[symbol] || 'USD'
+
+        const parsedNumber = parseFloat(numericValue)
+        if (isNaN(parsedNumber)) return priceStr
+
+        return `${symbol}${parsedNumber.toFixed(2)} ${currencyCode}`
+    }
+
     const next = () => currentIndex + 5 < products.length && setCurrentIndex(c => c + 5)
     const prev = () => currentIndex > 0 && setCurrentIndex(c => c - 5)
 
@@ -25,11 +53,22 @@ export default function ProductCarousel({ products, targetHref, title }) {
                                 className="min-w-[calc(20%-0.8px)] bg-white group flex flex-col"
                             >
                                 <div className="aspect-[3/4] overflow-hidden">
-                                    <img src={product.thumbnail} alt={product.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                                    <img
+                                        src={product.thumbnail}
+                                        alt={product.title}
+                                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                                    />
                                 </div>
-                                <div className="py-6 px-4 text-center">
-                                    <h3 className="text-[11px] font-medium uppercase tracking-widest text-gray-900 truncate">{product.title}</h3>
-                                    <p className="mt-2 text-[10px] text-gray-400 font-light">{product.price}</p>
+                                <div className="py-6 px-5 text-center flex flex-col justify-between flex-grow">
+                                    {/* 标题：保持半粗，允许两行换行 */}
+                                    <h3 className="text-sm md:text-[15px] font-semibold uppercase tracking-wider text-gray-900 line-clamp-2 min-h-[2.5rem] leading-tight">
+                                        {product.title}
+                                    </h3>
+
+                                    {/* 价格：字体大且黑，但不加粗 (font-normal) */}
+                                    <p className="mt-3 text-sm md:text-base text-gray-900 font-normal tracking-tight">
+                                        {formatPrice(product.price)}
+                                    </p>
                                 </div>
                             </LocalizedClientLink>
                         ))}
@@ -49,40 +88,38 @@ export default function ProductCarousel({ products, targetHref, title }) {
                 )}
             </div>
 
-            {/* 移动端：瀑布流 + 底部 View All */}
+            {/* 移动端：瀑布流 */}
             <div className="lg:hidden flex flex-col">
                 <div className="grid grid-cols-2 gap-[1px] bg-gray-100 border-y border-gray-100">
-                    {/* 满打满算显示 6 个商品，保持 3 排整齐 */}
                     {products.slice(0, 6).map((product) => (
-                        <LocalizedClientLink href={`/products/${product.handle}`} key={product.handle} className="bg-white">
+                        <LocalizedClientLink href={`/products/${product.handle}`} key={product.handle} className="bg-white flex flex-col">
                             <div className="aspect-[3/4] overflow-hidden">
                                 <img src={product.thumbnail} className="w-full h-full object-cover" alt={product.title} />
                             </div>
-                            <div className="py-4 px-2 text-center border-t border-gray-50/50">
-                                <h3 className="text-[10px] font-medium uppercase truncate text-gray-900">{product.title}</h3>
-                                <p className="text-[9px] text-gray-400 mt-1 font-light tracking-widest">{product.price}</p>
+                            <div className="py-5 px-3 text-center border-t border-gray-50/50 flex flex-col flex-grow">
+                                {/* 移动端标题 */}
+                                <h3 className="text-[12px] font-semibold uppercase text-gray-900 line-clamp-2 leading-tight min-h-[2rem]">
+                                    {product.title}
+                                </h3>
+                                {/* 移动端价格：不加粗 */}
+                                <p className="text-[13px] text-gray-900 mt-2 font-normal">
+                                    {formatPrice(product.price)}
+                                </p>
                             </div>
                         </LocalizedClientLink>
                     ))}
                 </div>
 
-                {/* 优化点：右下角轻量化入口 */}
+                {/* View All */}
                 <div className="w-full flex justify-end px-4 py-6">
                     <LocalizedClientLink
                         href={targetHref}
                         className="flex items-center gap-x-2 group"
                     >
-      <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-gray-900 border-b border-black pb-0.5 group-active:text-gray-400 group-active:border-gray-400 transition-all">
-        View All
-      </span>
-                        <svg
-                            width="14" height="14"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="1.5"
-                            className="text-gray-900 group-active:text-gray-400 transition-all"
-                        >
+                        <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-gray-900 border-b border-black pb-0.5 group-active:text-gray-400 group-active:border-gray-400 transition-all">
+                            View All
+                        </span>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-gray-900 group-active:text-gray-400 transition-all">
                             <path d="M9 18l6-6-6-6" />
                         </svg>
                     </LocalizedClientLink>

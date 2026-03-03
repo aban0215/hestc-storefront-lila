@@ -62,44 +62,68 @@ export default async function Nav() {
         <div className="relative z-[110] bg-white shadow-sm border-b border-gray-100">
           <header className="mx-auto px-4 lg:px-8 h-[60px] lg:h-[80px] bg-white relative">
 
-            {/* 核心内容区 */}
-            <div className="flex items-center justify-between h-full bg-white relative z-[120]">
+            {/* 🔧 核心内容区：移动端 grid 三列居中 Logo，PC 端 flex 三区域 */}
+            <div className="grid grid-cols-3 lg:flex lg:justify-between items-center h-full bg-white relative z-[120]">
 
-              {/* Logo 区 */}
-              <div className="flex items-center lg:w-[240px] h-full bg-white relative z-[130]">
-                <div className="lg:hidden pr-4 bg-white">
+              {/* 左侧：移动端汉堡菜单 / PC 端 Logo */}
+              <div className="flex items-center h-full bg-white relative z-[130]">
+                {/* 移动端汉堡菜单 */}
+                <div className="lg:hidden pr-2 bg-white">
                   <MobileMenu menuTree={menuTree} brandData={brandData} regions={regions} locales={locales} currentLocale={currentLocale} />
                 </div>
-                <Logo logoUrl={logoUrl} sitename={brandData?.sitename} />
+                {/* PC 端 Logo */}
+                <div className="hidden lg:block h-full">
+                  <Logo logoUrl={logoUrl} sitename={brandData?.sitename} />
+                </div>
               </div>
 
-              {/* 🔧 菜单区：添加 relative + overflow-visible，作为 absolute 下拉面板的定位基准 */}
-              <div className="hidden lg:flex flex-1 justify-center h-full bg-white relative z-[130] overflow-visible">
-                <NavLinks menuTree={menuTree} />
+              {/* 🔧 中间：移动端 Logo 居中 / PC 端 NavLinks 菜单 */}
+              <div className="flex items-center justify-center h-full bg-white relative z-[130]">
+                {/* 移动端 Logo（居中） */}
+                <div className="lg:hidden h-full">
+                  <Logo logoUrl={logoUrl} sitename={brandData?.sitename} />
+                </div>
+                {/* PC 端菜单 */}
+                <div className="hidden lg:flex flex-1 justify-center h-full bg-white relative z-[130] overflow-visible">
+                  <NavLinks menuTree={menuTree} />
+                </div>
               </div>
 
-              {/* 图标区 */}
-              <div className="flex items-center gap-x-1 lg:gap-x-4 justify-end lg:w-[240px] h-full bg-white relative z-[130]">
+              {/* 右侧：图标区 - 搜索 + 用户 + 购物车 */}
+              <div className="flex items-center gap-x-1 lg:gap-x-4 justify-end h-full bg-white relative z-[130]">
+
+                {/* 🔍 移动端搜索图标（点击弹窗） */}
+                <div className="lg:hidden bg-white">
+                  <SearchBarDirect variant="icon" />
+                </div>
+
+                {/* 🔍 PC 端搜索图标（点击弹窗） */}
                 <div className="hidden lg:block bg-white">
                   <SearchBarDirect variant="icon" />
                 </div>
+
+                {/* 🌐 语言/地区偏好（仅 PC） */}
                 <div className="hidden lg:block bg-white">
                   <DesktopPreferences regions={regions} locales={locales} currentLocale={currentLocale} />
                 </div>
-                <LocalizedClientLink href="/account" className="text-gray-700 hover:text-black w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-50 transition-all bg-white">
+
+                {/* 👤 用户中心 */}
+                <LocalizedClientLink
+                    href="/account"
+                    className="text-gray-700 hover:text-black w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-50 transition-all bg-white"
+                >
                   <User size={22} />
                 </LocalizedClientLink>
+
+                {/* 🛒 购物车 */}
                 <div className="bg-white">
                   <Suspense fallback={<div className="w-9 h-9" />}><CartButton /></Suspense>
                 </div>
+
               </div>
 
             </div>
 
-            {/* 移动端搜索 */}
-            <div className="lg:hidden px-4 pb-4 bg-white relative z-[120]">
-              <SearchBarDirect />
-            </div>
           </header>
         </div>
       </div>
@@ -113,8 +137,8 @@ function Logo({ logoUrl, sitename }: { logoUrl: string | null, sitename?: string
             <img src={logoUrl} alt="Logo" className="h-[40px] md:h-[50px] lg:h-[60px] w-auto object-contain" />
         ) : (
             <span className="text-[18px] md:text-[22px] lg:text-[24px] font-bold tracking-[0.2em] uppercase whitespace-nowrap bg-white">
-          {sitename || "LILA ZEN"}
-        </span>
+              {sitename || "LILA ZEN"}
+            </span>
         )}
       </LocalizedClientLink>
   )

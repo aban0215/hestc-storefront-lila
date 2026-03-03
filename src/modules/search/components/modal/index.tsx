@@ -27,43 +27,53 @@ export default function SearchBarDirect({ variant = "default" }: { variant?: "de
         return () => document.removeEventListener("mousedown", handleClickOutside)
     }, [])
 
-    // --- 图标模式渲染 (PC端) ---
+    // --- 图标模式渲染 (PC 端 + 移动端) ---
     if (variant === "icon") {
         return (
             <div className="relative" ref={containerRef}>
                 <button
                     onClick={() => setIsFocused(!isFocused)}
-                    className="text-gray-700 hover:text-black w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-50 transition-all"
+                    className="text-gray-700 hover:text-black w-10 h-10 md:w-9 md:h-9 flex items-center justify-center rounded-full hover:bg-gray-50 transition-all"
+                    aria-label="Search"
                 >
                     <MagnifyingGlass size={22} />
                 </button>
 
                 {isFocused && (
-                    <div className="absolute top-[calc(100%+12px)] right-[-100px] md:right-0 w-[350px] md:w-[450px] bg-white border border-gray-100 shadow-2xl rounded-2xl z-[150] overflow-hidden">
-                        <InstantSearch
-                            searchClient={searchClient}
-                            indexName={process.env.NEXT_PUBLIC_MEILISEARCH_INDEX_NAME || "products"}
-                        >
-                            <Configure hitsPerPage={6} />
-                            <div className="p-4 border-b border-gray-50 flex items-center">
-                                <MagnifyingGlass size={20} className="text-black mr-3" />
-                                <SearchBox
-                                    autoFocus
-                                    placeholder="Search products..."
-                                    className="w-full [&_input]:outline-none [&_input]:text-sm [&_button]:hidden"
-                                />
-                            </div>
-                            <div className="max-h-[400px] overflow-y-auto p-2 no-scrollbar">
-                                <Hits hitComponent={Hit} />
-                            </div>
-                        </InstantSearch>
-                    </div>
+                    <>
+                        {/* 遮罩层：全屏覆盖，点击关闭 */}
+                        <div
+                            className="fixed inset-0 bg-black/20 backdrop-blur-[1px] z-[145]"
+                            onClick={() => setIsFocused(false)}
+                        />
+
+                        {/* 弹窗容器：居中定位 */}
+                        <div className="fixed left-1/2 top-[80px] -translate-x-1/2 w-[90vw] md:w-[450px] bg-white border border-gray-100 shadow-2xl rounded-2xl z-[150] overflow-hidden">
+                            <InstantSearch
+                                searchClient={searchClient}
+                                indexName={process.env.NEXT_PUBLIC_MEILISEARCH_INDEX_NAME || "products"}
+                            >
+                                <Configure hitsPerPage={6} />
+                                <div className="p-4 border-b border-gray-50 flex items-center">
+                                    <MagnifyingGlass size={20} className="text-black mr-3" />
+                                    <SearchBox
+                                        autoFocus
+                                        placeholder="Search products..."
+                                        className="w-full [&_input]:outline-none [&_input]:text-sm [&_button]:hidden"
+                                    />
+                                </div>
+                                <div className="max-h-[400px] overflow-y-auto p-2 no-scrollbar">
+                                    <Hits hitComponent={Hit} />
+                                </div>
+                            </InstantSearch>
+                        </div>
+                    </>
                 )}
             </div>
         )
     }
 
-    // --- 默认长条模式渲染 (移动端) ---
+    // --- 默认长条模式渲染 (已废弃，保留兼容) ---
     return (
         <div className="relative w-full" ref={containerRef}>
             <InstantSearch
@@ -95,11 +105,12 @@ export default function SearchBarDirect({ variant = "default" }: { variant?: "de
 
 const Hit = ({ hit, objectID }: { hit: any; objectID?: string }) => {
     const { countryCode } = useParams()
+
     const uniqueKey = objectID || hit.objectID || hit.id || hit.handle || `hit-${Math.random().toString(36).slice(2)}`
 
     return (
         <Link
-            key={uniqueKey}  // 👈 关键修复：为列表项添加唯一 key
+            key={uniqueKey}
             href={`/${countryCode}/products/${hit.handle}`}
             className="flex flex-row gap-x-4 p-3 hover:bg-gray-50 rounded-lg transition-colors group relative"
         >

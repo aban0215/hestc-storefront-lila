@@ -30,11 +30,11 @@ export default async function HeroSection() {
     const isMobileVideo = mobileMedia?.mime?.includes('video');
 
     return (
-        <section className="relative h-[70vh] min-h-[500px] md:h-[700px] w-full overflow-hidden bg-gray-900">
-            {/* 背景媒体容器 */}
+        <section className="relative w-full overflow-hidden bg-gray-900 aspect-[16/9] min-h-[500px]">
+            {/* 背景媒体容器 - absolute 填满父容器 */}
             <div className="absolute inset-0">
                 {/* 1. 移动端媒体 (仅在移动端显示) */}
-                <div className="block md:hidden h-full w-full">
+                <div className="block md:hidden w-full h-full">
                     {isMobileVideo ? (
                         <video
                             src={mobileMedia.url}
@@ -42,21 +42,21 @@ export default async function HeroSection() {
                             muted
                             loop
                             playsInline
-                            poster={`${mobileMedia.url}?x-oss-process=video/snapshot,t_1000,f_jpg`}
-                            className="w-full h-full object-cover"
+                            poster={`${mobileMedia.url}?x-oss-process=video/snapshot,t_500,f_jpg,w_1200`}
+                            className="w-full h-full object-cover object-top"
                         />
                     ) : (
                         <img
                             src={mobileMedia.url}
                             alt={mobileMedia.alternativeText || heroData.title}
-                            className="w-full h-full object-cover"
+                            className="w-full h-full object-cover object-top"
                             loading="eager"
                         />
                     )}
                 </div>
 
                 {/* 2. PC 端媒体 (仅在桌面端显示) */}
-                <div className="hidden md:block h-full w-full">
+                <div className="hidden md:block w-full h-full">
                     {isDesktopVideo ? (
                         <video
                             src={desktopMedia.url}
@@ -64,14 +64,14 @@ export default async function HeroSection() {
                             muted
                             loop
                             playsInline
-                            poster={`${desktopMedia.url}?x-oss-process=video/snapshot,t_1000,f_jpg`}
-                            className="w-full h-full object-cover"
+                            poster={`${desktopMedia.url}?x-oss-process=video/snapshot,t_500,f_jpg,w_1920`}
+                            className="w-full h-full object-cover object-top"
                         />
                     ) : (
                         <img
                             src={desktopMedia.url}
                             alt={desktopMedia.alternativeText || heroData.title}
-                            className="w-full h-full object-cover"
+                            className="w-full h-full object-cover object-top"
                             loading="eager"
                         />
                     )}
@@ -84,8 +84,8 @@ export default async function HeroSection() {
                 />
             </div>
 
-            {/* 内容层 */}
-            <div className="relative h-full flex items-center z-20 pointer-events-none">
+            {/* 内容层 - 添加顶部留白 + 垂直居中优化 */}
+            <div className="relative w-full h-full flex items-center z-20 pointer-events-none pt-8 md:pt-16">
                 <div className="container mx-auto px-6">
                     <div className="max-w-2xl text-center md:text-left mx-auto md:mx-0">
                         <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif font-bold text-white mb-4 leading-tight drop-shadow-lg">
@@ -94,7 +94,7 @@ export default async function HeroSection() {
 
                         {heroData.subtitle && (
                             <p className="text-lg md:text-2xl text-white/90 mb-8 drop-shadow-md">
-                                {heroData.subtitle}
+                                {heroData.title}
                             </p>
                         )}
 

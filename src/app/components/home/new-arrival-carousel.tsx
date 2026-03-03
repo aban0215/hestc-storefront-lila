@@ -57,14 +57,21 @@ export default function NewArrivalCarousel({
                         </div>
 
                         {/* 文字内容区 */}
-                        <div className="pt-5 pb-6 px-4 text-center flex flex-col flex-grow">
-                            {/* 商品标题：支持两行换行，semibold 字重 */}
-                            <h3 className="text-[12px] md:text-[14px] font-semibold uppercase tracking-wider text-gray-900 line-clamp-2 leading-tight min-h-[2.2rem] md:min-h-[2.5rem]">
+                        <div className="pt-5 pb-6 px-4 text-center flex flex-col">
+                            {/* 标题修改点：
+                                1. 移除了 min-h，避免在标题换行时遮挡价格。
+                                2. 使用 line-clamp-2 保证最多显示两行，多出的部分显示省略号。
+                                3. leading-normal 增加行间距，防止文字粘连。
+                            */}
+                            <h3 className="text-[12px] md:text-[14px] font-semibold uppercase tracking-wider text-gray-900 line-clamp-2 leading-normal break-words">
                                 {product.title}
                             </h3>
 
-                            {/* 价格：字体大，不加粗，深黑色 */}
-                            <p className="text-[12px] md:text-[14px] text-gray-900 mt-2 font-normal">
+                            {/* 价格修改点：
+                                1. mt-3 确保价格与标题之间有固定的物理间距。
+                                2. font-normal 保持不加粗。
+                            */}
+                            <p className="text-[13px] md:text-[14px] text-gray-900 mt-3 font-normal">
                                 {formatPrice(product.price)}
                             </p>
                         </div>

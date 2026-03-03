@@ -19,7 +19,7 @@ export default async function ProductPreview({
     return (
         <LocalizedClientLink href={`/products/${product.handle}`} className="group">
             <div data-testid="product-wrapper" className="flex flex-col w-full h-full">
-                {/* 1. 图片容器：完全直角 */}
+                {/* 1. 图片容器 */}
                 <div className="relative w-full aspect-[4/5] bg-[#f5f5f5] overflow-hidden">
                     <Thumbnail
                         thumbnail={product.thumbnail}
@@ -31,26 +31,31 @@ export default async function ProductPreview({
                 </div>
 
                 {/* 2. 信息区域 */}
-                <div className="mt-5 flex flex-col items-center text-center px-2 flex-grow">
+                <div className="mt-4 flex flex-col items-center text-center px-2">
 
-                    {/* 商品标题：支持换行 (line-clamp-2)，字重改为 semibold 以区分 */}
+                    {/* 商品标题：
+                        - line-clamp-2: 强制两行，多余冒泡(...)
+                        - leading-normal: 舒适的行间距
+                        - break-words: 确保长单词正常换行
+                    */}
                     <h3
-                        className="text-[13px] md:text-[14px] text-gray-900 font-semibold tracking-wide leading-snug uppercase line-clamp-2 min-h-[2.5rem]"
+                        className="text-[13px] md:text-[14px] text-gray-900 font-semibold uppercase tracking-wide leading-normal line-clamp-2 break-words"
                         data-testid="product-title"
                     >
                         {product.title}
                     </h3>
 
-                    {/* 价格：深黑色 (gray-900)，正常字重 (font-normal)，字号放大 */}
-                    <div className="mt-3 text-[13px] md:text-[15px] text-gray-900 font-normal tracking-tight">
+                    {/* 价格区域：
+                        - mt-2: 与标题保持固定间距，不会重叠
+                        - font-normal: 价格不加粗
+                    */}
+                    <div className="mt-2 text-[13px] md:text-[15px] text-gray-900 font-normal tracking-tight">
                         {cheapestPrice ? (
-                            /* 注意：PreviewPrice 内部通常会渲染类似 $100.00 的格式。
-                               通过在外层定义 text-gray-900 和 font-normal，
-                               可以强制覆盖其可能继承的浅色样式。
-                            */
-                            <div className="flex items-center gap-x-1">
+                            <div className="flex items-center justify-center gap-x-1">
                                 <PreviewPrice price={cheapestPrice} />
-                                <span className="ml-1 uppercase text-[11px] md:text-[12px]">{region?.currency_code}</span>
+                                <span className="ml-1 uppercase text-[10px] md:text-[11px] opacity-70">
+                                    {region?.currency_code}
+                                </span>
                             </div>
                         ) : (
                             <span className="opacity-0">0.00</span>

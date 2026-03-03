@@ -39,25 +39,25 @@ const LotteryModal = () => {
 
         setIsSpinning(true)
 
-        // 🎯 随机选择奖品索引
         const targetIdx = Math.floor(Math.random() * PRIZES.length)
         setPrizeIndex(targetIdx)
 
-        // 📐 计算每个扇区的角度
-        const degreesPerSlice = 360 / PRIZES.length  // 45°
-
-        // 🎯 核心计算逻辑（已修复指针偏移）：
-        // 指针在 1 点位置 = 顺时针 30°偏移，需要在基础旋转中补偿
-        const pointerOffset = 30  // ✅ 指针偏移补偿
+        const degreesPerSlice = 360 / PRIZES.length
+        const pointerOffset = 30
         const baseRotation = -(targetIdx + 0.5) * degreesPerSlice + pointerOffset
-
-        // 🎡 添加 8~12 圈随机旋转，确保动画效果
         const randomSpins = 360 * (8 + Math.floor(Math.random() * 5))
         const finalRotation = randomSpins + baseRotation
 
         setRotation(finalRotation)
 
-        // 🔍 调试日志
+        console.group('🎡 轮盘调试')
+        console.log('🎯 目标索引:', targetIdx)
+        console.log('🎁 目标奖品:', PRIZES[targetIdx].label)
+        console.log('📐 每扇区角度:', degreesPerSlice, '°')
+        console.log('🔄 基础旋转:', baseRotation, '°')
+        console.log('🎲 最终旋转:', finalRotation, '°')
+        console.log('📍 指针偏移补偿:', pointerOffset, '°')
+        console.groupEnd()
 
         setTimeout(() => {
             setIsSpinning(false)
@@ -87,35 +87,38 @@ const LotteryModal = () => {
             )}
 
             {isVisible && (
-                <div className="fixed inset-0 z-[9999] flex items-center justify-center pointer-events-none p-4 animate-in fade-in duration-300 backdrop-blur-sm">
-                    <div className="relative bg-white border border-black shadow-[0_45px_100px_-20px_rgba(0,0,0,0.4)] rounded-[2.5rem] p-12 max-w-[500px] w-full pointer-events-auto animate-in zoom-in-95 duration-500 text-center">
+                <div className="fixed inset-0 z-[9999] flex items-center justify-center pointer-events-none p-4 animate-in fade-in duration-300 backdrop-blur-sm overflow-hidden">
+                    <div className="relative bg-white border border-black shadow-[0_45px_100px_-20px_rgba(0,0,0,0.4)] rounded-[2.5rem] p-8 sm:p-12 max-w-[500px] w-full pointer-events-auto animate-in zoom-in-95 duration-500 text-center max-h-[90vh] overflow-y-auto">
 
-                        <button onClick={() => setIsVisible(false)} className="absolute top-8 right-8 text-gray-400 hover:text-black transition-colors">
+                        <button onClick={() => setIsVisible(false)} className="absolute top-4 right-4 sm:top-8 sm:right-8 text-gray-400 hover:text-black transition-colors z-50">
                             <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M6 18L18 6M6 6l12 12"></path></svg>
                         </button>
 
                         {!showResult ? (
                             <>
-                                <header className="mb-10">
-                                    <h2 className="text-4xl font-black tracking-tighter uppercase italic mb-2 leading-none text-black">Lucky Spin</h2>
+                                <header className="mb-6 sm:mb-10">
+                                    <h2 className="text-3xl sm:text-4xl font-black tracking-tighter uppercase italic mb-2 leading-none text-black">Lucky Spin</h2>
                                     <p className="text-gray-400 text-[11px] tracking-[0.2em] uppercase font-bold">Try your luck today</p>
                                 </header>
 
-                                <div className="relative w-80 h-80 mx-auto mb-12">
-                                    {/* ✅ 修改：指针在 1 点位置 (30°), 向外偏移至 190px, 图标旋转 180° */}
+                                {/* ✅ 轮盘容器响应式尺寸 */}
+                                <div className="relative w-72 h-72 sm:w-80 sm:h-80 mx-auto mb-8 sm:mb-12">
+                                    {/* ✅ 修复：指针距离按比例调整，SVG 尺寸响应式 */}
                                     <div className="absolute z-50" style={{
                                         left: '50%',
                                         top: '50%',
-                                        // 执行顺序 (从右到左):
-                                        // 1. translateY(-190px): 沿局部 Y 轴向上移动 190px (比之前 145px 向外 45px)
-                                        // 2. rotate(30deg): 顺时针旋转 30°到 1 点钟方向
-                                        // 3. translate(-50%,-50%): 元素中心对齐圆心
-                                        transform: 'translate(-50%, -50%) rotate(30deg) translateY(-170px)'
+                                        // PC: 190px (半径 160 + 间距 55 - 指针半高 25)
+                                        // 手机：155px (半径 144 + 间距 36 - 指针半高 25)
+                                        transform: 'translate(-50%, -50%) rotate(30deg) translateY(-155px)'
                                     }}>
-                                        <svg width="40" height="50" viewBox="0 0 40 50" className="drop-shadow-lg rotate-180">
-                                            {/* 指针图标（旋转 180°后尖端朝上，指向圆盘外） */}
+                                        {/* ✅ 响应式指针 SVG：手机缩小到 80% */}
+                                        <svg
+                                            width="32"
+                                            height="40"
+                                            viewBox="0 0 40 50"
+                                            className="drop-shadow-lg rotate-180 sm:w-10 sm:h-[50px]"
+                                        >
                                             <path d="M20 50 L32 15 L20 0 L8 15 Z" fill="#f97316" />
-                                            {/* 底部装饰圆 */}
                                             <circle cx="20" cy="45" r="4" fill="#f97316" />
                                         </svg>
                                     </div>
@@ -203,12 +206,12 @@ const LotteryModal = () => {
                             </>
                         ) : (
                             <div className="py-10 animate-in zoom-in-95 duration-500">
-                                <div className="text-7xl mb-8 text-orange-500 font-black italic text-center">WINNER!</div>
-                                <h2 className="text-3xl font-black uppercase italic mb-8 leading-none text-center">
+                                <div className="text-6xl sm:text-7xl mb-8 text-orange-500 font-black italic text-center">WINNER!</div>
+                                <h2 className="text-2xl sm:text-3xl font-black uppercase italic mb-8 leading-none text-center">
                                     {prizeIndex !== null ? PRIZES[prizeIndex].label : ''}
                                 </h2>
                                 <div className="bg-gray-50 border-2 border-black border-dashed p-8 mb-10 rounded-2xl">
-                                    <span className="text-4xl font-mono font-black tracking-widest uppercase block text-center">
+                                    <span className="text-3xl sm:text-4xl font-mono font-black tracking-widest uppercase block text-center">
                                         {prizeIndex !== null ? PRIZES[prizeIndex].code : ''}
                                     </span>
                                 </div>

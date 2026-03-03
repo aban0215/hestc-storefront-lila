@@ -69,7 +69,7 @@ export default async function BlogDetailPage(props: Props) {
     return (
         <article className="min-h-screen bg-white">
             {/* --- 1. 吸顶工具栏：与列表页和分类页完美对齐 --- */}
-            <div className="sticky top-[110px] lg:top-[140px] z-[50] bg-white/90 backdrop-blur-md border-b border-gray-50">
+            <div className="sticky top-[55px] lg:top-[140px] z-[50] bg-white/90 backdrop-blur-md border-b border-gray-50">
                 <div className="w-full px-4 md:px-8 py-4 flex items-center justify-between">
                     <div className="flex items-center gap-x-4">
                         <BackButton className="text-black !tracking-[0.1em]" />

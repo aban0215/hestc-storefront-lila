@@ -68,7 +68,7 @@ export default async function CategoryTemplate({
     return (
         <div className="w-full bg-white">
             {/* 1. 吸顶工具栏：实色、无模糊、物理对齐 */}
-            <div className="sticky top-[110px] lg:top-[140px] z-[50] bg-white border-b border-gray-100">
+            <div className="sticky top-[55px] lg:top-[140px] z-[50] bg-white border-b border-gray-100">
                 <div className="w-full px-4 md:px-8 py-4">
                 <span className="text-[9px] text-gray-400 uppercase tracking-[0.2em] mb-3 block ml-0.5">
                     {count} {count === 1 ? 'Result' : 'Results'}

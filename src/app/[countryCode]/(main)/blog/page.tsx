@@ -63,7 +63,7 @@ export default async function BlogArchivePage(props: Props) {
     return (
         <div className="w-full bg-white">
             {/* 1. 吸顶工具栏：对齐 Category 页面的风格 */}
-            <div className="sticky top-[110px] lg:top-[140px] z-[50] bg-white border-b border-gray-100">
+            <div className="sticky top-[55px] lg:top-[140px] z-[50] bg-white border-b border-gray-100">
                 <div className="w-full px-4 md:px-8 py-4 flex items-center justify-between">
                     {/* 左侧：返回键 + 页面标题 */}
                     <div className="flex items-center gap-x-4">

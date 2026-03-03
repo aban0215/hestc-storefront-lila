@@ -34,7 +34,7 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
     return (
         <div className="relative w-full bg-white">
 
-            <div className="sticky top-[110px] lg:top-[140px] z-[60] w-full bg-white/90 backdrop-blur-md border-b border-gray-50">
+            <div className="sticky top-[55px] lg:top-[140px] z-[60] w-full bg-white/90 backdrop-blur-md border-b border-gray-50">
                 <div className="content-container py-4">
                     <BackButton className="text-gray-900 !tracking-[0.1em]" />
                 </div>

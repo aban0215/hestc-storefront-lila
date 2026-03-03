@@ -3,14 +3,14 @@
 import React, { useState, useEffect } from "react"
 
 const PRIZES = [
-    { label: "BOGO FREE", code: "BOGO-FREE", color: "#f97316", textColor: "#ffffff" },
-    { label: "10% OFF", code: "WELCOME10", color: "#111111", textColor: "#ffffff" },
-    { label: "BUY 2 GET 1", code: "B2G1-FREE", color: "#f97316", textColor: "#ffffff" },
-    { label: "15% OFF", code: "SAVE15", color: "#111111", textColor: "#ffffff" },
-    { label: "20% OFF", code: "LUCKY20", color: "#f97316", textColor: "#ffffff" },
     { label: "BOGO FREE", code: "BOGO-FREE", color: "#111111", textColor: "#ffffff" },
-    { label: "5% OFF", code: "GIFT5", color: "#f97316", textColor: "#ffffff" },
+    { label: "10% OFF", code: "WELCOME10", color: "#f97316", textColor: "#ffffff" },
     { label: "BUY 2 GET 1", code: "B2G1-FREE", color: "#111111", textColor: "#ffffff" },
+    { label: "15% OFF", code: "SAVE15", color: "#f97316", textColor: "#ffffff" },
+    { label: "20% OFF", code: "LUCKY20", color: "#111111", textColor: "#ffffff" },
+    { label: "BOGO FREE", code: "BOGO-FREE", color: "#f97316", textColor: "#ffffff" },
+    { label: "5% OFF", code: "GIFT5", color: "#111111", textColor: "#ffffff" },
+    { label: "BUY 2 GET 1", code: "B2G1-FREE", color: "#f97316", textColor: "#ffffff" },
 ]
 
 const LotteryModal = () => {
@@ -47,11 +47,8 @@ const LotteryModal = () => {
         const degreesPerSlice = 360 / PRIZES.length  // 45°
 
         // 🎯 核心计算逻辑（已修复指针偏移）：
-        // 1. 扇区i的中心角度(SVG坐标系): (i + 0.5) * 45° - 90°（因-rotate-90）
-        // 2. 指针现在在1点位置 = SVG坐标系的 -60°（原-90° + 30°偏移）
-        // 3. 要让扇区中心对准指针: (i+0.5)*45 - 90 + rotation = -60
-        // 4. 解得: rotation = -(i + 0.5) * 45 + 30
-        const pointerOffset = 30  // ✅ 指针在1点位置，顺时针偏移30°
+        // 指针在 1 点位置 = 顺时针 30°偏移，需要在基础旋转中补偿
+        const pointerOffset = 30  // ✅ 指针偏移补偿
         const baseRotation = -(targetIdx + 0.5) * degreesPerSlice + pointerOffset
 
         // 🎡 添加 8~12 圈随机旋转，确保动画效果
@@ -61,14 +58,6 @@ const LotteryModal = () => {
         setRotation(finalRotation)
 
         // 🔍 调试日志
-        console.group('🎡 轮盘调试')
-        console.log('🎯 目标索引:', targetIdx)
-        console.log('🎁 目标奖品:', PRIZES[targetIdx].label)
-        console.log('📐 每扇区角度:', degreesPerSlice, '°')
-        console.log('🔄 基础旋转:', baseRotation, '°')
-        console.log('🎲 最终旋转:', finalRotation, '°')
-        console.log('📍 指针偏移补偿:', pointerOffset, '°')
-        console.groupEnd()
 
         setTimeout(() => {
             setIsSpinning(false)
@@ -76,8 +65,6 @@ const LotteryModal = () => {
             localStorage.setItem("medusa_lottery_v10_fixed", "true")
         }, 8000)
     }
-
-
 
     const getCoordinatesForPercent = (percent: number) => {
         const x = Math.cos(2 * Math.PI * percent)
@@ -115,18 +102,18 @@ const LotteryModal = () => {
                                 </header>
 
                                 <div className="relative w-80 h-80 mx-auto mb-12">
-                                    {/* ✅ 修改：指针在1点位置(30°), 向圆心偏移至145px, 图标旋转180° */}
+                                    {/* ✅ 修改：指针在 1 点位置 (30°), 向外偏移至 190px, 图标旋转 180° */}
                                     <div className="absolute z-50" style={{
                                         left: '50%',
                                         top: '50%',
-                                        // 执行顺序(从右到左):
-                                        // 1. translateY(-145px): 沿局部Y轴向上移动145px (轮盘半径160px - 指针半高25px + 5px余量)
-                                        // 2. rotate(30deg): 顺时针旋转30°到1点钟方向
+                                        // 执行顺序 (从右到左):
+                                        // 1. translateY(-190px): 沿局部 Y 轴向上移动 190px (比之前 145px 向外 45px)
+                                        // 2. rotate(30deg): 顺时针旋转 30°到 1 点钟方向
                                         // 3. translate(-50%,-50%): 元素中心对齐圆心
-                                        transform: 'translate(-50%, -50%) rotate(30deg) translateY(-145px)'
+                                        transform: 'translate(-50%, -50%) rotate(30deg) translateY(-170px)'
                                     }}>
                                         <svg width="40" height="50" viewBox="0 0 40 50" className="drop-shadow-lg rotate-180">
-                                            {/* 指针图标（旋转180°后尖端朝上，指向圆盘外） */}
+                                            {/* 指针图标（旋转 180°后尖端朝上，指向圆盘外） */}
                                             <path d="M20 50 L32 15 L20 0 L8 15 Z" fill="#f97316" />
                                             {/* 底部装饰圆 */}
                                             <circle cx="20" cy="45" r="4" fill="#f97316" />
@@ -138,7 +125,6 @@ const LotteryModal = () => {
                                         className="w-full h-full shadow-2xl rounded-full border-[4px] border-black overflow-hidden bg-black"
                                         style={{
                                             transform: `rotate(${rotation}deg)`,
-                                            // ✅ 只在旋转时启用 transition，避免初始闪烁
                                             transition: isSpinning
                                                 ? 'transform 8s cubic-bezier(0.1, 0, 0.1, 1)'
                                                 : 'none'
@@ -156,7 +142,6 @@ const LotteryModal = () => {
                                                 const textX = Math.cos(angle) * 0.7
                                                 const textY = Math.sin(angle) * 0.7
 
-                                                // 文字角度：让文字始终正向可读
                                                 let baseAngle = midPercent * 360
                                                 let textAngle = baseAngle + 180
                                                 if (baseAngle > 90 && baseAngle < 270) {

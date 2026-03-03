@@ -7,12 +7,10 @@ const PRIZES = [
     { label: "10% OFF", code: "WELCOME10", color: "#111111", textColor: "#ffffff" },
     { label: "BUY 2 GET 1", code: "B2G1-FREE", color: "#f97316", textColor: "#ffffff" },
     { label: "15% OFF", code: "SAVE15", color: "#111111", textColor: "#ffffff" },
-    { label: "FREE SHIP", code: "SHIP-FREE", color: "#f97316", textColor: "#ffffff" },
-    { label: "20% OFF", code: "LUCKY20", color: "#111111", textColor: "#ffffff" },
-    { label: "BOGO FREE", code: "BOGO-FREE", color: "#f97316", textColor: "#ffffff" },
-    { label: "5% OFF", code: "GIFT5", color: "#111111", textColor: "#ffffff" },
-    { label: "BUY 2 GET 1", code: "B2G1-FREE", color: "#f97316", textColor: "#ffffff" },
-    { label: "BETTER LUCK", code: "TRYAGAIN", color: "#111111", textColor: "#9ca3af" },
+    { label: "20% OFF", code: "LUCKY20", color: "#f97316", textColor: "#ffffff" },
+    { label: "BOGO FREE", code: "BOGO-FREE", color: "#111111", textColor: "#ffffff" },
+    { label: "5% OFF", code: "GIFT5", color: "#f97316", textColor: "#ffffff" },
+    { label: "BUY 2 GET 1", code: "B2G1-FREE", color: "#111111", textColor: "#ffffff" },
 ]
 
 const LotteryModal = () => {
@@ -41,18 +39,36 @@ const LotteryModal = () => {
 
         setIsSpinning(true)
 
+        // 🎯 随机选择奖品索引
         const targetIdx = Math.floor(Math.random() * PRIZES.length)
         setPrizeIndex(targetIdx)
 
-        const degreesPerSlice = 360 / PRIZES.length
-        const pointerAngle = 0
-        const targetMiddleAngle = (targetIdx * degreesPerSlice) + (degreesPerSlice / 2)
+        // 📐 计算每个扇区的角度
+        const degreesPerSlice = 360 / PRIZES.length  // 45°
 
-        let targetRotation = targetMiddleAngle - pointerAngle
+        // 🎯 核心计算逻辑（已修复指针偏移）：
+        // 1. 扇区i的中心角度(SVG坐标系): (i + 0.5) * 45° - 90°（因-rotate-90）
+        // 2. 指针现在在1点位置 = SVG坐标系的 -60°（原-90° + 30°偏移）
+        // 3. 要让扇区中心对准指针: (i+0.5)*45 - 90 + rotation = -60
+        // 4. 解得: rotation = -(i + 0.5) * 45 + 30
+        const pointerOffset = 30  // ✅ 指针在1点位置，顺时针偏移30°
+        const baseRotation = -(targetIdx + 0.5) * degreesPerSlice + pointerOffset
+
+        // 🎡 添加 8~12 圈随机旋转，确保动画效果
         const randomSpins = 360 * (8 + Math.floor(Math.random() * 5))
-        const finalRotation = randomSpins + targetRotation
+        const finalRotation = randomSpins + baseRotation
 
         setRotation(finalRotation)
+
+        // 🔍 调试日志
+        console.group('🎡 轮盘调试')
+        console.log('🎯 目标索引:', targetIdx)
+        console.log('🎁 目标奖品:', PRIZES[targetIdx].label)
+        console.log('📐 每扇区角度:', degreesPerSlice, '°')
+        console.log('🔄 基础旋转:', baseRotation, '°')
+        console.log('🎲 最终旋转:', finalRotation, '°')
+        console.log('📍 指针偏移补偿:', pointerOffset, '°')
+        console.groupEnd()
 
         setTimeout(() => {
             setIsSpinning(false)
@@ -60,6 +76,8 @@ const LotteryModal = () => {
             localStorage.setItem("medusa_lottery_v10_fixed", "true")
         }, 8000)
     }
+
+
 
     const getCoordinatesForPercent = (percent: number) => {
         const x = Math.cos(2 * Math.PI * percent)
@@ -97,10 +115,21 @@ const LotteryModal = () => {
                                 </header>
 
                                 <div className="relative w-80 h-80 mx-auto mb-12">
-                                    {/* 指针修正：调整了 top, right 和 translate，让它向内（左下方）更靠近圆心 */}
-                                    <div className="absolute z-50 text-orange-500" style={{ top: '8px', right: '8px' }}>
-                                        <svg width="45" height="45" viewBox="0 0 24 30" fill="currentColor" className="drop-shadow-lg rotate-[405deg] transform translate-x-[-12px] translate-y-[12px]">
-                                            <path d="M12 30L24 10L12 0L0 10L12 30Z"/>
+                                    {/* ✅ 修改：指针在1点位置(30°), 向圆心偏移至145px, 图标旋转180° */}
+                                    <div className="absolute z-50" style={{
+                                        left: '50%',
+                                        top: '50%',
+                                        // 执行顺序(从右到左):
+                                        // 1. translateY(-145px): 沿局部Y轴向上移动145px (轮盘半径160px - 指针半高25px + 5px余量)
+                                        // 2. rotate(30deg): 顺时针旋转30°到1点钟方向
+                                        // 3. translate(-50%,-50%): 元素中心对齐圆心
+                                        transform: 'translate(-50%, -50%) rotate(30deg) translateY(-145px)'
+                                    }}>
+                                        <svg width="40" height="50" viewBox="0 0 40 50" className="drop-shadow-lg rotate-180">
+                                            {/* 指针图标（旋转180°后尖端朝上，指向圆盘外） */}
+                                            <path d="M20 50 L32 15 L20 0 L8 15 Z" fill="#f97316" />
+                                            {/* 底部装饰圆 */}
+                                            <circle cx="20" cy="45" r="4" fill="#f97316" />
                                         </svg>
                                     </div>
 
@@ -109,7 +138,10 @@ const LotteryModal = () => {
                                         className="w-full h-full shadow-2xl rounded-full border-[4px] border-black overflow-hidden bg-black"
                                         style={{
                                             transform: `rotate(${rotation}deg)`,
-                                            transition: 'transform 8s cubic-bezier(0.1, 0, 0.1, 1)'
+                                            // ✅ 只在旋转时启用 transition，避免初始闪烁
+                                            transition: isSpinning
+                                                ? 'transform 8s cubic-bezier(0.1, 0, 0.1, 1)'
+                                                : 'none'
                                         }}
                                     >
                                         <svg viewBox="-1 -1 2 2" className="w-full h-full -rotate-90">
@@ -124,6 +156,7 @@ const LotteryModal = () => {
                                                 const textX = Math.cos(angle) * 0.7
                                                 const textY = Math.sin(angle) * 0.7
 
+                                                // 文字角度：让文字始终正向可读
                                                 let baseAngle = midPercent * 360
                                                 let textAngle = baseAngle + 180
                                                 if (baseAngle > 90 && baseAngle < 270) {
@@ -161,6 +194,7 @@ const LotteryModal = () => {
                                         </svg>
                                     </div>
 
+                                    {/* 中心装饰圆 */}
                                     <div className="absolute inset-0 m-auto w-6 h-6 bg-white border-[4px] border-black rounded-full z-50 shadow-lg"></div>
                                 </div>
 
@@ -186,17 +220,19 @@ const LotteryModal = () => {
                             <div className="py-10 animate-in zoom-in-95 duration-500">
                                 <div className="text-7xl mb-8 text-orange-500 font-black italic text-center">WINNER!</div>
                                 <h2 className="text-3xl font-black uppercase italic mb-8 leading-none text-center">
-                                    {PRIZES[prizeIndex!].label}
+                                    {prizeIndex !== null ? PRIZES[prizeIndex].label : ''}
                                 </h2>
                                 <div className="bg-gray-50 border-2 border-black border-dashed p-8 mb-10 rounded-2xl">
                                     <span className="text-4xl font-mono font-black tracking-widest uppercase block text-center">
-                                        {PRIZES[prizeIndex!].code}
+                                        {prizeIndex !== null ? PRIZES[prizeIndex].code : ''}
                                     </span>
                                 </div>
                                 <button
                                     onClick={() => {
-                                        navigator.clipboard.writeText(PRIZES[prizeIndex!].code)
-                                        alert("Copied!")
+                                        if (prizeIndex !== null) {
+                                            navigator.clipboard.writeText(PRIZES[prizeIndex].code)
+                                            alert("Copied!")
+                                        }
                                         setIsVisible(false)
                                     }}
                                     className="w-full bg-black text-white py-5 rounded-full font-black uppercase"

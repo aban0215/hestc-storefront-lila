@@ -261,8 +261,6 @@ export async function getProductsByCategoryHandle(
                 query: {
                     handle: categoryHandle.replace(/^\//, ''),
                     limit: 1,
-                    // 确保只查询已激活的分类
-                    is_active: true
                 },
                 headers,
                 cache: "no-store",

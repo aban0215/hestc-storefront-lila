@@ -116,7 +116,6 @@ export async function getHomeCategorySection(locale: string): Promise<HomeCatego
             return null
         }
 
-        // 处理featuredCategories，确保按order排序
         const featuredCategories = data.data.featuredCategories
             ? data.data.featuredCategories.map((cat: any) => ({
                 id: cat.id,

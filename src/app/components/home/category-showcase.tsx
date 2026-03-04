@@ -1,96 +1,132 @@
 import { getHomeCategorySection } from '../../../lib/strapi/home-data'
 import LocalizedClientLink from '@modules/common/components/localized-client-link'
 import { getSelectedLocale } from "@lib/data/locales";
+import { getProductsByCollectionHandle, getProductsByCategoryHandle } from '../../../lib/medusa/products'
+import { getRegion } from "@lib/data/regions";
 
 export default async function CategoryShowcase() {
     const localecode = (await getSelectedLocale()) || 'en-US';
+    const region = await getRegion(localecode.split('-')[1]?.toLowerCase() || 'us');
     const sectionData = await getHomeCategorySection(localecode)
 
-    if (!sectionData || !sectionData.featuredCategories || sectionData.featuredCategories.length === 0) {
+    if (!sectionData || !sectionData.featuredCategories || sectionData.featuredCategories.length === 0 || !region) {
         return null
     }
 
+    const formatPrice = (priceStr: string) => {
+        if (!priceStr) return ""
+        const numericValue = priceStr.replace(/[^0-9.]/g, '')
+        const symbolMatch = priceStr.match(/[^0-9. ]/)
+        const symbol = symbolMatch ? symbolMatch[0] : '$'
+        const currencyMap: Record<string, string> = {
+            '$': 'USD', '€': 'EUR', '£': 'GBP', '¥': 'CNY', 'HK$': 'HKD'
+        }
+        const currencyCode = currencyMap[symbol] || 'USD'
+        const parsedNumber = parseFloat(numericValue)
+        if (isNaN(parsedNumber)) return priceStr
+        return `${symbol}${parsedNumber.toFixed(2)} ${currencyCode}`
+    }
+
+    const categoriesWithProducts = await Promise.all(
+        sectionData.featuredCategories.map(async (category: any) => {
+            let products = [];
+            const handle = category.medusaHandle?.replace(/^\//, '');
+            if (handle) {
+                if (category.linkType === 'collection') {
+                    products = await getProductsByCollectionHandle(handle, region.id, region.currency_code, 4);
+                } else if (category.linkType === 'category') {
+                    products = await getProductsByCategoryHandle(handle, region.id, region.currency_code, 4);
+                }
+            }
+            return { ...category, products };
+        })
+    );
+
     const getCategoryHref = (category: any) => {
         const handle = category.medusaHandle;
-        const type = category.linkType;
         if (!handle) return "/";
-        switch (type) {
-            case 'category': return `/categories/${handle}`;
-            case 'collection': return `/collections/${handle}`;
-            case 'product': return `/products/${handle}`;
-            case 'external': return handle;
-            default: return "/";
-        }
+        return category.linkType === 'category' ? `/categories/${handle}` : `/collections/${handle}`;
     };
 
     return (
-        <section className="bg-white">
+        <section className="bg-white overflow-hidden">
             {/* 1. 标题区域 */}
-            <div className="w-full pt-4 pb-10 px-4 text-center">
-                <h2 className="text-[14px] md:text-[16px] font-bold text-gray-900 tracking-[0.3em] uppercase">
+            <div className="w-full pt-16 pb-20 px-4 text-center animate-in fade-in slide-in-from-bottom-4 duration-1000">
+                <h2 className="text-[14px] md:text-[18px] font-bold text-gray-900 tracking-[0.6em] uppercase">
                     {sectionData.title || "Shop by Category"}
                 </h2>
+                <div className="mt-4 h-[1px] w-12 bg-black mx-auto transform transition-all duration-700 hover:w-24"></div>
             </div>
 
-            {/* 2. 展示区域：移动端 1 列，PC 端 2 列 */}
-            {/* 修改点：使用 grid 布局，gap-[2px] 保持精致分割线 */}
-            {/* 2. 展示区域：移动端 1 列，PC 端 2 列 */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-[2px] bg-gray-100 border-y border-gray-100">
-                {sectionData.featuredCategories.map((category) => {
-                    const itemHref = getCategoryHref(category);
-                    const media = category.image;
-                    const mediaUrl = media?.url;
-                    const isVideo = media?.mime?.includes('video');
+            <div className="flex flex-col">
+                {categoriesWithProducts.map((item, index) => {
+                    const categoryHref = getCategoryHref(item);
+                    const isEven = index % 2 === 0;
 
                     return (
-                        <LocalizedClientLink
-                            key={category.id}
-                            href={itemHref}
-                            // --- 修改高度：移动端 60vh, PC 端 75vh ---
-                            className="relative w-full h-[60vh] md:h-[75vh] group overflow-hidden bg-gray-200"
-                        >
-                            {/* 背景媒体层 */}
-                            <div className="absolute inset-0">
-                                {mediaUrl && (
-                                    isVideo ? (
-                                        <video
-                                            src={mediaUrl}
-                                            autoPlay muted loop playsInline
-                                            className="w-full h-full object-cover transition-transform duration-[1500ms] group-hover:scale-110"
-                                        />
-                                    ) : (
+                        <div key={item.id} className="grid grid-cols-1 md:grid-cols-2 border-b border-gray-100 overflow-hidden">
+
+                            {/* --- 左图入口 --- */}
+                            <LocalizedClientLink
+                                href={categoryHref}
+                                // 手机端高度从 70vh 提升到 90vh，PC保持 130vh
+                                className={`relative w-full h-[80vh] md:h-[130vh] group overflow-hidden bg-gray-200 ${
+                                    isEven ? "md:order-1" : "md:order-2"
+                                }`}
+                            >
+                                <div className="absolute inset-0">
+                                    {item.image?.url && (
                                         <img
-                                            src={mediaUrl}
-                                            alt={media.alternativeText || category.name}
-                                            className="w-full h-full object-cover transition-transform duration-[1500ms] group-hover:scale-110"
+                                            src={item.image.url}
+                                            alt={item.name}
+                                            className="w-full h-full object-cover transition-transform duration-[3000ms] group-hover:scale-105"
                                         />
-                                    )
-                                )}
-                                {/* 遮罩层 */}
-                                <div className="absolute inset-0 bg-black/25 group-hover:bg-black/40 transition-colors duration-500" />
+                                    )}
+                                    <div className="absolute inset-0 bg-black/25 group-hover:bg-black/40 transition-colors duration-1000" />
+                                </div>
+                                <div className="relative h-full flex flex-col items-center justify-center text-white p-10 text-center">
+                                    <h3 className="text-[32px] md:text-[50px] font-bold tracking-[0.3em] uppercase transition-all duration-700">
+                                        {item.name}
+                                    </h3>
+                                    <div className="mt-8 px-8 py-3 border border-white text-[10px] md:text-[11px] tracking-[0.4em] uppercase hover:bg-white hover:text-black transition-all duration-500">
+                                        View Collection
+                                    </div>
+                                </div>
+                            </LocalizedClientLink>
+
+                            {/* --- 右侧 4 商品 --- */}
+                            {/* 手机端总高度提升到 110vh，确保每个商品有足够纵向空间 */}
+                            <div className={`grid grid-cols-2 grid-rows-2 h-[100vh] md:h-[130vh] gap-[1px] bg-gray-100 ${
+                                isEven ? "md:order-2" : "md:order-1"
+                            }`}>
+                                {item.products.slice(0, 4).map((product: any) => (
+                                    <LocalizedClientLink
+                                        key={product.handle}
+                                        href={`/products/${product.handle}`}
+                                        className="relative flex flex-col bg-white group/item overflow-hidden"
+                                    >
+                                        {/* 图片区域比例：flex-[6] 压榨文字空间给图片 */}
+                                        <div className="relative flex-[6] overflow-hidden">
+                                            <img
+                                                src={product.thumbnail}
+                                                alt={product.title}
+                                                className="w-full h-full object-cover transition-transform duration-[1500ms] ease-out group-hover/item:scale-110"
+                                            />
+                                        </div>
+
+                                        {/* 文字区域：极致压缩，紧凑排列 */}
+                                        <div className="flex-[1] py-3 px-3 md:py-4 md:px-5 text-center flex flex-col justify-center border-t border-gray-50 bg-white">
+                                            <h4 className="text-[11px] md:text-[14px] font-semibold uppercase tracking-widest text-gray-900 line-clamp-1 leading-none">
+                                                {product.title}
+                                            </h4>
+                                            <p className="mt-1.5 md:mt-2 text-[12px] md:text-[15px] text-gray-900 font-normal tracking-tighter">
+                                                {formatPrice(product.price)}
+                                            </p>
+                                        </div>
+                                    </LocalizedClientLink>
+                                ))}
                             </div>
-
-                            {/* 文字叠加层 */}
-                            <div className="relative h-full flex flex-col items-center justify-center text-white p-8 text-center">
-                                {/* 顶部装饰小字 */}
-                                <span className="text-[10px] tracking-[0.4em] uppercase mb-4 opacity-0 group-hover:opacity-100 transition-all duration-700 translate-y-4 group-hover:translate-y-0">
-                                    Discover
-                                </span>
-
-                                <h3 className="text-[26px] md:text-[36px] font-bold tracking-[0.25em] uppercase drop-shadow-md transition-transform duration-700 group-hover:-translate-y-2">
-                                    {category.name}
-                                </h3>
-
-                                {category.description && (
-                                    <p className="mt-6 text-[12px] md:text-[14px] tracking-[0.1em] font-light max-w-[85%] opacity-80 line-clamp-2 leading-relaxed">
-                                        {category.description}
-                                    </p>
-                                )}
-
-                                {/* 底部装饰线 */}
-                                <div className="mt-8 w-0 h-[1px] bg-white transition-all duration-700 group-hover:w-16"></div>
-                            </div>
-                        </LocalizedClientLink>
+                        </div>
                     )
                 })}
             </div>

@@ -20,34 +20,48 @@ export default async function BlogShowcase() {
     const isVideo = media?.mime?.includes('video');
 
     return (
-        <section className="bg-white pt-12 pb-16 border-t border-gray-50 overflow-hidden">
-            {/* 1. 标题区域 */}
-            <div className="w-full mb-8 md:mb-12 px-4 text-center">
-                <h2 className="text-[13px] md:text-[15px] font-bold text-gray-900 tracking-[0.3em] uppercase">
+        <section className="bg-white pt-16 border-t border-gray-50 overflow-hidden">
+            {/* 1. 顶部标题区域 - 独立出来，保持居中 */}
+            <div className="w-full mb-12 md:mb-16 px-6 text-center">
+                <h2 className="text-[13px] md:text-[14px] font-bold text-gray-900 tracking-[0.4em] uppercase">
                     {settings.moduleTitle}
                 </h2>
-                <div className="mt-3 h-[1px] w-6 bg-gray-200 mx-auto"></div>
+                <div className="mt-4 h-[1px] w-8 bg-gray-200 mx-auto"></div>
             </div>
 
-            {/* 2. 核心区域：外层改为 div，内部链接独立处理 */}
-            <div className="container mx-auto px-4 max-w-6xl">
-                <div className="flex flex-col md:flex-row md:items-center md:gap-16">
+            {/* 2. 核心内容区域：左图右文 */}
+            {/* 使用 grid-cols-[1.2fr_0.8fr] 让图片略宽于文字区，视觉更平衡 */}
+            <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_0.8fr] w-full min-h-[500px] lg:min-h-[650px]">
 
-                    {/* 媒体部分：点击跳转至文章 */}
-                    <LocalizedClientLink href={targetHref} className="relative aspect-[3/2] md:aspect-[4/3] md:w-[60%] overflow-hidden bg-gray-50 flex-shrink-0 group">
-                        {mediaUrl && (
-                            isVideo ? (
-                                <video src={mediaUrl} autoPlay muted loop playsInline className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105" />
-                            ) : (
-                                <img src={mediaUrl} alt={blogPost.title} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105" />
-                            )
-                        )}
-                    </LocalizedClientLink>
+                {/* 左侧：图片完全靠左铺满 */}
+                <LocalizedClientLink
+                    href={targetHref}
+                    className="relative w-full h-[450px] lg:h-full overflow-hidden bg-gray-100 group shadow-sm"
+                >
+                    {mediaUrl && (
+                        isVideo ? (
+                            <video
+                                src={mediaUrl}
+                                autoPlay muted loop playsInline
+                                className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
+                            />
+                        ) : (
+                            <img
+                                src={mediaUrl}
+                                alt={blogPost.title}
+                                className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
+                            />
+                        )
+                    )}
+                </LocalizedClientLink>
 
-                    {/* 文字内容 */}
-                    <div className="mt-8 md:mt-0 flex flex-col items-center md:items-start text-center md:text-left flex-1">
+                {/* 右侧：文字在右侧剩余空间内垂直居中 */}
+                <div className="flex items-center justify-center bg-white px-10 py-16 lg:px-20 lg:py-24">
+                    {/* 控制文字块的最大宽度，防止在宽屏下显得太散 */}
+                    <div className="max-w-md w-full flex flex-col items-center lg:items-start text-center lg:text-left">
+
                         {/* 分类与日期 */}
-                        <div className="flex items-center gap-3 text-[9px] tracking-[0.1em] text-gray-400 uppercase mb-4">
+                        <div className="flex items-center gap-3 text-[10px] tracking-[0.15em] text-gray-400 uppercase mb-6">
                             {(settings.showCategory && blogPost.lila_blog_category) && (
                                 <span className="text-gray-900 font-bold">{blogPost.lila_blog_category.name}</span>
                             )}
@@ -55,32 +69,30 @@ export default async function BlogShowcase() {
                             <span>{formatDate(blogPost.publishedAt, localecode)}</span>
                         </div>
 
-                        {/* 标题：点击跳转至文章 */}
+                        {/* 文章标题 */}
                         <LocalizedClientLink href={targetHref} className="group">
-                            <h3 className="text-xl md:text-3xl font-medium text-gray-900 mb-4 tracking-tight leading-[1.2] transition-colors hover:text-gray-600">
+                            <h3 className="text-2xl md:text-3xl lg:text-4xl font-medium text-gray-900 mb-6 tracking-tight leading-[1.2] transition-colors hover:text-gray-600">
                                 {blogPost.title}
                             </h3>
                         </LocalizedClientLink>
 
                         {/* 摘要 */}
-                        <p className="text-gray-500 text-[11px] md:text-sm leading-6 md:leading-7 font-light tracking-wide mb-8 line-clamp-3 md:line-clamp-4">
+                        <p className="text-gray-500 text-sm leading-7 font-light tracking-wide mb-10 line-clamp-4">
                             {blogPost.excerpt}
                         </p>
 
-                        {/* 交互按钮组 */}
-                        <div className="flex flex-col items-center md:items-start gap-6 w-full">
-                            {/* Read More 按钮 */}
+                        {/* 交互按钮 */}
+                        <div className="flex flex-col items-center lg:items-start gap-8 w-full">
                             <LocalizedClientLink
                                 href={targetHref}
-                                className="inline-block border-b border-black pb-1 text-[10px] font-bold tracking-[0.2em] uppercase transition-all hover:text-gray-400 hover:border-gray-400"
+                                className="inline-block border-b border-black pb-1.5 text-[11px] font-bold tracking-[0.2em] uppercase transition-all hover:text-gray-400 hover:border-gray-400"
                             >
                                 {settings.readButtonText || 'Read More'}
                             </LocalizedClientLink>
 
-                            {/* 查看全部分类：独立链接，不再被包裹 */}
                             <LocalizedClientLink
                                 href="/blog"
-                                className="text-[9px] tracking-[0.2em] text-gray-300 uppercase hover:text-black transition-colors md:mt-4"
+                                className="text-[10px] tracking-[0.2em] text-gray-300 uppercase hover:text-black transition-colors lg:mt-6"
                             >
                                 — {settings.viewAllButtonText || 'All Stories'} —
                             </LocalizedClientLink>

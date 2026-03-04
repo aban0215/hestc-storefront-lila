@@ -82,16 +82,20 @@ export default async function HeroSection() {
                 />
             </div>
 
-            {/* 内容层 - 调整为 flex-end (靠下) 和 text-center (水平居中) */}
+            {/* 内容层 */}
             <div className="relative w-full h-full flex items-end justify-center z-20 pointer-events-none pb-16 md:pb-24">
                 <div className="container mx-auto px-6">
                     <div className="max-w-3xl text-center mx-auto">
-                        <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif font-bold text-white mb-4 leading-tight drop-shadow-2xl">
+                        {/* 大哥修改点：标题尺寸缩小一倍左右 */}
+                        {/* 移动端: 2xl (24px), MD: 3xl (30px), LG: 4xl (36px) */}
+                        <h1 className="text-2xl md:text-3xl lg:text-4xl font-serif font-bold text-white mb-3 leading-tight drop-shadow-2xl tracking-wide">
                             {heroData.title}
                         </h1>
 
                         {heroData.subtitle && (
-                            <p className="text-lg md:text-xl text-white/90 mb-8 drop-shadow-lg max-w-xl mx-auto">
+                            /* 大哥修改点：副标题尺寸缩小 */
+                            /* text-sm (14px) 到 text-base (16px) */
+                            <p className="text-sm md:text-base text-white/90 mb-6 drop-shadow-lg max-w-xl mx-auto font-light tracking-wider">
                                 {heroData.subtitle}
                             </p>
                         )}
@@ -99,8 +103,8 @@ export default async function HeroSection() {
                         <div className="pointer-events-auto">
                             <LocalizedClientLink
                                 href={targetHref}
-                                // 按钮改为白色背景 bg-white，黑色文字 text-black
-                                className="inline-flex items-center justify-center px-10 py-3.5 text-base font-semibold text-black bg-white hover:bg-gray-100 rounded-full transition-all hover:scale-105 shadow-2xl"
+                                // 按钮也相应微调，让整体比例协调
+                                className="inline-flex items-center justify-center px-8 py-2.5 text-sm font-semibold text-black bg-white hover:bg-gray-100 rounded-full transition-all hover:scale-105 shadow-2xl uppercase tracking-widest"
                             >
                                 {heroData.buttonText}
                             </LocalizedClientLink>
@@ -109,7 +113,7 @@ export default async function HeroSection() {
                 </div>
             </div>
 
-            {/* 底部渐变装饰 - 增强文字可读性 */}
+            {/* 底部渐变装饰 */}
             <div className="absolute bottom-0 left-0 right-0 h-1/2 bg-gradient-to-t from-black/60 to-transparent z-10 pointer-events-none"/>
 
             {/* 全屏点击热区 */}

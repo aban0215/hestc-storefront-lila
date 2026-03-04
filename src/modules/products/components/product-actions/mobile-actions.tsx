@@ -1,219 +1,158 @@
 "use client"
 
 import { Dialog, Transition } from "@headlessui/react"
+import { HttpTypes } from "@medusajs/types"
 import { Button, clx } from "@medusajs/ui"
 import React, { Fragment, useMemo } from "react"
-
-import useToggleState from "@lib/hooks/use-toggle-state"
-import ChevronDown from "@modules/common/icons/chevron-down"
-import X from "@modules/common/icons/x"
-
-import { getProductPrice } from "@lib/util/get-product-price"
 import OptionSelect from "./option-select"
-import { HttpTypes } from "@medusajs/types"
-import { isSimpleProduct } from "@lib/util/product"
+import useToggleState from "@lib/hooks/use-toggle-state";
 
 type MobileActionsProps = {
-  product: HttpTypes.StoreProduct
-  variant?: HttpTypes.StoreProductVariant
-  options: Record<string, string | undefined>
-  updateOptions: (title: string, value: string) => void
-  inStock?: boolean
-  handleAddToCart: () => void
-  isAdding?: boolean
-  show: boolean
-  optionsDisabled: boolean
+    product: HttpTypes.StoreProduct
+    variant: HttpTypes.StoreProductVariant | undefined
+    options: Record<string, string | undefined>
+    updateOptions: (name: string, value: string) => void
+    inStock: boolean
+    handleAddToCart: () => Promise<void>
+    handleBuyNow?: () => Promise<void> // 大哥加的
+    isAdding: boolean
+    isBuying?: boolean                 // 大哥加的
+    show: boolean
+    optionsDisabled: boolean
 }
 
 const MobileActions: React.FC<MobileActionsProps> = ({
-                                                       product,
-                                                       variant,
-                                                       options,
-                                                       updateOptions,
-                                                       inStock,
-                                                       handleAddToCart,
-                                                       isAdding,
-                                                       show,
-                                                       optionsDisabled,
+                                                         product,
+                                                         variant,
+                                                         options,
+                                                         updateOptions,
+                                                         inStock,
+                                                         handleAddToCart,
+                                                         handleBuyNow,
+                                                         isAdding,
+                                                         isBuying,
+                                                         show,
+                                                         optionsDisabled,
                                                      }) => {
-  const { state, open, close } = useToggleState()
+    const { state, open, close } = useToggleState()
 
-  const price = getProductPrice({
-    product: product,
-    variantId: variant?.id,
-  })
+    const price = useMemo(() => {
+        if (!variant) return null
+        return variant.calculated_price?.calculated_amount // 简化处理，实际可能需要转换
+    }, [variant])
 
-  const selectedPrice = useMemo(() => {
-    if (!price) {
-      return null
-    }
-    const { variantPrice, cheapestPrice } = price
-
-    return variantPrice || cheapestPrice || null
-  }, [price])
-
-  const isSimple = isSimpleProduct(product)
-
-  return (
-      <>
-        <div
-            className={clx("lg:hidden inset-x-0 bottom-0 fixed z-50", {
-              "pointer-events-none": !show,
-            })}
-        >
-          <Transition
-              as={Fragment}
-              show={show}
-              enter="ease-in-out duration-300"
-              enterFrom="opacity-0"
-              enterTo="opacity-100"
-              leave="ease-in duration-300"
-              leaveFrom="opacity-100"
-              leaveTo="opacity-0"
-          >
-            <div
-                className="bg-white flex flex-col gap-y-3 justify-center items-center text-large-regular p-4 h-full w-full border-t border-gray-200 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]"
-                data-testid="mobile-actions"
-            >
-              {/* 顶部标题和价格 */}
-              <div className="flex items-center gap-x-2 text-center px-2">
-              <span className="truncate max-w-[150px]" data-testid="mobile-title">
-                {product.title}
-              </span>
-                <span>—</span>
-                {selectedPrice ? (
-                    <div className="flex items-end gap-x-2 text-ui-fg-base">
-                      {selectedPrice.price_type === "sale" && (
-                          <p>
-                      <span className="line-through text-small-regular text-ui-fg-muted">
-                        {selectedPrice.original_price}
-                      </span>
-                          </p>
-                      )}
-                      <span
-                          className={clx({
-                            "text-ui-fg-interactive":
-                                selectedPrice.price_type === "sale",
-                          })}
-                      >
-                    {selectedPrice.calculated_price}
-                  </span>
-                    </div>
-                ) : (
-                    <div />
-                )}
-              </div>
-
-              {/* 按钮区域 */}
-              <div className={clx("grid grid-cols-2 w-full gap-x-4 items-stretch", {
-                "!grid-cols-1": isSimple
-              })}>
-                {!isSimple && (
-                    <Button
-                        onClick={open}
-                        variant="secondary"
-                        className="w-full h-auto min-h-[2.5rem] py-2 px-3"
-                        data-testid="mobile-actions-button"
-                    >
-                        <div className="flex items-center justify-between w-full gap-x-2 min-h-[1.5rem]">
-    <span className="text-left break-words leading-tight flex-1">
-      {variant
-          ? Object.values(options).join(" / ")
-          : "Select Options"}
-    </span>
-                            <ChevronDown className="shrink-0 ml-1" />
-                        </div>
-                    </Button>
-                )}
-
-                  <Button
-                      onClick={handleAddToCart}
-                      disabled={!inStock || !variant}
-                      className="w-full h-auto min-h-[2.5rem] py-2 px-3"
-                      isLoading={isAdding}
-                      data-testid="mobile-cart-button"
-                  >
-                      <div className="flex items-center justify-center min-h-[1.5rem]">
-    <span className="text-center break-words leading-tight px-2">
-      {!variant
-          ? "Select variant"
-          : !inStock
-              ? "Out of stock"
-              : "Add to cart"}
-    </span>
-                      </div>
-                  </Button>
-              </div>
-            </div>
-          </Transition>
-        </div>
-
-        {/* 下方 Modal 逻辑保持不变 */}
-        <Transition appear show={state} as={Fragment}>
-          <Dialog as="div" className="relative z-[75]" onClose={close}>
-            <Transition.Child
+    return (
+        <>
+            <Transition
+                show={show}
                 as={Fragment}
-                enter="ease-out duration-300"
-                enterFrom="opacity-0"
-                enterTo="opacity-100"
-                leave="ease-in duration-200"
-                leaveFrom="opacity-100"
-                leaveTo="opacity-0"
+                enter="transition ease-in-out duration-300 transform"
+                enterFrom="translate-y-full"
+                enterTo="translate-y-0"
+                leave="transition ease-in-out duration-300 transform"
+                leaveFrom="translate-y-0"
+                leaveTo="translate-y-full"
             >
-              <div className="fixed inset-0 bg-gray-700 bg-opacity-75 backdrop-blur-sm" />
-            </Transition.Child>
+                {/* 悬浮容器 */}
+                <div className="fixed inset-x-0 bottom-0 z-50 bg-white border-t border-gray-200 p-4 pb-6 shadow-[0_-4px_20px_rgba(0,0,0,0.05)] lg:hidden">
+                    <div className="flex flex-col gap-y-3">
 
-            <div className="fixed bottom-0 inset-x-0">
-              <div className="flex min-h-full h-full items-center justify-center text-center">
-                <Transition.Child
-                    as={Fragment}
-                    enter="ease-out duration-300"
-                    enterFrom="opacity-0"
-                    enterTo="opacity-100"
-                    leave="ease-in duration-200"
-                    leaveFrom="opacity-100"
-                    leaveTo="opacity-0"
-                >
-                  <Dialog.Panel
-                      className="w-full h-full transform overflow-hidden text-left flex flex-col gap-y-3"
-                      data-testid="mobile-actions-modal"
-                  >
-                    <div className="w-full flex justify-end pr-6">
-                      <button
-                          onClick={close}
-                          className="bg-white w-12 h-12 rounded-full text-ui-fg-base flex justify-center items-center shadow-lg"
-                          data-testid="close-modal-button"
-                      >
-                        <X />
-                      </button>
+                        {/* 第一行：选择规格提示（如果没选）或 商品简要信息 */}
+                        {!variant && (
+                            <div className="flex items-center justify-between mb-1">
+                 <span className="text-xs font-medium uppercase tracking-tight text-gray-500">
+                    Select options to purchase
+                 </span>
+                                <button onClick={open} className="text-xs underline font-semibold">
+                                    Details
+                                </button>
+                            </div>
+                        )}
+
+                        {/* 第二行：Add to Cart 按钮 */}
+                        <Button
+                            onClick={handleAddToCart}
+                            disabled={!inStock || !variant || optionsDisabled}
+                            variant="secondary"
+                            className="w-full min-h-[2.75rem] uppercase tracking-widest text-[10px]"
+                            isLoading={isAdding}
+                        >
+                            {!variant ? "Select Variant" : !inStock ? "Out of Stock" : "Add to Cart"}
+                        </Button>
+
+                        {/* 第三行：Check Out 按钮（大哥加的悬浮下一行） */}
+                        <Button
+                            onClick={handleBuyNow}
+                            disabled={!inStock || !variant || optionsDisabled}
+                            variant="primary"
+                            className="w-full min-h-[2.75rem] uppercase tracking-widest text-[10px]"
+                            isLoading={isBuying}
+                        >
+                            Check Out Now
+                        </Button>
                     </div>
-                    <div className="bg-white px-6 py-12 rounded-t-xl">
-                      {(product.variants?.length ?? 0) > 1 && (
-                          <div className="flex flex-col gap-y-6">
-                            {(product.options || []).map((option) => {
-                              return (
-                                  <div key={option.id}>
-                                    <OptionSelect
-                                        option={option}
-                                        current={options[option.id]}
-                                        updateOption={updateOptions}
-                                        title={option.title ?? ""}
-                                        disabled={optionsDisabled}
-                                    />
-                                  </div>
-                              )
-                            })}
-                          </div>
-                      )}
+                </div>
+            </Transition>
+
+            {/* 点击详情弹出的规格选择抽屉 */}
+            <Transition show={state} as={Fragment}>
+                <Dialog as="div" className="relative z-[100] lg:hidden" onClose={close}>
+                    <Transition.Child
+                        as={Fragment}
+                        enter="ease-out duration-300"
+                        enterFrom="opacity-0"
+                        enterTo="opacity-100"
+                        leave="ease-in duration-200"
+                        leaveFrom="opacity-100"
+                        leaveTo="opacity-0"
+                    >
+                        <div className="fixed inset-0 bg-black bg-opacity-25" />
+                    </Transition.Child>
+
+                    <div className="fixed inset-0 flex">
+                        <Transition.Child
+                            as={Fragment}
+                            enter="transition ease-in-out duration-300 transform"
+                            enterFrom="translate-y-full"
+                            enterTo="translate-y-0"
+                            leave="transition ease-in-out duration-300 transform"
+                            leaveFrom="translate-y-0"
+                            leaveTo="translate-y-full"
+                        >
+                            <Dialog.Panel className="relative mt-auto flex w-full flex-col bg-white p-6 rounded-t-2xl shadow-xl">
+                                <div className="flex items-center justify-between mb-6">
+                                    <h2 className="text-lg font-bold uppercase tracking-widest">Options</h2>
+                                    <button onClick={close} className="text-gray-400 text-sm">Close</button>
+                                </div>
+
+                                <div className="flex flex-col gap-y-6 overflow-y-auto max-h-[50vh]">
+                                    {(product.options || []).map((option) => (
+                                        <div key={option.id}>
+                                            <OptionSelect
+                                                option={option}
+                                                current={options[option.id]}
+                                                updateOption={updateOptions}
+                                                title={option.title ?? ""}
+                                                disabled={optionsDisabled}
+                                            />
+                                        </div>
+                                    ))}
+                                </div>
+
+                                <Button
+                                    onClick={close}
+                                    className="mt-8 w-full"
+                                    variant="primary"
+                                >
+                                    Confirm
+                                </Button>
+                            </Dialog.Panel>
+                        </Transition.Child>
                     </div>
-                  </Dialog.Panel>
-                </Transition.Child>
-              </div>
-            </div>
-          </Dialog>
-        </Transition>
-      </>
-  )
+                </Dialog>
+            </Transition>
+        </>
+    )
 }
 
 export default MobileActions

@@ -8,6 +8,7 @@ import AnnouncementBar from "../modules/layout/announcement-bar"
 import { getAnnouncements } from "@lib/get-announcements"
 import Script from "next/script"
 import FBPixelNavigation from "./components/fb-pixel-nav";
+import { Suspense } from "react"
 
 export async function generateMetadata(): Promise<Metadata> {
     const globalSeo = await getGlobalSeoSetting();
@@ -86,7 +87,11 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
         <main>{props.children}</main>
         <SpeedInsights />
         <Analytics />
-        <FBPixelNavigation />
+
+        <Suspense fallback={null}>
+            <FBPixelNavigation />
+        </Suspense>
+
         </body>
         </html>
     )

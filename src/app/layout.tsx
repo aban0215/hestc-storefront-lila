@@ -6,29 +6,23 @@ import { SpeedInsights } from '@vercel/speed-insights/next';
 import { Analytics } from "@vercel/analytics/next"
 import AnnouncementBar from "../modules/layout/announcement-bar"
 import { getAnnouncements } from "@lib/get-announcements"
+import Script from "next/script"
+import FBPixelNavigation from "./components/fb-pixel-nav";
 
 export async function generateMetadata(): Promise<Metadata> {
     const globalSeo = await getGlobalSeoSetting();
 
-
     return {
-        // 将 metadataBase 移入此处
         metadataBase: new URL(getBaseURL()),
-
-        // 网站图标：处理 Strapi 返回的数组
         icons: {
             icon: globalSeo?.favicon || "/favicon.ico",
         },
-
-        // 标题模板
         title: {
             template: `%s | ${globalSeo?.siteName || "Lila Zen"}`,
             default: globalSeo?.defaultSeo?.metaTitle || "Lila Zen",
         },
         description: globalSeo?.defaultSeo?.metaDescription,
         keywords: globalSeo?.defaultSeo?.keywords,
-
-        // 建议加上：基础的 OpenGraph 设置（防止社交分享显示为空）
         openGraph: {
             title: globalSeo?.defaultSeo?.metaTitle || "Lila Zen",
             description: globalSeo?.defaultSeo?.metaDescription,
@@ -38,7 +32,6 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function RootLayout(props: { children: React.ReactNode }) {
-
     const announcements = await getAnnouncements()
 
     return (
@@ -60,13 +53,40 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
             `,
                 }}
             />
+
+            {/* --- Meta Pixel Code (Base Code) --- */}
+            <Script id="fb-pixel" strategy="afterInteractive">
+                {`
+                        !function(f,b,e,v,n,t,s)
+                        {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+                        n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+                        if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+                        n.queue=[];t=b.createElement(e);t.async=!0;
+                        t.src=v;s=b.getElementsByTagName(e)[0];
+                        s.parentNode.insertBefore(t,s)}(window, document,'script',
+                        'https://connect.facebook.net/en_US/fbevents.js');
+                        fbq('init', '1485916962882743');
+                        fbq('track', 'PageView');
+                    `}
+            </Script>
+            {/* --- End Meta Pixel Code --- */}
         </head>
         <body className="relative" suppressHydrationWarning>
-        {/* 3. 现在传给组件的就是真实的 array 数据了 */}
+        {/* Meta Pixel NoScript 备用方案 */}
+        <noscript>
+            <img
+                height="1"
+                width="1"
+                style={{ display: "none" }}
+                src="https://www.facebook.com/tr?id=1485916962882743&ev=PageView&noscript=1"
+            />
+        </noscript>
+
         <AnnouncementBar announcements={announcements} />
         <main>{props.children}</main>
         <SpeedInsights />
         <Analytics />
+        <FBPixelNavigation />
         </body>
         </html>
     )

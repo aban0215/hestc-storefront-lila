@@ -7,11 +7,17 @@ import { Button } from "@medusajs/ui"
 import Divider from "@modules/common/components/divider"
 import OptionSelect from "@modules/products/components/product-actions/option-select"
 import { isEqual } from "lodash"
-import { useParams, usePathname, useSearchParams } from "next/navigation"
+import { useParams, usePathname, useSearchParams, useRouter } from "next/navigation"
 import { useEffect, useMemo, useRef, useState } from "react"
 import ProductPrice from "../product-price"
 import MobileActions from "./mobile-actions"
-import { useRouter } from "next/navigation"
+
+// --- Facebook Pixel 工具函数 ---
+const fbEvent = (eventName: string, options = {}) => {
+  if (typeof window !== "undefined" && (window as any).fbq) {
+    (window as any).fbq("track", eventName, options)
+  }
+}
 
 type ProductActionsProps = {
   product: HttpTypes.StoreProduct
@@ -42,10 +48,8 @@ export default function ProductActions({
   const [isBuying, setIsBuying] = useState(false)
   const countryCode = useParams().countryCode as string
 
-  // 【大哥修复：默认选中逻辑 - 加锁版】
+  // 【默认选中逻辑 - 加锁版】
   useEffect(() => {
-    // 关键点：增加 Object.keys(options).length === 0 判断
-    // 只有当当前 options 还是空对象时（即初次加载），才执行自动选中
     if (product.variants && product.variants.length > 0 && Object.keys(options).length === 0) {
       const firstAvailableVariant = product.variants.find((v) => {
         const managed = v.manage_inventory
@@ -58,7 +62,7 @@ export default function ProductActions({
         setOptions(variantOptions)
       }
     }
-  }, [product.variants]) // 移除 options 依赖，防止陷入死循环
+  }, [product.variants])
 
   const selectedVariant = useMemo(() => {
     if (!product.variants || product.variants.length === 0) return
@@ -82,7 +86,7 @@ export default function ProductActions({
     })
   }, [product.variants, options])
 
-  // URL 同步逻辑：加上 scroll: false 防止页面抖动
+  // URL 同步逻辑
   useEffect(() => {
     const params = new URLSearchParams(searchParams.toString())
     const value = isValidVariant ? selectedVariant?.id : null
@@ -105,18 +109,44 @@ export default function ProductActions({
   const actionsRef = useRef<HTMLDivElement>(null)
   const inView = useIntersection(actionsRef, "0px")
 
+  // --- 核心修改：加入购物车埋点 ---
   const handleAddToCart = async () => {
     if (!selectedVariant?.id) return
     setIsAdding(true)
-    await addToCart({ variantId: selectedVariant.id, quantity: 1, countryCode })
-    setIsAdding(false)
+    try {
+      await addToCart({ variantId: selectedVariant.id, quantity: 1, countryCode })
+
+      // Facebook Pixel: AddToCart
+      fbEvent("AddToCart", {
+        content_ids: [product.id],
+        content_name: product.title,
+        content_type: "product",
+        value: (selectedVariant.calculated_price?.calculated_amount || 0),
+        currency: region?.currency_code?.toUpperCase() || "USD",
+      })
+    } catch (e) {
+      console.error(e)
+    } finally {
+      setIsAdding(false)
+    }
   }
 
+  // --- 核心修改：立即购买埋点 ---
   const handleBuyNow = async () => {
     if (!selectedVariant?.id) return
     setIsBuying(true)
     try {
       await addToCart({ variantId: selectedVariant.id, quantity: 1, countryCode })
+
+      // Facebook Pixel: AddToCart (立即购买也算加入购物车)
+      fbEvent("AddToCart", {
+        content_ids: [product.id],
+        content_name: product.title,
+        content_type: "product",
+        value: (selectedVariant.calculated_price?.calculated_amount || 0),
+        currency: region?.currency_code?.toUpperCase() || "USD",
+      })
+
       router.push(`/${countryCode}/checkout`)
     } catch (e) {
       console.error(e)

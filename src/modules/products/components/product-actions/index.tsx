@@ -190,6 +190,9 @@ export default function ProductActions({
               {!selectedVariant ? "Select variant" : !inStock ? "Out of stock" : "Add to cart"}
             </Button>
 
+
+            {/*//test*/}
+
             <Button
                 onClick={handleBuyNow}
                 disabled={!inStock || !selectedVariant || !!disabled || isAdding || isBuying}

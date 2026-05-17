@@ -1,5 +1,10 @@
 const STRAPI_BASE_URL = process.env.NEXT_PUBLIC_STRAPI_API_URL
 
+function prefixUrl(url: string | undefined): string {
+    if (!url) return ''
+    return url.startsWith('http') ? url : `${STRAPI_BASE_URL}${url}`
+}
+
 export interface BlogModuleSettings {
     id: number
     moduleTitle: string
@@ -116,7 +121,7 @@ export async function getBlogPostBySlug(slug: string, locale: string): Promise<B
             linkType: data.link_type || 'blog',
             medusaHandle: data.medusa_handle || data.slug.replace(/^\//, ''),
             coverImage: {
-                url: data.coverImage?.url,
+                url: prefixUrl(data.coverImage?.url),
                 mime: data.coverImage?.mime,
                 alternativeText: data.coverImage?.alternativeText || data.title
             },
@@ -126,11 +131,11 @@ export async function getBlogPostBySlug(slug: string, locale: string): Promise<B
                 slug: data.category.slug
             } : undefined,
             // 映射 SEO 组件数据
-            blogSeo: data.blogSeo?.[0] ? {
-                metaTitle: data.blogSeo[0].metaTitle,
-                metaDescription: data.blogSeo[0].metaDescription,
-                keywords: data.blogSeo[0].keywords,
-                shareImage: data.blogSeo[0].shareImage?.[0]?.url
+            blogSeo: data.blogSeo ? {
+                metaTitle: data.blogSeo.metaTitle,
+                metaDescription: data.blogSeo.metaDescription,
+                keywords: data.blogSeo.keywords,
+                shareImage: prefixUrl(data.blogSeo.shareImage?.url)
             } : undefined
         }
     } catch (error) {
@@ -169,7 +174,7 @@ export async function getBlogPosts(locale: string, categorySlug?: string) {
         publishedAt: post.publishedAt,
         coverImage: {
             mime: post.coverImage?.mime,
-            url: post.coverImage?.url,
+            url: prefixUrl(post.coverImage?.url),
             alternativeText: post.coverImage?.alternativeText
         },
         category: post.lila_blog_category ? {
@@ -179,8 +184,92 @@ export async function getBlogPosts(locale: string, categorySlug?: string) {
     }))
 }
 
-// 导出相关辅助函数
-export {
-    getLatestBlogPost,
-    getFeaturedBlogPosts
-} from './home-data'
+// --- 博客文章类型（从 home-data.ts 迁移） ---
+export interface BlogPostData {
+    id: number
+    documentId: string
+    title: string
+    slug: string
+    excerpt: string
+    content: string
+    readTime: number
+    author: string
+    link_type: string
+    featured: boolean
+    createdAt: string
+    updatedAt: string
+    publishedAt: string
+    locale: string
+    coverImage: {
+        id: number
+        url: string
+        alternativeText?: string
+    }
+    category: {
+        id: number
+        documentId: string
+        name: string
+        slug: string
+    }
+    localizations: any[]
+}
+
+export interface BlogPostsResponse {
+    data: BlogPostData[]
+    meta: {
+        pagination: {
+            page: number
+            pageSize: number
+            pageCount: number
+            total: number
+        }
+    }
+}
+
+// 获取最新的博客文章
+export async function getLatestBlogPost(locale: string): Promise<BlogPostData | null> {
+    try {
+        const res = await fetch(
+            `${STRAPI_BASE_URL}/api/lila-blog-posts?populate=*&locale=${locale}&sort[0]=publishedAt:desc&pagination[pageSize]=1`,
+            { next: { revalidate: 3600 } }
+        )
+
+        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`)
+
+        const data: BlogPostsResponse = await res.json()
+        if (!data.data || data.data.length === 0) return null
+
+        const post = data.data[0]
+        if (post.coverImage?.url && !post.coverImage.url.startsWith('http')) {
+            post.coverImage.url = `${STRAPI_BASE_URL}${post.coverImage.url}`
+        }
+        return post
+    } catch (error) {
+        console.error('获取博客文章失败:', error)
+        return null
+    }
+}
+
+// 获取多篇博客文章
+export async function getFeaturedBlogPosts(locale: string, limit: number = 2): Promise<BlogPostData[]> {
+    try {
+        const res = await fetch(
+            `${STRAPI_BASE_URL}/api/lila-blog-posts?populate=*&locale=${locale}&sort[0]=publishedAt:desc&pagination[pageSize]=${limit}`,
+            { next: { revalidate: 3600 } }
+        )
+
+        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`)
+
+        const data: BlogPostsResponse = await res.json()
+        const posts = data.data || []
+        for (const post of posts) {
+            if (post.coverImage?.url && !post.coverImage.url.startsWith('http')) {
+                post.coverImage.url = `${STRAPI_BASE_URL}${post.coverImage.url}`
+            }
+        }
+        return posts
+    } catch (error) {
+        console.error('获取精选博客文章失败:', error)
+        return []
+    }
+}

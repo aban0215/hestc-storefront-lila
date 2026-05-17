@@ -1,0 +1,20 @@
+=== 27-medusa-directory.txt ===
+total 64
+drwxr-xr-x  6 root root 4096 May 10 18:14 .
+drwxr-xr-x  4 root root 4096 May 10 01:37 ..
+lrwxrwxrwx  1 root root   14 May 10 02:12 dist -> .medusa/server
+-rw-r--r--  1 root root  541 May 10 17:27 .env
+-rw-r--r--  1 root root  339 May 10 01:37 .env.template
+-rw-r--r--  1 root root  227 May 10 01:37 .gitignore
+-rw-r--r--  1 root root  781 May 10 01:37 instrumentation.ts
+-rw-r--r--  1 root root  842 May 10 01:37 jest.config.js
+drwxr-xr-x  5 root root 4096 May 10 18:09 .medusa
+-rw-r--r--  1 root root 1810 May 10 17:27 medusa-config.ts
+-rw-r--r--  1 root root 1689 May 10 17:10 medusa-config.ts.bak
+-rw-r--r--  1 root root    0 May 10 18:14 NODE_ENV=production
+drwxr-xr-x  7 root root 4096 May 10 01:38 node_modules
+-rw-r--r--  1 root root 1808 May 10 01:37 package.json
+drwxr-xr-x  2 root root 4096 May 10 02:12 public
+-rw-r--r--  1 root root 2970 May 10 01:37 README.md
+drwxr-xr-x 10 root root 4096 May 10 01:37 src
+-rw-r--r--  1 root root  744 May 10 01:37 tsconfig.json

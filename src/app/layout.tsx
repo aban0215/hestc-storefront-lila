@@ -19,13 +19,13 @@ export async function generateMetadata(): Promise<Metadata> {
             icon: globalSeo?.favicon || "/favicon.ico",
         },
         title: {
-            template: `%s | ${globalSeo?.siteName || "Lila Zen"}`,
-            default: globalSeo?.defaultSeo?.metaTitle || "Lila Zen",
+            template: `%s | ${globalSeo?.siteName || "Mybrand"}`,
+            default: globalSeo?.defaultSeo?.metaTitle || "Mybrand",
         },
         description: globalSeo?.defaultSeo?.metaDescription,
         keywords: globalSeo?.defaultSeo?.keywords,
         openGraph: {
-            title: globalSeo?.defaultSeo?.metaTitle || "Lila Zen",
+            title: globalSeo?.defaultSeo?.metaTitle || "Mybrand",
             description: globalSeo?.defaultSeo?.metaDescription,
             images: globalSeo?.favicon ? [globalSeo.favicon] : [],
         }

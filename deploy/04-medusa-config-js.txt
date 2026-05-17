@@ -1,0 +1,67 @@
+=== 04-medusa-config-js.txt ===
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const utils_1 = require("@medusajs/framework/utils");
+(0, utils_1.loadEnv)(process.env.NODE_ENV || 'development', process.cwd());
+module.exports = (0, utils_1.defineConfig)({
+    projectConfig: {
+        databaseUrl: process.env.DATABASE_URL,
+        redisUrl: process.env.REDIS_URL || 'redis://localhost:6379',
+        databaseDriverOptions: {
+            ssl: false,
+        },
+        http: {
+            storeCors: process.env.STORE_CORS || 'http://localhost:8000',
+            adminCors: process.env.ADMIN_CORS || 'http://localhost:5173,http://localhost:9000',
+            authCors: process.env.AUTH_CORS || 'http://localhost:5173,http://localhost:9000',
+            jwtSecret: process.env.JWT_SECRET || 'supersecret',
+            cookieSecret: process.env.COOKIE_SECRET || 'supersecret',
+        },
+        cookieOptions: {
+            sameSite: 'lax',
+            secure: false,
+            domain: '.abanopen.tech',
+        }
+    },
+    admin: {
+        backendUrl: process.env.MEDUSA_BACKEND_URL,
+        vite: () => ({
+            server: {
+                allowedHosts: ['.abanopen.tech', 'localhost', '127.0.0.1'],
+            },
+        }),
+    },
+    modules: [
+        {
+            resolve: '@medusajs/medusa/payment',
+            options: {
+                providers: [
+                    {
+                        resolve: './src/modules/paypal',
+                        id: 'paypal',
+                        options: {
+                            client_id: process.env.PAYPAL_CLIENT_ID,
+                            client_secret: process.env.PAYPAL_CLIENT_SECRET,
+                            sandbox: process.env.PAYPAL_MODE === 'sandbox',
+                            webhook_id: process.env.PAYPAL_WEBHOOK_ID,
+                        },
+                    },
+                ],
+            },
+        },
+        {
+            resolve: './src/modules/meilisearch',
+            options: {
+                host: process.env.MEILISEARCH_HOST,
+                apiKey: process.env.MEILISEARCH_API_KEY,
+            },
+        },
+        {
+            resolve: '@medusajs/medusa/translation',
+        },
+    ],
+    featureFlags: {
+        translation: true,
+    }
+});
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoibWVkdXNhLWNvbmZpZy5qcyIsInNvdXJjZVJvb3QiOiIiLCJzb3VyY2VzIjpbIi4uLy4uL21lZHVzYS1jb25maWcudHMiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6Ijs7QUFBQSxxREFBaUU7QUFFakUsSUFBQSxlQUFPLEVBQUMsT0FBTyxDQUFDLEdBQUcsQ0FBQyxRQUFRLElBQUksYUFBYSxFQUFFLE9BQU8sQ0FBQyxHQUFHLEVBQUUsQ0FBQyxDQUFBO0FBRTdELE1BQU0sQ0FBQyxPQUFPLEdBQUcsSUFBQSxvQkFBWSxFQUFDO0lBQzVCLGFBQWEsRUFBRTtRQUNiLFdBQVcsRUFBRSxPQUFPLENBQUMsR0FBRyxDQUFDLFlBQVk7UUFDckMsUUFBUSxFQUFFLE9BQU8sQ0FBQyxHQUFHLENBQUMsU0FBUyxJQUFJLHdCQUF3QjtRQUMzRCxxQkFBcUIsRUFBRTtZQUNyQixHQUFHLEVBQUUsS0FBSztTQUNYO1FBQ0QsSUFBSSxFQUFFO1lBQ0osU0FBUyxFQUFFLE9BQU8sQ0FBQyxHQUFHLENBQUMsVUFBVSxJQUFJLHVCQUF1QjtZQUM1RCxTQUFTLEVBQUUsT0FBTyxDQUFDLEdBQUcsQ0FBQyxVQUFVLElBQUksNkNBQTZDO1lBQ2xGLFFBQVEsRUFBRSxPQUFPLENBQUMsR0FBRyxDQUFDLFNBQVMsSUFBSSw2Q0FBNkM7WUFDaEYsU0FBUyxFQUFFLE9BQU8sQ0FBQyxHQUFHLENBQUMsVUFBVSxJQUFJLGFBQWE7WUFDbEQsWUFBWSxFQUFFLE9BQU8sQ0FBQyxHQUFHLENBQUMsYUFBYSxJQUFJLGFBQWE7U0FDekQ7UUFDRCxhQUFhLEVBQUU7WUFDYixRQUFRLEVBQUUsS0FBSztZQUNmLE1BQU0sRUFBRSxLQUFLO1lBQ2IsTUFBTSxFQUFFLGdCQUFnQjtTQUN6QjtLQUNGO0lBQ0QsS0FBSyxFQUFFO1FBQ0wsVUFBVSxFQUFFLE9BQU8sQ0FBQyxHQUFHLENBQUMsa0JBQWtCO1FBQzFDLElBQUksRUFBRSxHQUFHLEVBQUUsQ0FBQyxDQUFDO1lBQ1gsTUFBTSxFQUFFO2dCQUNOLFlBQVksRUFBRSxDQUFDLGdCQUFnQixFQUFFLFdBQVcsRUFBRSxXQUFXLENBQUM7YUFDM0Q7U0FDRixDQUFDO0tBQ0g7SUFDRCxPQUFPLEVBQUU7UUFDUDtZQUNFLE9BQU8sRUFBRSwwQkFBMEI7WUFDbkMsT0FBTyxFQUFFO2dCQUNQLFNBQVMsRUFBRTtvQkFDVDt3QkFDRSxPQUFPLEVBQUUsc0JBQXNCO3dCQUMvQixFQUFFLEVBQUUsUUFBUTt3QkFDWixPQUFPLEVBQUU7NEJBQ1AsU0FBUyxFQUFFLE9BQU8sQ0FBQyxHQUFHLENBQUMsZ0JBQWdCOzRCQUN2QyxhQUFhLEVBQUUsT0FBTyxDQUFDLEdBQUcsQ0FBQyxvQkFBb0I7NEJBQy9DLE9BQU8sRUFBRSxPQUFPLENBQUMsR0FBRyxDQUFDLFdBQVcsS0FBSyxTQUFTOzRCQUM5QyxVQUFVLEVBQUUsT0FBTyxDQUFDLEdBQUcsQ0FBQyxpQkFBaUI7eUJBQzFDO3FCQUNGO2lCQUNGO2FBQ0Y7U0FDRjtRQUNEO1lBQ0UsT0FBTyxFQUFFLDJCQUEyQjtZQUNwQyxPQUFPLEVBQUU7Z0JBQ1AsSUFBSSxFQUFFLE9BQU8sQ0FBQyxHQUFHLENBQUMsZ0JBQWdCO2dCQUNsQyxNQUFNLEVBQUUsT0FBTyxDQUFDLEdBQUcsQ0FBQyxtQkFBbUI7YUFDeEM7U0FDRjtRQUNEO1lBQ0UsT0FBTyxFQUFFLDhCQUE4QjtTQUN4QztLQUNGO0lBQ0QsWUFBWSxFQUFFO1FBQ1osV0FBVyxFQUFFLElBQUk7S0FDbEI7Q0FDRixDQUFDLENBQUEifQ==

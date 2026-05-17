@@ -8,6 +8,7 @@ import { SortOptions } from "@modules/store/components/refinement-list/sort-prod
 import { getBaseURL } from "@lib/util/env"
 import { getSelectedLocale } from "@lib/data/locales"
 import { getMarketingBySlug } from "@lib/strapi/market"
+import { getSeoExtension } from "@lib/strapi/seo"
 
 type Props = {
   params: Promise<{ category: string[]; countryCode: string }>
@@ -19,19 +20,6 @@ type Props = {
     material?: string | string[]
     collection?: string | string[]
   }>
-}
-
-const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_API_URL;
-
-async function getCategorySeoPatch(handle: string, locale: string = "en-US") {
-  const query = `${STRAPI_URL}/api/lila-seo-extensions?filters[key][$eq]=${handle}&locale=${locale}&populate[lilaSeo][populate]=shareImage`
-  try {
-    const res = await fetch(query, { next: { revalidate: 3600 } })
-    const { data } = await res.json()
-    return data?.[0]?.lilaSeo?.[0] || null
-  } catch (e) {
-    return null
-  }
 }
 
 function getAllCategoryIds(category: any): string[] {
@@ -72,7 +60,7 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
 
   const [productCategory, seoPatch] = await Promise.all([
     getCategoryByHandle(category),
-    getCategorySeoPatch(categoryHandle, localecode) // 这里传的是 string
+    getSeoExtension(categoryHandle, localecode) // 这里传的是 string
   ])
 
   if (!productCategory) notFound()
@@ -88,7 +76,7 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
     openGraph: {
       title: seoPatch?.metaTitle || productCategory.name,
       description: seoPatch?.metaDescription || productCategory.description,
-      images: seoPatch?.shareImage?.[0]?.url ? [seoPatch.shareImage[0].url] : [],
+      images: seoPatch?.shareImage?.url ? [seoPatch.shareImage.url] : [],
     }
   }
 }

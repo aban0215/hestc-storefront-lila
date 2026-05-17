@@ -1,0 +1,21 @@
+=== 21-processes.txt ===
+USER         PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
+root       78857  1.0  2.3 13339036 372120 ?     Sl   18:14   0:09 node ./node_modules/.bin/../@medusajs/cli/cli.js start
+root       65246  0.0  2.1 22538816 344072 ?     Sl   13:14   0:16 node /opt/hestc/hestc-strapi/node_modules/.bin/strapi start
+root       78835  0.0  0.5 1133112 94108 ?       Ssl  18:14   0:00 node /usr/bin/pnpm exec medusa start
+root         393  0.0  0.5 133672 92500 ?        S<s  01:27   0:13 /lib/systemd/systemd-journald
+root       78846  0.0  0.5 1128332 89784 ?       Sl   18:14   0:00 node /root/.local/share/pnpm/.tools/pnpm/10.11.1/bin/pnpm exec medusa start
+root        9397  0.0  0.3 1034152 61824 ?       Ssl  01:59   0:04 PM2 v7.0.1: God Daemon (/root/.pm2)
+root       65234  0.0  0.3 1092728 54820 ?       Sl   13:14   0:00 npm run start
+root       74009  0.0  0.3 1028456 52972 pts/0   Sl+  17:03   0:00 node /usr/bin/pm2 logs medusa-backend
+root        1365  0.8  0.2 155432 42072 ?        Ssl  01:27   8:17 /usr/local/aegis/aegis_client/aegis_12_61/AliYunDunMonitor
+root       50923  0.0  0.2 1998364 38744 ?       Ssl  07:17   0:03 /snap/snapd/current/usr/lib/snapd/snapd
+root        5770  0.0  0.2 23221908 31416 ?      Ssl  01:32   0:22 /usr/local/bin/meilisearch --http-addr 127.0.0.1:7700
+postgres   35842  0.0  0.1 218416 30744 ?        Ss   02:06   0:02 /usr/lib/postgresql/14/bin/postgres -D /var/lib/postgresql/14/main -c config_file=/etc/postgresql/14/main/postgresql.conf
+root         435  0.0  0.1 289312 27096 ?        SLsl 01:27   0:02 /sbin/multipathd -d -s
+root       23364  0.0  0.1 261412 26016 ?        Ssl  02:03   0:05 /usr/bin/python3 -Es /usr/sbin/tuned -l -P
+postgres   72152  0.0  0.1 220568 25032 ?        Ss   16:39   0:00 postgres: 14/main: hestc_admin hestc_strapi 127.0.0.1(53442) idle
+postgres   79248  0.0  0.1 220396 22804 ?        Ss   18:19   0:00 postgres: 14/main: hestc_admin hestc_strapi 127.0.0.1(42740) idle
+postgres   79077  0.0  0.1 220280 22136 ?        Ss   18:15   0:00 postgres: 14/main: hestc_admin hestc_medusa 127.0.0.1(60336) idle
+root        1024  0.0  0.1 109796 21716 ?        Ssl  01:27   0:00 /usr/bin/python3 /usr/share/unattended-upgrades/unattended-upgrade-shutdown --wait-for-signal
+postgres   79078  0.0  0.1 220164 21504 ?        Ss   18:15   0:00 postgres: 14/main: hestc_admin hestc_medusa 127.0.0.1(60350) idle

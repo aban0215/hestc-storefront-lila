@@ -5,6 +5,7 @@ import { getSelectedLocale } from "@lib/data/locales"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import { getBaseURL } from "@lib/util/env"
 import BackButton from "@modules/account/components/back-button"
+import { getSeoExtension } from "@lib/strapi/seo"
 
 
 type Props = {
@@ -12,25 +13,9 @@ type Props = {
     searchParams: Promise<{ category?: string }>
 }
 
-const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_API_URL;
-
-/**
- * 获取博客列表页专用 SEO 补丁
- */
-async function getBlogArchiveSeo() {
-    const query = `${STRAPI_URL}/api/lila-seo-extensions?filters[key][$eq]=blog-key&locale=en-US&populate[lilaSeo][populate]=shareImage`
-    try {
-        const res = await fetch(query, { next: { revalidate: 3600 } })
-        const { data } = await res.json()
-        return data?.[0]?.lilaSeo?.[0] || null
-    } catch (e) {
-        return null
-    }
-}
-
 export async function generateMetadata(props: Props): Promise<Metadata> {
     const { countryCode } = await props.params
-    const seo = await getBlogArchiveSeo()
+    const seo = await getSeoExtension('blog-key')
     const baseUrl = getBaseURL()
     const canonicalUrl = `${baseUrl}/us/blog`
 
@@ -45,7 +30,7 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
             title: seo?.metaTitle,
             description: seo?.metaDescription,
             url: canonicalUrl,
-            images: seo?.shareImage?.[0]?.url ? [{ url: seo.shareImage[0].url }] : [],
+            images: seo?.shareImage?.url ? [{ url: seo.shareImage.url }] : [],
         },
     }
 }

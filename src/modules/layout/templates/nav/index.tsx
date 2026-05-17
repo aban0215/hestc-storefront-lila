@@ -11,6 +11,7 @@ import { User } from "@medusajs/icons"
 import MobileMenu from "@modules/layout/templates/nav/mobile-menu";
 import SearchBarDirect from "@modules/search/components/modal"
 import NavLinks from "@modules/layout/templates/nav/NavLinks";
+import { getBrandData, getMenuData } from "@lib/strapi/header-data"
 
 async function getCurrentLocale() {
   try {
@@ -19,41 +20,15 @@ async function getCurrentLocale() {
   } catch (error) { return 'en-US' }
 }
 
-async function getBrandData(locale: string) {
-  try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_STRAPI_API_URL}/api/lila-header?locale=${locale}&populate=*`, { cache: 'no-store' })
-    const data = await res.json()
-    return data.data
-  } catch (error) { return null }
-}
-
-async function getMenuData(locale: string) {
-  try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_STRAPI_API_URL}/api/lila-menuitems?locale=${locale}&populate=*&sort=order:asc`, { cache: 'no-store' })
-    const data = await res.json()
-    return data.data || []
-  } catch (error) { return [] }
-}
-
-function buildMenuTree(items: any[]) {
-  const visibleItems = items.filter(item => item.visible === true)
-  const topLevelItems = visibleItems.filter(item => !item.parent)
-  return topLevelItems.map(item => ({
-    ...item,
-    children: visibleItems.filter(child => child.parent?.id === item.id).sort((a, b) => a.order - b.order)
-  }))
-}
-
 export default async function Nav() {
   const currentLocale = await getCurrentLocale()
-  const [regions, locales, brandData, menuData] = await Promise.all([
+  const [regions, locales, brandData, menuTree] = await Promise.all([
     listRegions(),
     listLocales(),
     getBrandData(currentLocale),
     getMenuData(currentLocale),
   ])
 
-  const menuTree = buildMenuTree(menuData)
   const logoUrl = brandData?.logo?.url ? `${brandData.logo.url.startsWith('http') ? '' : process.env.NEXT_PUBLIC_STRAPI_API_URL}${brandData.logo.url}` : null
 
   return (
@@ -137,7 +112,7 @@ function Logo({ logoUrl, sitename }: { logoUrl: string | null, sitename?: string
             <img src={logoUrl} alt="Logo" className="h-[40px] md:h-[50px] lg:h-[60px] w-auto object-contain" />
         ) : (
             <span className="text-[18px] md:text-[22px] lg:text-[24px] font-bold tracking-[0.2em] uppercase whitespace-nowrap bg-white">
-              {sitename || "LILA ZEN"}
+              {sitename || "MYBRAND"}
             </span>
         )}
       </LocalizedClientLink>

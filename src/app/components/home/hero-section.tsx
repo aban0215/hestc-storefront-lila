@@ -78,7 +78,7 @@ export default async function HeroSection() {
                 {/* 遮罩层 */}
                 <div
                     className="absolute inset-0 bg-black pointer-events-none"
-                    style={{ opacity: (heroData.overlayOpacity || 0) / 100 }}
+                    style={{ opacity: (heroData.overlayOpacity || 0) }}
                 />
             </div>
 

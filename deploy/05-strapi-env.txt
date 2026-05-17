@@ -1,0 +1,20 @@
+=== 05-strapi-env.txt ===
+HOST=0.0.0.0
+PORT=1337
+APP_KEYS=HestcStrapiKey1@2024,HestcStrapiKey2@2024
+API_TOKEN_SALT=HestcStrapiSalt@2024
+ADMIN_JWT_SECRET=HestcStrapiAdmin@2024
+TRANSFER_TOKEN_SALT=HestcStrapiTransfer@2024
+JWT_SECRET=HestcStrapiJwt@2024
+
+# Database
+DATABASE_CLIENT=postgres
+DATABASE_HOST=127.0.0.1
+DATABASE_PORT=5432
+DATABASE_NAME=hestc_strapi
+DATABASE_USERNAME=hestc_admin
+DATABASE_PASSWORD=Hestc@2024#Secure
+DATABASE_SSL=false
+
+# Direct connection string (URL-encoded password)
+DATABASE_URL=postgres://hestc_admin:Hestc%402024%23Secure@localhost:5432/hestc_strapi

@@ -1,0 +1,8 @@
+=== 15-ecosystem-find.txt ===
+/usr/lib/node_modules/pm2/lib/templates/ecosystem-simple-es.tpl
+/usr/lib/node_modules/pm2/lib/templates/ecosystem-es.tpl
+/usr/lib/node_modules/pm2/lib/templates/ecosystem.tpl
+/usr/lib/node_modules/pm2/lib/templates/sample-apps/http-server/ecosystem.config.js
+/usr/lib/node_modules/pm2/lib/templates/sample-apps/python-app/ecosystem.config.js
+/usr/lib/node_modules/pm2/lib/templates/sample-apps/pm2-plus-metrics-actions/ecosystem.config.js
+/usr/lib/node_modules/pm2/lib/templates/ecosystem-simple.tpl

@@ -1,20 +1,25 @@
 const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_API_URL
 
+function prefixUrl(url: string | undefined): string {
+    if (!url) return ''
+    return url.startsWith('http') ? url : `${STRAPI_URL}${url}`
+}
+
 /**
  * 获取全局 SEO 配置
  * 因为 SEO 字段你关闭了国际化，所以这里直接请求，不需要带 locale 参数
  */
 export async function getGlobalSeoSetting() {
     try {
-        const res = await fetch(`${STRAPI_URL}/api/lila-global-seo-setting?populate=*`, {
+        const res = await fetch(`${STRAPI_URL}/api/lila-global-seo-setting?populate=*&locale=en-US`, {
             next: { revalidate: 3600 }, // 缓存 1 小时
         });
         const { data } = await res.json();
 
         return {
             siteName: data?.siteName,
-            favicon: data?.favicon?.[0]?.url, // 取第一张图标
-            defaultSeo: data?.defaultSeo?.[0], // 取第一个 SEO 对象
+            favicon: prefixUrl(data?.favicon?.[0]?.url), // 取第一张图标
+            defaultSeo: data?.defaultSeo,
         };
     } catch (error) {
         console.error("Failed to fetch Global SEO:", error);
@@ -22,20 +27,26 @@ export async function getGlobalSeoSetting() {
     }
 }
 
-
-
 /**
- * 获取具体页面的 SEO 补丁 (适用于商品、首页等)
- * @param handle 识别码
- * @param type 接口类型 (seo-extensions 或你的商品接口)
+ * 获取路由级 SEO 扩展（lila-seo-extensions）
+ * 根据 handle 匹配：home / blog-key / {category-handle} 等
+ * 返回 seo 组件数据，未匹配到返回 null
  */
-export async function getPageSeo(handle: string, type: string) {
-    // 关键：强制 locale=en，确保谷歌抓取的内容唯一
-    const url = `${STRAPI_URL}/api/${type}?filters[handle][$eq]=${handle}&locale=en&populate=seo`;
-
-    const res = await fetch(url);
-    const { data } = await res.json();
-
-    // 假设返回的是数组，取第一条的 seo 组件
-    return data?.[0]?.seo;
+export async function getSeoExtension(handle: string, locale: string = 'en-US') {
+    const url = `${STRAPI_URL}/api/lila-seo-extensions?filters[handle][$eq]=${handle}&locale=${locale}&populate[seo][populate]=shareImage`
+    try {
+        const res = await fetch(url, { next: { revalidate: 3600 } })
+        const { data } = await res.json()
+        const s = data?.[0]?.seo
+        if (!s || !s.metaTitle) return null
+        return {
+            metaTitle: s.metaTitle,
+            metaDescription: s.metaDescription,
+            keywords: s.keywords,
+            shareImage: s.shareImage,
+        }
+    } catch (e) {
+        console.error(`Failed to fetch SEO extension for "${handle}":`, e)
+        return null
+    }
 }

@@ -1,0 +1,7 @@
+=== 10-npm-global.txt ===
+/usr/lib
+├── corepack@0.34.6
+├── npm@10.8.2
+├── pm2@7.0.1
+└── pnpm@10.33.4
+

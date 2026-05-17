@@ -1,0 +1,93 @@
+=== ERROR LOG ===
+  statusCode: 400,
+  status: 400,
+  body: '{email:admin@hestc-me.site,password:Admin@2024#Hestc}',
+  type: 'entity.parse.failed'
+}
+SyntaxError: Expected property name or '}' in JSON at position 1
+    at JSON.parse (<anonymous>)
+    at parse (/opt/hestc/hestc-medusa/node_modules/.pnpm/body-parser@1.20.4/node_modules/body-parser/lib/types/json.js:92:19)
+    at /opt/hestc/hestc-medusa/node_modules/.pnpm/body-parser@1.20.4/node_modules/body-parser/lib/read.js:128:18
+    at AsyncResource.runInAsyncScope (node:async_hooks:206:9)
+    at invokeCallback (/opt/hestc/hestc-medusa/node_modules/.pnpm/raw-body@2.5.3/node_modules/raw-body/index.js:238:16)
+    at done (/opt/hestc/hestc-medusa/node_modules/.pnpm/raw-body@2.5.3/node_modules/raw-body/index.js:227:7)
+    at IncomingMessage.onEnd (/opt/hestc/hestc-medusa/node_modules/.pnpm/raw-body@2.5.3/node_modules/raw-body/index.js:287:7)
+    at IncomingMessage.emit (node:events:524:28)
+    at IncomingMessage.emit (node:domain:489:12)
+    at endReadableNT (node:internal/streams/readable:1698:12) {
+  expose: true,
+  statusCode: 400,
+  status: 400,
+  body: '{email:admin@hestc-me.site,password:Admin@2024#Hestc}',
+  type: 'entity.parse.failed'
+}
+SyntaxError: Expected property name or '}' in JSON at position 1
+    at JSON.parse (<anonymous>)
+    at parse (/opt/hestc/hestc-medusa/node_modules/.pnpm/body-parser@1.20.4/node_modules/body-parser/lib/types/json.js:92:19)
+    at /opt/hestc/hestc-medusa/node_modules/.pnpm/body-parser@1.20.4/node_modules/body-parser/lib/read.js:128:18
+    at AsyncResource.runInAsyncScope (node:async_hooks:206:9)
+    at invokeCallback (/opt/hestc/hestc-medusa/node_modules/.pnpm/raw-body@2.5.3/node_modules/raw-body/index.js:238:16)
+    at done (/opt/hestc/hestc-medusa/node_modules/.pnpm/raw-body@2.5.3/node_modules/raw-body/index.js:227:7)
+    at IncomingMessage.onEnd (/opt/hestc/hestc-medusa/node_modules/.pnpm/raw-body@2.5.3/node_modules/raw-body/index.js:287:7)
+    at IncomingMessage.emit (node:events:524:28)
+    at IncomingMessage.emit (node:domain:489:12)
+    at endReadableNT (node:internal/streams/readable:1698:12) {
+  expose: true,
+  statusCode: 400,
+  status: 400,
+  body: '{email:admin@hestc-me.site,password:Admin@2024#Hestc}',
+  type: 'entity.parse.failed'
+}
+SyntaxError: Expected property name or '}' in JSON at position 1
+    at JSON.parse (<anonymous>)
+    at parse (/opt/hestc/hestc-medusa/node_modules/.pnpm/body-parser@1.20.4/node_modules/body-parser/lib/types/json.js:92:19)
+    at /opt/hestc/hestc-medusa/node_modules/.pnpm/body-parser@1.20.4/node_modules/body-parser/lib/read.js:128:18
+    at AsyncResource.runInAsyncScope (node:async_hooks:206:9)
+    at invokeCallback (/opt/hestc/hestc-medusa/node_modules/.pnpm/raw-body@2.5.3/node_modules/raw-body/index.js:238:16)
+    at done (/opt/hestc/hestc-medusa/node_modules/.pnpm/raw-body@2.5.3/node_modules/raw-body/index.js:227:7)
+    at IncomingMessage.onEnd (/opt/hestc/hestc-medusa/node_modules/.pnpm/raw-body@2.5.3/node_modules/raw-body/index.js:287:7)
+    at IncomingMessage.emit (node:events:524:28)
+    at IncomingMessage.emit (node:domain:489:12)
+    at endReadableNT (node:internal/streams/readable:1698:12) {
+  expose: true,
+  statusCode: 400,
+  status: 400,
+  body: '{email:admin@hestc-me.site,password:Admin@2024#Hestc}',
+  type: 'entity.parse.failed'
+}
+- Creating server
+✔ Server is ready on port: 9000 – 2895ms
+- Creating server
+✔ Server is ready on port: 9000 – 2903ms
+
+=== OUT LOG ===
+{"level":"http","client_ip":"66.132.186.187","request_id":"607b8520-100e-4b0b-bd6e-6c06dc9e22d4","http_version":"1.1","method":"GET","path":"/sitemap.xml","status":404,"response_size":150,"request_size":0,"duration":0.974,"referrer":"-","user_agent":"Mozilla/5.0 (compatible; CensysInspect/1.1; +https://about.censys.io/)","timestamp":"2026-05-10T09:24:26.129Z"}
+[32minfo[39m:    Gracefully shutting down server
+[32minfo[39m:    Gracefully shutting down server
+{"level":"info","message":"Using flag MEDUSA_FF_TRANSLATION from project config with value true","timestamp":"2026-05-10 17:27:36"}
+{"activity_id":"01KR8KDAVKJX920ANVFM1W3XHA","config":{},"level":"info","message":"Creating server","timestamp":"2026-05-10 17:27:36"}
+{"level":"info","message":"Using flag MEDUSA_FF_TRANSLATION from project config with value true","timestamp":"2026-05-10 17:27:36"}
+{"level":"info","message":"Skipping instrumentation registration. No register function found.","timestamp":"2026-05-10 17:27:36"}
+{"level":"info","message":"Using flag MEDUSA_FF_TRANSLATION from project config with value true","timestamp":"2026-05-10 17:27:36"}
+{"level":"info","message":"No link to load from /opt/hestc/hestc-medusa/node_modules/.pnpm/@medusajs+draft-order@2.14.2_@medusajs+admin-sdk@2.14.2_@medusajs+cli@2.14.2_@types+nod_b039cb75edc8e51b2b59bd91d167f0d2/node_modules/@medusajs/draft-order/.medusa/server/src/links. skipped.","timestamp":"2026-05-10 17:27:36"}
+{"level":"warn","message":"Local Event Bus installed. This is not recommended for production.","timestamp":"2026-05-10 17:27:36"}
+{"level":"info","message":"Locking module: Using \"in-memory\" as default.","timestamp":"2026-05-10 17:27:36"}
+{"level":"info","message":"No workflow to load from /opt/hestc/hestc-medusa/node_modules/.pnpm/@medusajs+draft-order@2.14.2_@medusajs+admin-sdk@2.14.2_@medusajs+cli@2.14.2_@types+nod_b039cb75edc8e51b2b59bd91d167f0d2/node_modules/@medusajs/draft-order/.medusa/server/src/workflows. skipped.","timestamp":"2026-05-10 17:27:37"}
+{"level":"info","message":"No subscriber to load from /opt/hestc/hestc-medusa/node_modules/.pnpm/@medusajs+draft-order@2.14.2_@medusajs+admin-sdk@2.14.2_@medusajs+cli@2.14.2_@types+nod_b039cb75edc8e51b2b59bd91d167f0d2/node_modules/@medusajs/draft-order/.medusa/server/src/subscribers. skipped.","timestamp":"2026-05-10 17:27:37"}
+{"level":"info","message":"No job to load from /opt/hestc/hestc-medusa/node_modules/.pnpm/@medusajs+medusa@2.14.2_@medusajs+admin-sdk@2.14.2_@medusajs+cli@2.14.2_@types+node@20._6fba801aefb1c69381fa8d62e4465e98/node_modules/@medusajs/medusa/dist/jobs. skipped.","timestamp":"2026-05-10 17:27:38"}
+{"level":"info","message":"No job to load from /opt/hestc/hestc-medusa/node_modules/.pnpm/@medusajs+draft-order@2.14.2_@medusajs+admin-sdk@2.14.2_@medusajs+cli@2.14.2_@types+nod_b039cb75edc8e51b2b59bd91d167f0d2/node_modules/@medusajs/draft-order/.medusa/server/src/jobs. skipped.","timestamp":"2026-05-10 17:27:38"}
+{"activity_id":"01KR8KDAVKJX920ANVFM1W3XHA","duration":2912,"level":"info","message":"Server is ready on port: 9000","timestamp":"2026-05-10 17:27:38"}
+{"level":"http","client_ip":"66.228.53.136","request_id":"3b500331-7142-4e6c-b0a1-b3d037689584","http_version":"1.1","method":"GET","path":"/","status":404,"response_size":139,"request_size":0,"duration":19.562,"referrer":"-","user_agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 13_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36","timestamp":"2026-05-10T09:30:43.055Z"}
+{"level":"http","client_ip":"127.0.0.1","request_id":"ceeb01fc-1877-4b05-b798-0a16b20d5f1d","http_version":"1.1","method":"GET","path":"/app","status":200,"response_size":"581","request_size":0,"duration":1.375,"referrer":"-","user_agent":"curl/7.81.0","timestamp":"2026-05-10T09:53:52.816Z"}
+{"level":"http","client_ip":"77.83.39.197","request_id":"dfe7a680-f338-498f-a0aa-861b3516dae6","http_version":"1.1","method":"GET","path":"/.env","status":404,"response_size":143,"request_size":0,"duration":1.181,"referrer":"-","user_agent":"Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.108 Safari/537.36","timestamp":"2026-05-10T09:56:45.567Z"}
+{"level":"http","client_ip":"8.209.197.202","request_id":"2306fcb7-7c42-410b-bb3e-e1fa7ee34dde","http_version":"1.1","method":"GET","path":"/","status":404,"response_size":139,"request_size":0,"duration":0.951,"referrer":"-","user_agent":"curl/7.64.1","timestamp":"2026-05-10T09:56:58.627Z"}
+{"level":"http","client_ip":"8.209.197.202","request_id":"0eb01e88-0da4-40c9-8609-dfea19eed29b","http_version":"1.1","method":"GET","path":"/","status":404,"response_size":139,"request_size":0,"duration":1.103,"referrer":"-","user_agent":"curl/7.74.0","timestamp":"2026-05-10T09:57:01.777Z"}
+{"level":"http","client_ip":"123.160.223.73","request_id":"cdb6ed06-6a16-49a8-a61d-a7e1f1089cf8","http_version":"1.1","method":"GET","path":"/","status":404,"response_size":139,"request_size":0,"duration":1.06,"referrer":"-","user_agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36","timestamp":"2026-05-10T09:57:41.241Z"}
+{"level":"http","client_ip":"162.159.110.82","request_id":"a11dae27-60fc-4777-9bbe-c191592f3316","http_version":"1.1","method":"GET","path":"/app/","status":200,"response_size":"581","request_size":0,"duration":1.014,"referrer":"-","user_agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36","timestamp":"2026-05-10T10:00:11.354Z"}
+{"level":"http","client_ip":"172.71.190.90","request_id":"73a51675-338b-424a-b9e4-b83b994f9ba2","http_version":"1.1","method":"GET","path":"/app/login","status":200,"response_size":"581","request_size":0,"duration":2.062,"referrer":"-","user_agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36","timestamp":"2026-05-10T10:01:14.412Z"}
+{"level":"http","client_ip":"172.69.134.8","request_id":"335416c6-f44e-441e-9027-88431f71c0cd","http_version":"1.1","method":"GET","path":"/","status":404,"response_size":139,"request_size":0,"duration":1.316,"referrer":"-","user_agent":"Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1","timestamp":"2026-05-10T10:03:07.890Z"}
+{"level":"http","client_ip":"40.124.86.76","request_id":"8685e5c9-265d-447c-90b4-3b055c5e4ca4","http_version":"1.1","method":"GET","path":"/developmentserver/metadatauploader","status":404,"response_size":173,"request_size":0,"duration":1.151,"referrer":"-","user_agent":"Mozilla/5.0 zgrab/0.x","timestamp":"2026-05-10T10:03:42.767Z"}
+{"level":"http","client_ip":"65.49.1.172","request_id":"e036547a-83dd-4f4f-aabc-617c398b7bac","http_version":"1.1","method":"GET","path":"/","status":404,"response_size":139,"request_size":0,"duration":1.127,"referrer":"-","user_agent":"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/92.0.4515.159 Safari/537.36","timestamp":"2026-05-10T10:05:01.059Z"}
+{"level":"http","client_ip":"65.49.1.172","request_id":"cd59f876-54f3-49e9-a659-26ab05423928","http_version":"1.1","method":"GET","path":"/webui/","status":404,"response_size":145,"request_size":0,"duration":1.898,"referrer":"-","user_agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36 OPR/107.0.0.0","timestamp":"2026-05-10T10:09:14.548Z"}
+{"level":"info","message":"Gracefully shutting down server","timestamp":"2026-05-10 18:09:17"}
+{"level":"info","message":"Gracefully shutting down server","timestamp":"2026-05-10 18:09:17"}

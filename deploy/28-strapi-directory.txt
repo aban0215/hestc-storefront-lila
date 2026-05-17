@@ -1,0 +1,22 @@
+=== 28-strapi-directory.txt ===
+total 800
+drwxr-xr-x  11 root root   4096 May 10 13:14 .
+drwxr-xr-x   4 root root   4096 May 10 01:49 ..
+drwxr-xr-x   2 root root   4096 May 10 01:49 config
+drwxr-xr-x   3 root root   4096 May 10 01:49 database
+drwxr-xr-x   5 root root   4096 May 10 12:27 dist
+-rw-r--r--   1 root root    554 May 10 02:16 .env
+-rw-r--r--   1 root root    205 May 10 01:49 .env.example
+-rw-r--r--   1 root root    497 May 10 01:49 favicon.png
+drwxr-xr-x   7 root root   4096 May 10 01:51 .git
+-rw-r--r--   1 root root   1396 May 10 01:51 .gitignore
+drwxr-xr-x 924 root root  36864 May 10 02:24 node_modules
+-rw-r--r--   1 root root   1087 May 10 01:49 package.json
+-rw-r--r--   1 root root 708558 May 10 01:51 package-lock.json
+drwxr-xr-x   3 root root   4096 May 10 01:49 public
+-rw-r--r--   1 root root   2167 May 10 01:49 README.md
+drwxr-xr-x   6 root root   4096 May 10 02:27 src
+drwxr-xr-x   3 root root   4096 May 10 01:51 .strapi
+-rw-------   1 root root     58 May 10 13:14 .strapi-updater.json
+-rw-r--r--   1 root root    958 May 10 01:49 tsconfig.json
+drwxr-xr-x   3 root root   4096 May 10 02:24 types

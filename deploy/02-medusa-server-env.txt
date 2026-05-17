@@ -1,0 +1,13 @@
+=== 02-medusa-server-env.txt ===
+DATABASE_URL=postgres://hestc_admin:Hestc%402024%23Secure@localhost:5432/hestc_medusa
+REDIS_URL=redis://localhost:6379
+JWT_SECRET=HestcJwt@2024#Secret
+COOKIE_SECRET=HestcCookie@2024#Secret
+STORE_CORS=http://localhost:8000,https://abanopen.tech
+ADMIN_CORS=http://localhost:5173,http://localhost:9000,https://abanopen.tech
+AUTH_CORS=http://localhost:5173,http://localhost:9000,https://abanopen.tech
+MEILISEARCH_HOST=http://127.0.0.1:7700
+MEILISEARCH_API_KEY=HestcMeili@2024#Master
+MEDUSA_BACKEND_URL=https://abanopen.tech
+
+NODE_ENV=production

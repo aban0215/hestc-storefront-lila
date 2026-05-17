@@ -1,0 +1,4 @@
+=== 20-memory.txt ===
+               total        used        free      shared  buff/cache   available
+Mem:            14Gi       1.1Gi       7.5Gi        30Mi       6.4Gi        13Gi
+Swap:             0B          0B          0B

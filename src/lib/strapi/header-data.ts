@@ -4,9 +4,9 @@ import { BrandData, MenuItem } from "../../types/strapi"
 /**
  * 获取品牌数据
  */
-export async function getBrandData(): Promise<BrandData | null> {
+export async function getBrandData(locale: string = 'en-US'): Promise<BrandData | null> {
     try {
-        const data = await getStrapiSingle("lila-header")
+        const data = await getStrapiSingle("lila-header", locale)
         return data as BrandData
     } catch (error) {
         console.error("Failed to fetch brand data:", error)
@@ -15,19 +15,26 @@ export async function getBrandData(): Promise<BrandData | null> {
 }
 
 /**
- * 获取菜单数据并转换为树形结构
+ * 获取菜单数据并转换为树形结构（分页拉取所有条目）
  */
-export async function getMenuData(): Promise<MenuItem[]> {
+export async function getMenuData(locale: string = 'en-US'): Promise<MenuItem[]> {
     try {
-        const data = await getStrapiData("lila-menuitems")
-
-        if (!Array.isArray(data)) {
-            console.error("Menu data is not an array:", data)
-            return []
+        const STRAPI_BASE_URL = process.env.NEXT_PUBLIC_STRAPI_API_URL
+        const allItems: any[] = []
+        let page = 1
+        while (true) {
+            const res = await fetch(
+                `${STRAPI_BASE_URL}/api/lila-menuitems?locale=${locale}&populate=*&sort=order:asc&pagination[page]=${page}&pagination[pageSize]=100`,
+                { cache: 'no-store' }
+            )
+            const data = await res.json()
+            const items = data.data || []
+            allItems.push(...items)
+            const total = data.meta?.pagination?.total ?? 0
+            if (allItems.length >= total || items.length === 0) break
+            page++
         }
-
-        // 转换扁平数据为树形结构
-        return buildMenuTree(data as MenuItem[])
+        return buildMenuTree(allItems)
     } catch (error) {
         console.error("Failed to fetch menu data:", error)
         return []

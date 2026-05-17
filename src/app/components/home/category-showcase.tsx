@@ -2,14 +2,13 @@ import { getHomeCategorySection } from '../../../lib/strapi/home-data'
 import LocalizedClientLink from '@modules/common/components/localized-client-link'
 import { getSelectedLocale } from "@lib/data/locales";
 import { getProductsByCollectionHandle, getProductsByCategoryHandle } from '../../../lib/medusa/products'
-import { getRegion } from "@lib/data/regions";
+import { HttpTypes } from "@medusajs/types"
 
-export default async function CategoryShowcase() {
+export default async function CategoryShowcase({ region }: { region: HttpTypes.StoreRegion }) {
     const localecode = (await getSelectedLocale()) || 'en-US';
-    const region = await getRegion(localecode.split('-')[1]?.toLowerCase() || 'us');
     const sectionData = await getHomeCategorySection(localecode)
 
-    if (!sectionData || !sectionData.featuredCategories || sectionData.featuredCategories.length === 0 || !region) {
+    if (!sectionData || !sectionData.featuredCategories || sectionData.featuredCategories.length === 0) {
         return null
     }
 
@@ -84,11 +83,8 @@ export default async function CategoryShowcase() {
                                     )}
                                     <div className="absolute inset-0 bg-black/25 group-hover:bg-black/40 transition-colors duration-1000" />
                                 </div>
-                                <div className="relative h-full flex flex-col items-center justify-center text-white p-10 text-center">
-                                    <h3 className="text-[32px] md:text-[50px] font-bold tracking-[0.3em] uppercase transition-all duration-700">
-                                        {item.name}
-                                    </h3>
-                                    <div className="mt-8 px-8 py-3 border border-white text-[10px] md:text-[11px] tracking-[0.4em] uppercase hover:bg-white hover:text-black transition-all duration-500">
+                                <div className="relative h-full flex flex-col items-center justify-end text-white p-10 text-center pb-12 md:pb-16">
+                                    <div className="px-8 py-3 border border-white text-[10px] md:text-[11px] tracking-[0.4em] uppercase hover:bg-white hover:text-black transition-all duration-500">
                                         View Collection
                                     </div>
                                 </div>

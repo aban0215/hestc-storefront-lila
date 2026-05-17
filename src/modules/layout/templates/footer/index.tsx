@@ -5,9 +5,7 @@ import {getFooterSetting} from "../../../../lib/strapi/home-data";
 
 
 
-export default async function Home(props: {
-  params: Promise<{ countryCode: string }>
-}) {
+export default async function Home() {
 
   const localecode = (await getSelectedLocale()) || 'en-US'
 

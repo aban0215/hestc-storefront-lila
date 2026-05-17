@@ -8,34 +8,13 @@ import { SortOptions } from "@modules/store/components/refinement-list/sort-prod
 import { getBaseURL } from "@lib/util/env"
 import {getSelectedLocale} from "@lib/data/locales";
 import {getMarketingBySlug} from "@lib/strapi/market";
-
+import { getSeoExtension } from "@lib/strapi/seo"
 
 export const dynamic = "force-dynamic"
-
-const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_API_URL;
 
 type Props = {
   params: Promise<{ handle: string; countryCode: string }>
   searchParams: Promise<{ page?: string; sortBy?: SortOptions }>
-}
-
-
-
-async function getCollectionSeoPatch(handle: string, locale: string = "en-US") {
-  const query = `${STRAPI_URL}/api/lila-seo-extensions?filters[key][$eq]=${handle}&locale=${locale}&populate[lilaSeo][populate]=shareImage`
-
-  try {
-    const res = await fetch(query, {
-      next: { revalidate: 3600 } // 缓存一小时，性能起飞
-    })
-    const { data } = await res.json()
-
-    // 返回匹配到 handle 的那一条 SEO 配置
-    return data?.[0]?.lilaSeo?.[0] || null
-  } catch (e) {
-    console.error("Strapi SEO Fetch Error:", e)
-    return null
-  }
 }
 
 
@@ -79,14 +58,14 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
 
   const [collection, seoPatch] = await Promise.all([
     getCollectionByHandle(handle),
-    getCollectionSeoPatch(handle, localecode)
+    getSeoExtension(handle, localecode)
   ])
 
   if (!collection) notFound()
 
   const baseUrl = getBaseURL()
-  const title = seoPatch?.metaTitle || `${collection.title} | lilazen`
-  const description = seoPatch?.metaDescription || `Shop the latest ${collection.title} yoga wear at lilazen.`
+  const title = seoPatch?.metaTitle || `${collection.title} | mybrand`
+  const description = seoPatch?.metaDescription || `Shop the latest ${collection.title} yoga wear at mybrand.`
 
   return {
     title: title,
@@ -98,7 +77,7 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
     openGraph: {
       title: title,
       description: description,
-      images: seoPatch?.shareImage?.[0]?.url ? [seoPatch.shareImage[0].url] : [],
+      images: seoPatch?.shareImage?.url ? [seoPatch.shareImage.url] : [],
     }
   }
 }

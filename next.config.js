@@ -57,7 +57,7 @@ const nextConfig = {
       },
       {
         protocol: "https",
-        hostname: "cdn.lilazen.com",
+        hostname: "cdn.mybrand.com",
         port: "",
         pathname: "/**",
       },

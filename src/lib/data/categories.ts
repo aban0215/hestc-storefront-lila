@@ -46,4 +46,8 @@ export const getCategoryByHandle = async (categoryHandle: string[]) => {
       }
     )
     .then(({ product_categories }) => product_categories[0])
+    .catch((error) => {
+      console.error(`Failed to fetch category "${handle}":`, error.message)
+      return null
+    })
 }

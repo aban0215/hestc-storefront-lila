@@ -1,0 +1,2 @@
+=== 22-nginx-status.txt ===
+active

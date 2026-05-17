@@ -15,7 +15,7 @@ export const strapiClient = strapi({
  */
 export async function getStrapiData(
     contentType: string,
-    lang: string = 'en',
+    lang: string = 'en-US',
     params: Record<string, any> = {}
 ) {
     try {
@@ -39,11 +39,11 @@ export async function getStrapiData(
 /**
  * 针对 Single Type (如首页、全局配置) 的封装
  */
-export async function getStrapiSingle(contentType: string, lang: string = 'en') {
+export async function getStrapiSingle(contentType: string, lang: string = 'en-US') {
     try {
-        const response = await strapiClient.single(contentType).get({
+        const response = await strapiClient.single(contentType).find({
             locale: lang,
-            populate: 'deep',
+            populate: '*',
         });
         return response.data;
     } catch (error) {

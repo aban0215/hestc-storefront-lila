@@ -44,12 +44,8 @@ export interface StrapiImage {
 export interface BrandData {
     id: number
     sitename: string
-    logo: {
-        data: StrapiImage
-    }
-    favicon: {
-        data: StrapiImage[]
-    }
+    logo: StrapiImage | null
+    favicon: StrapiImage[]
     createdAt: string
     updatedAt: string
     publishedAt: string
@@ -57,17 +53,21 @@ export interface BrandData {
 
 export interface MenuItem {
     id: number
+    documentId: string
     title: string
+    slug: string
     url: string
+    link_type: 'category' | 'collection' | 'blog' | 'page'
+    medusaHandle?: string
     order: number
     visible: boolean
     children?: MenuItem[]
     parent?: {
         id: number
+        documentId: string
         title: string
-        url: string
-        order: number
-        visible: boolean
+        slug: string
+        link_type: string
     } | null
     createdAt: string
     updatedAt: string

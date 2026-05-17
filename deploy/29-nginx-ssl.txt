@@ -1,0 +1,6 @@
+=== 29-nginx-ssl.txt ===
+total 16
+drwxr-xr-x 2 root root 4096 May 10 17:43 .
+drwxr-xr-x 9 root root 4096 May 10 17:43 ..
+-rw-r--r-- 1 root root 1204 May 10 17:43 abanopen.crt
+-rw------- 1 root root 1704 May 10 17:43 abanopen.key

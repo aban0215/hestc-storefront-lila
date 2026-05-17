@@ -21,10 +21,10 @@ const Register = ({ setCurrentView }: Props) => {
       data-testid="register-page"
     >
       <h1 className="text-large-semi uppercase mb-6">
-        Become a Lila Zen Store Member
+        Become a Mybrand Store Member
       </h1>
       <p className="text-center text-base-regular text-ui-fg-base mb-4">
-        Create your Lila Zen Store Member profile, and get access to an enhanced
+        Create your Mybrand Store Member profile, and get access to an enhanced
         shopping experience.
       </p>
       <form className="w-full flex flex-col" action={formAction}>
@@ -69,7 +69,7 @@ const Register = ({ setCurrentView }: Props) => {
         </div>
         <ErrorMessage error={message} data-testid="register-error" />
         <span className="text-center text-ui-fg-base text-small-regular mt-6">
-          By creating an account, you agree to Lila zen Store&apos;s{" "}
+          By creating an account, you agree to YunJoy Store&apos;s{" "}
           <LocalizedClientLink
             href="/pages/PrivacyPolicy"
             className="underline"

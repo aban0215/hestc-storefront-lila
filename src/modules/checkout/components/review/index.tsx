@@ -54,7 +54,7 @@ const Review = ({ cart }: { cart: any }) => {
                                 {/* 动态显示的提示语 */}
                                 By clicking the {isPaypal ? "PayPal" : "Place Order"} button, you confirm that you have
                                 read, understand and accept our Terms of Use, Terms of Sale and
-                                Returns Policy and acknowledge that you have read Lila Zen
+                                Returns Policy and acknowledge that you have read Mybrand
                                 Store&apos;s Privacy Policy.
                             </Text>
                         </div>

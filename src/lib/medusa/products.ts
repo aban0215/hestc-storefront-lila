@@ -196,7 +196,7 @@ export async function getProductsByCollectionHandle(
             `/store/collections`,
             {
                 method: "GET",
-                query: { handle: collectionHandle.replace(/^\//, ''), limit: 1 },
+                query: { handle: (collectionHandle || '').replace(/^\//, ''), limit: 1 },
                 headers,
                 // 统一缓存策略，确保排序和新商品实时更新
                 cache: "no-store",
@@ -252,37 +252,45 @@ export async function getProductsByCategoryHandle(
     try {
         const headers = { ...(await getAuthHeaders()) };
 
-        // 1. 获取 Category ID
-        // 注意：Medusa v2 存储分类 handle 的方式，查询时建议去掉前导斜杠
+        // 1. 获取 Category 及子分类
         const categoryRes = await sdk.client.fetch<{ product_categories: any[] }>(
             `/store/product-categories`,
             {
                 method: "GET",
                 query: {
-                    handle: categoryHandle.replace(/^\//, ''),
+                    handle: (categoryHandle || '').replace(/^\//, ''),
                     limit: 1,
+
                 },
                 headers,
                 cache: "no-store",
             }
         )
 
-        const categoryId = categoryRes.product_categories?.[0]?.id
-        if (!categoryId) {
+        const category = categoryRes.product_categories?.[0]
+        if (!category) {
             console.warn(`未找到分类: ${categoryHandle}`)
             return []
         }
 
-        // 2. 查询该分类下的商品
+        // 收集父分类 + 所有子分类的 ID
+        const categoryIds = [category.id]
+        if (category.category_children) {
+            for (const child of category.category_children) {
+                categoryIds.push(child.id)
+            }
+        }
+
+        // 2. 查询该分类及子分类下的商品
         const response = await sdk.client.fetch<{ products: HttpTypes.StoreProduct[] }>(
             `/store/products`,
             {
                 method: "GET",
                 query: {
-                    category_id: [categoryId], // 使用 category_id 数组过滤
+                    category_id: categoryIds,
                     region_id: regionId,
                     limit: limit,
-                    order: "-created_at", // 保持新货在前
+                    order: "-created_at",
                     fields: "*variants.calculated_price,+variants.inventory_quantity,*variants.images,+metadata,+tags,+material,+variants.options,+variants.options.option,+collection",
                 },
                 headers,

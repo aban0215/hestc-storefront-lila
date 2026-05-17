@@ -1,0 +1,2 @@
+=== 09-psql-version.txt ===
+psql (PostgreSQL) 14.22 (Ubuntu 14.22-0ubuntu0.22.04.1)

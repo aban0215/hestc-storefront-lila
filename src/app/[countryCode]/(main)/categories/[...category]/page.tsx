@@ -33,21 +33,26 @@ function getAllCategoryIds(category: any): string[] {
 }
 
 export async function generateStaticParams() {
-  const product_categories = await listCategories()
-  if (!product_categories) return []
+  try {
+    const product_categories = await listCategories()
+    if (!product_categories) return []
 
-  const countryCodes = await listRegions().then((regions: StoreRegion[]) =>
-      regions?.map((r) => r.countries?.map((c) => c.iso_2)).flat()
-  )
+    const countryCodes = await listRegions().then((regions: StoreRegion[]) =>
+        regions?.map((r) => r.countries?.map((c) => c.iso_2)).flat()
+    )
 
-  const categoryHandles = product_categories.map((category: any) => category.handle)
+    const categoryHandles = product_categories.map((category: any) => category.handle)
 
-  return countryCodes?.map((countryCode: string | undefined) =>
-      categoryHandles.map((handle: any) => ({
-        countryCode,
-        category: [handle],
-      }))
-  ).flat()
+    return countryCodes?.map((countryCode: string | undefined) =>
+        categoryHandles.map((handle: any) => ({
+          countryCode,
+          category: [handle],
+        }))
+    ).flat()
+  } catch (error) {
+    console.error("generateStaticParams categories error:", error)
+    return []
+  }
 }
 
 export async function generateMetadata(props: Props): Promise<Metadata> {

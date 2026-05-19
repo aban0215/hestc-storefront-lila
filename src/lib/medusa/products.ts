@@ -7,6 +7,7 @@ import {
     formatPriceFromObject,
     getPriceComparison
 } from '@lib/medusa/currency'
+import { normalizeImageUrl } from "@lib/util/normalize-image-url"
 
 /**
  * 根据多个handles批量获取商品
@@ -89,21 +90,15 @@ export function getProductPrice(product: any,currencycode: string): string {
  */
 export function getProductThumbnail(product: HttpTypes.StoreProduct): string | null {
     try {
-        // 优先使用商品缩略图
         if (product.thumbnail) {
-            return product.thumbnail
+            return normalizeImageUrl(product.thumbnail)
         }
-
-        // 如果没有缩略图，使用第一个变体的第一张图片
         if (product.variants?.[0]?.images?.[0]?.url) {
-            return product.variants[0].images[0].url
+            return normalizeImageUrl(product.variants[0].images[0].url)
         }
-
-        // 最后尝试使用商品的第一张图片
         if (product.images?.[0]?.url) {
-            return product.images[0].url
+            return normalizeImageUrl(product.images[0].url)
         }
-
         return null
     } catch (error) {
         console.error('获取商品缩略图失败:', error)

@@ -11,6 +11,7 @@ import { LilaProductContent } from "../../../lib/strapi/product-content"
 import ReactMarkdown from "react-markdown"
 import SizeGuideModal from "@modules/products/components/size-guide-modal"
 import BackButton from "@modules/account/components/back-button"
+import { normalizeImageUrl } from "@lib/util/normalize-image-url"
 
 type ProductTemplateProps = {
     product: HttpTypes.StoreProduct
@@ -47,7 +48,7 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
                     {images?.map((image, index) => (
                         <div key={image.id || index} className="w-full bg-gray-50">
                             <img
-                                src={image.url}
+                                src={normalizeImageUrl(image.url)!}
                                 alt={`${product.title} - ${index}`}
                                 className="w-full h-auto object-cover"
                                 loading={index === 0 ? "eager" : "lazy"}

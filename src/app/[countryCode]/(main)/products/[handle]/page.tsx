@@ -6,6 +6,7 @@ import ProductTemplate from "@modules/products/templates"
 import { HttpTypes } from "@medusajs/types"
 import { getProductStrapiContent } from "../../../../../lib/strapi/product-content"
 import { getBaseURL } from "@lib/util/env"
+import { normalizeImageUrl } from "@lib/util/normalize-image-url"
 
 const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_API_URL;
 
@@ -117,7 +118,7 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
   const canonicalUrl = `${baseUrl}/${mainCountry}/products/${handle}`
 
   // 3. 确定分享图片 (优先使用 Strapi SEO 图片，回退到 Medusa 缩略图)
-  const ogImage = strapiSeo?.shareImage?.url || product.thumbnail
+  const ogImage = strapiSeo?.shareImage?.url || normalizeImageUrl(product.thumbnail)
 
   return {
     // 这里的 %s 会自动替换到 Root Layout 的 title.template 中

@@ -6,6 +6,20 @@ import { HttpTypes } from "@medusajs/types"
 import { SortOptions } from "@modules/store/components/refinement-list/sort-products"
 import { getAuthHeaders, getCacheOptions } from "./cookies"
 import { getRegion, retrieveRegion } from "./regions"
+import { normalizeImageUrl } from "@lib/util/normalize-image-url"
+
+function normalizeProductImages(product: HttpTypes.StoreProduct): HttpTypes.StoreProduct {
+  if (product.thumbnail) {
+    product.thumbnail = normalizeImageUrl(product.thumbnail) || product.thumbnail
+  }
+  if (product.images) {
+    product.images = product.images.map(img => ({
+      ...img,
+      url: normalizeImageUrl(img.url) || img.url,
+    }))
+  }
+  return product
+}
 
 export const listProducts = async ({
                                      pageParam = 1,
@@ -69,6 +83,9 @@ export const listProducts = async ({
           }
       )
       .then(({ products, count }) => {
+        // 归一化图片 URL：localhost:9000 → abanopen.tech
+        products = products.map(normalizeProductImages)
+
         /**
          * 核心辅助工具：标准化字符串并进行比对
          * @param exact 为 true 时执行全等匹配 (用于 Size, Color)

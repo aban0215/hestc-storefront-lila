@@ -49,19 +49,19 @@ export default function NavLinks({ menuTree }: { menuTree: any[] }) {
             className="hidden lg:flex items-center justify-center h-full relative"
             onMouseLeave={handleMouseLeave}
         >
-            {/* 一级菜单 - 🔧 字体调整：28px + 去加粗 + tracking 缩小 */}
-            <ul className="flex items-center gap-x-10 h-full">
+            {/* 一级菜单 - xl 以下缩小间距防止笔记本换行 */}
+            <ul className="flex items-center gap-x-4 xl:gap-x-10 h-full">
                 {menuTree?.map((item) => (
                     <li
                         key={item.id}
-                        className="flex items-center h-full cursor-pointer px-4"
+                        className="flex items-center h-full cursor-pointer px-2 xl:px-4"
                         onMouseEnter={(e) => handleMouseEnter(item, e)}
                     >
                         <LocalizedClientLink
                             href={getMenuHref(item.link_type, item.slug)}
-                            className={`text-[20px] tracking-[0.08em] uppercase transition-all duration-300 ${
+                            className={`text-[16px] xl:text-[18px] tracking-[0.06em] uppercase transition-all duration-300 whitespace-nowrap ${
                                 activeId === item.id ? 'text-pink-600' : 'text-gray-800 hover:text-pink-600'
-                            }`}  // 👈 移除 font-bold，字号×2，tracking 减半
+                            }`}
                         >
                             {item.title}
                         </LocalizedClientLink>
@@ -95,7 +95,7 @@ export default function NavLinks({ menuTree }: { menuTree: any[] }) {
                                         {/* 🔧 三级菜单 - 一级子项：28px + 去加粗 */}
                                         <LocalizedClientLink
                                             href={getMenuHref(child.link_type, child.slug)}
-                                            className="text-[20px] tracking-[0.08em] mb-8 block uppercase hover:text-pink-600 transition-colors"  // 👈 移除 font-black，字号×2
+                                            className="text-[16px] tracking-[0.06em] mb-6 block uppercase hover:text-pink-600 transition-colors"  // 👈 移除 font-black，字号×2
                                             onClick={() => setActiveId(null)}
                                         >
                                             {child.title}
@@ -105,7 +105,7 @@ export default function NavLinks({ menuTree }: { menuTree: any[] }) {
                                                 <LocalizedClientLink
                                                     key={grand.id}
                                                     href={getMenuHref(grand.link_type, grand.slug)}
-                                                    className="text-[26px] text-gray-500 hover:text-pink-600 uppercase tracking-[0.07em] transition-colors"  // 👈 26px + 去加粗 + tracking 调整
+                                                    className="text-[18px] text-gray-500 hover:text-pink-600 uppercase tracking-[0.06em] transition-colors"  // 👈 26px + 去加粗 + tracking 调整
                                                     onClick={() => setActiveId(null)}
                                                 >
                                                     {grand.title}
@@ -123,7 +123,7 @@ export default function NavLinks({ menuTree }: { menuTree: any[] }) {
                                 <li key={child.id}>
                                     <LocalizedClientLink
                                         href={getMenuHref(child.link_type, child.slug)}
-                                        className="text-[20px] tracking-[0.08em] text-gray-900 hover:text-pink-600 uppercase transition-all inline-block"  // 👈 移除 font-bold，字号×2
+                                        className="text-[16px] tracking-[0.06em] text-gray-900 hover:text-pink-600 uppercase transition-all inline-block"
                                         onClick={() => setActiveId(null)}
                                     >
                                         {child.title}

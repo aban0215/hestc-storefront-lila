@@ -41,7 +41,7 @@ export default async function Nav() {
             <div className="grid grid-cols-3 lg:flex lg:justify-between items-center h-full bg-white relative z-[120]">
 
               {/* 左侧：移动端汉堡菜单 / PC 端 Logo */}
-              <div className="flex items-center h-full bg-white relative z-[130]">
+              <div className="flex items-center h-full bg-white relative z-[130] shrink-0">
                 {/* 移动端汉堡菜单 */}
                 <div className="lg:hidden pr-2 bg-white">
                   <MobileMenu menuTree={menuTree} brandData={brandData} regions={regions} locales={locales} currentLocale={currentLocale} />
@@ -65,7 +65,7 @@ export default async function Nav() {
               </div>
 
               {/* 右侧：图标区 - 搜索 + 用户 + 购物车 */}
-              <div className="flex items-center gap-x-1 lg:gap-x-4 justify-end h-full bg-white relative z-[130]">
+              <div className="flex items-center gap-x-1 lg:gap-x-4 justify-end h-full bg-white relative z-[130] shrink-0">
 
                 {/* 🔍 移动端搜索图标（点击弹窗） */}
                 <div className="lg:hidden bg-white">

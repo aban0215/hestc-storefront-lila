@@ -30,7 +30,7 @@ export default async function HeroSection() {
     const isMobileVideo = mobileMedia?.mime?.includes('video');
 
     return (
-        <section className="relative w-full overflow-hidden bg-gray-900 aspect-[16/9] min-h-[600px]">
+        <section className="relative w-full overflow-hidden bg-gray-900 h-screen">
             {/* 背景媒体容器 */}
             <div className="absolute inset-0">
                 {/* 1. 移动端媒体 */}

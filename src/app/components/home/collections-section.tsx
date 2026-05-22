@@ -44,7 +44,7 @@ async function CollectionBlock({ entry, region }: { entry: HomeCollectionEntry; 
 
             {/* 背景海报区域 */}
             {(desktopMedia || mobileMedia) && (
-                <div className="group relative w-full aspect-[16/9] max-h-[70vh] overflow-hidden bg-gray-100">
+                <div className="group relative w-full aspect-[3/2] overflow-hidden bg-gray-100">
                     <div className="absolute inset-0">
                         <div className="block md:hidden h-full w-full">
                             {mobileMedia?.url && (

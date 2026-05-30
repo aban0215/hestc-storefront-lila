@@ -1,5 +1,5 @@
 import { Metadata } from "next"
-import { notFound } from "next/navigation"
+import { notFound, redirect } from "next/navigation"
 import { getCollectionByHandle, listCollections } from "@lib/data/collections"
 import { listRegions } from "@lib/data/regions"
 import { StoreCollection, StoreRegion } from "@medusajs/types"
@@ -104,7 +104,9 @@ export default async function CollectionPage(props: Props) {
     getMarketingBySlug(params.handle, localecode)
   ])
 
-  if (!collection) notFound()
+  if (!collection) {
+    redirect(`/${params.countryCode}/store`)
+  }
 
   return (
       <CollectionTemplate

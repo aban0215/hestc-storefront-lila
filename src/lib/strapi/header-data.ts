@@ -25,7 +25,7 @@ export async function getMenuData(locale: string = 'en-US'): Promise<MenuItem[]>
         while (true) {
             const res = await fetch(
                 `${STRAPI_BASE_URL}/api/lila-menuitems?locale=${locale}&populate=*&sort=order:asc&pagination[page]=${page}&pagination[pageSize]=100`,
-                { cache: 'no-store' }
+                { next: { revalidate: 3600 } }
             )
             const data = await res.json()
             const items = data.data || []

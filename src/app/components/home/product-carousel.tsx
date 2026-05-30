@@ -1,6 +1,7 @@
 "use client"
 import { useState } from "react"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
+import FadeUpOnScroll from "@modules/common/components/fade-up-on-scroll"
 
 export default function ProductCarousel({ products, targetHref, title }) {
     const [currentIndex, setCurrentIndex] = useState(0)
@@ -46,11 +47,16 @@ export default function ProductCarousel({ products, targetHref, title }) {
                         className="flex transition-transform duration-700 ease-in-out gap-[1px] bg-gray-100 border-y border-gray-100"
                         style={{ transform: `translateX(-${(currentIndex / 5) * 100}%)` }}
                     >
-                        {products.map((product) => (
+                        {products.map((product, i) => (
+                            <FadeUpOnScroll
+                                key={product.handle}
+                                delay={i * 50}
+                                duration={600}
+                                className="min-w-[calc(20%-0.8px)] bg-white group flex flex-col"
+                            >
                             <LocalizedClientLink
                                 href={`/products/${product.handle}`}
-                                key={product.handle}
-                                className="min-w-[calc(20%-0.8px)] bg-white group flex flex-col"
+                                className="bg-white group flex flex-col h-full"
                             >
                                 <div className="aspect-[3/4] overflow-hidden">
                                     <img
@@ -71,6 +77,7 @@ export default function ProductCarousel({ products, targetHref, title }) {
                                     </p>
                                 </div>
                             </LocalizedClientLink>
+                            </FadeUpOnScroll>
                         ))}
                     </div>
                 </div>
@@ -91,8 +98,9 @@ export default function ProductCarousel({ products, targetHref, title }) {
             {/* 移动端：瀑布流 */}
             <div className="lg:hidden flex flex-col">
                 <div className="grid grid-cols-2 gap-[1px] bg-gray-100 border-y border-gray-100">
-                    {products.slice(0, 6).map((product) => (
-                        <LocalizedClientLink href={`/products/${product.handle}`} key={product.handle} className="bg-white flex flex-col">
+                    {products.slice(0, 6).map((product, i) => (
+                        <FadeUpOnScroll key={product.handle} delay={i * 50} duration={600} className="bg-white flex flex-col">
+                        <LocalizedClientLink href={`/products/${product.handle}`} className="bg-white flex flex-col h-full">
                             <div className="aspect-[3/4] overflow-hidden">
                                 <img src={product.thumbnail} className="w-full h-full object-cover" alt={product.title} />
                             </div>
@@ -107,6 +115,7 @@ export default function ProductCarousel({ products, targetHref, title }) {
                                 </p>
                             </div>
                         </LocalizedClientLink>
+                        </FadeUpOnScroll>
                     ))}
                 </div>
 

@@ -5,6 +5,7 @@ import HeroSection from '../../components/home/hero-section'
 import CategoryShowcase from '../../components/home/category-showcase'
 import CollectionsSection from '../../components/home/collections-section'
 import BlogShowcase from '../../components/home/blog-showcase'
+import MasonryLatest from '../../components/home/masonry-latest'
 import { getBaseURL } from "@lib/util/env"
 import LotteryModal from "@modules/home/components/lottery-modal"
 import { getSeoExtension } from "@lib/strapi/seo"
@@ -69,6 +70,7 @@ export default async function Home(props: Props) {
           <HeroSection />
           <CollectionsSection region={region} />
           <CategoryShowcase region={region} />
+          <MasonryLatest region={region} />
           <BlogShowcase />
         </div>
       </>

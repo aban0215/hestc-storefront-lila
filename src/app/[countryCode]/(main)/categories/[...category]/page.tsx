@@ -22,14 +22,27 @@ type Props = {
   }>
 }
 
-function getAllCategoryIds(category: any): string[] {
-  let ids = [category.id]
-  if (category.category_children && category.category_children.length > 0) {
-    category.category_children.forEach((child: any) => {
-      ids = [...ids, ...getAllCategoryIds(child)]
+function getAllCategoryIds(rootCategory: any, allCategories: any[]): string[] {
+  // 从全量扁平列表构建 parent → children 映射，递归收集所有子孙 ID
+  const childrenMap = new Map<string, string[]>()
+  allCategories.forEach((cat: any) => {
+    const pid = cat.parent_category_id || cat.parent_category?.id
+    if (pid) {
+      if (!childrenMap.has(pid)) childrenMap.set(pid, [])
+      childrenMap.get(pid)!.push(cat.id)
+    }
+  })
+
+  function collectDescendants(id: string): string[] {
+    const children = childrenMap.get(id) || []
+    let ids = [id]
+    children.forEach(cid => {
+      ids = [...ids, ...collectDescendants(cid)]
     })
+    return ids
   }
-  return ids
+
+  return collectDescendants(rootCategory.id)
 }
 
 export async function generateStaticParams() {
@@ -99,13 +112,14 @@ export default async function CategoryPage(props: Props) {
   // 获取分类层级的最后一个 handle
   const categoryHandle = category[category.length - 1]
 
-  const [productCategory, marketingData] = await Promise.all([
+  const [productCategory, allCategories, marketingData] = await Promise.all([
     getCategoryByHandle(category),
+    listCategories(),
     getMarketingBySlug(categoryHandle, localecode)
   ])
 
   if (!productCategory) notFound()
-  const allCategoryIds = getAllCategoryIds(productCategory)
+  const allCategoryIds = getAllCategoryIds(productCategory, allCategories)
 
   return (
       <CategoryTemplate

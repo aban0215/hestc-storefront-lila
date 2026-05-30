@@ -1,0 +1,1267 @@
+
+> medusa-next@1.0.3 dev
+> next dev -p 8000
+
+   ▲ Next.js 15.3.8
+   - Local:        http://localhost:8000
+   - Network:      http://198.18.192.187:8000
+   - Environments: .env
+
+ ✓ Starting...
+ ○ Compiling /instrumentation ...
+ ✓ Compiled /instrumentation in 2.9s (20 modules)
+ ✓ Ready in 34.9s
+ ○ Compiling /middleware ...
+ ✓ Compiled /middleware in 2.7s (154 modules)
+ ○ Compiling /[countryCode] ...
+ ✓ Compiled /[countryCode] in 96.8s (7061 modules)
+ ✓ Compiled in 2.2s (3023 modules)
+ ✓ Compiled in 440ms (3009 modules)
+Initiating Medusa client with default headers:
+ {
+  "accept": "application/json",
+  "content-type": "application/json",
+  "x-publishable-api-key": "pk_85866e7f8435997f70846af778b718d7e921559f58b043d7de474fd3afefde8b",
+  "authorization": "<REDACTED>"
+}
+
+Initiating Medusa client with default headers:
+ {
+  "accept": "application/json",
+  "content-type": "application/json",
+  "x-publishable-api-key": "pk_85866e7f8435997f70846af778b718d7e921559f58b043d7de474fd3afefde8b",
+  "authorization": "<REDACTED>"
+}
+
+Performing request to:
+ URL: http://abanopen.tech/store/regions
+ Headers: {
+  "accept": "application/json",
+  "content-type": "application/json",
+  "x-medusa-locale": "en-US",
+  "x-publishable-api-key": "pk_85866e7f8435997f70846af778b718d7e921559f58b043d7de474fd3afefde8b",
+  "authorization": "<REDACTED>"
+}
+
+Performing request to:
+ URL: http://abanopen.tech/store/customers/me?fields=%2Aorders
+ Headers: {
+  "accept": "application/json",
+  "content-type": "application/json",
+  "x-medusa-locale": "en-US",
+  "x-publishable-api-key": "pk_85866e7f8435997f70846af778b718d7e921559f58b043d7de474fd3afefde8b",
+  "authorization": "<REDACTED>"
+}
+
+Performing request to:
+ URL: http://abanopen.tech/store/regions
+ Headers: {
+  "accept": "application/json",
+  "content-type": "application/json",
+  "x-medusa-locale": "en-US",
+  "x-publishable-api-key": "pk_85866e7f8435997f70846af778b718d7e921559f58b043d7de474fd3afefde8b",
+  "authorization": "<REDACTED>"
+}
+
+Performing request to:
+ URL: http://abanopen.tech/store/customers/me?fields=%2Aorders
+ Headers: {
+  "accept": "application/json",
+  "content-type": "application/json",
+  "x-medusa-locale": "en-US",
+  "x-publishable-api-key": "pk_85866e7f8435997f70846af778b718d7e921559f58b043d7de474fd3afefde8b",
+  "authorization": "<REDACTED>"
+}
+
+Received response with status 401
+
+Received response with status 200
+
+Performing request to:
+ URL: http://abanopen.tech/store/locales
+ Headers: {
+  "accept": "application/json",
+  "content-type": "application/json",
+  "x-medusa-locale": "en-US",
+  "x-publishable-api-key": "pk_85866e7f8435997f70846af778b718d7e921559f58b043d7de474fd3afefde8b",
+  "authorization": "<REDACTED>"
+}
+
+Performing request to:
+ URL: http://abanopen.tech/store/regions
+ Headers: {
+  "accept": "application/json",
+  "content-type": "application/json",
+  "x-medusa-locale": "en-US",
+  "x-publishable-api-key": "pk_85866e7f8435997f70846af778b718d7e921559f58b043d7de474fd3afefde8b",
+  "authorization": "<REDACTED>"
+}
+
+Performing request to:
+ URL: http://abanopen.tech/store/locales
+ Headers: {
+  "accept": "application/json",
+  "content-type": "application/json",
+  "x-medusa-locale": "en-US",
+  "x-publishable-api-key": "pk_85866e7f8435997f70846af778b718d7e921559f58b043d7de474fd3afefde8b",
+  "authorization": "<REDACTED>"
+}
+
+Performing request to:
+ URL: http://abanopen.tech/store/collections?limit=100&offset=0&fields=id%2C%20handle%2C%20title
+ Headers: {
+  "accept": "application/json",
+  "content-type": "application/json",
+  "x-medusa-locale": "en-US",
+  "x-publishable-api-key": "pk_85866e7f8435997f70846af778b718d7e921559f58b043d7de474fd3afefde8b",
+  "authorization": "<REDACTED>"
+}
+
+Received response with status 200
+
+Received response with status 200
+
+Performing request to:
+ URL: http://abanopen.tech/store/collections?limit=100&offset=0&fields=id%2C%20handle%2C%20title
+ Headers: {
+  "accept": "application/json",
+  "content-type": "application/json",
+  "x-medusa-locale": "en-US",
+  "x-publishable-api-key": "pk_85866e7f8435997f70846af778b718d7e921559f58b043d7de474fd3afefde8b",
+  "authorization": "<REDACTED>"
+}
+
+Received response with status 401
+
+Performing request to:
+ URL: http://abanopen.tech/store/locales
+ Headers: {
+  "accept": "application/json",
+  "content-type": "application/json",
+  "x-medusa-locale": "en-US",
+  "x-publishable-api-key": "pk_85866e7f8435997f70846af778b718d7e921559f58b043d7de474fd3afefde8b",
+  "authorization": "<REDACTED>"
+}
+
+Performing request to:
+ URL: http://abanopen.tech/store/regions
+ Headers: {
+  "accept": "application/json",
+  "content-type": "application/json",
+  "x-medusa-locale": "en-US",
+  "x-publishable-api-key": "pk_85866e7f8435997f70846af778b718d7e921559f58b043d7de474fd3afefde8b",
+  "authorization": "<REDACTED>"
+}
+
+Performing request to:
+ URL: http://abanopen.tech/store/locales
+ Headers: {
+  "accept": "application/json",
+  "content-type": "application/json",
+  "x-medusa-locale": "en-US",
+  "x-publishable-api-key": "pk_85866e7f8435997f70846af778b718d7e921559f58b043d7de474fd3afefde8b",
+  "authorization": "<REDACTED>"
+}
+
+Received response with status 200
+
+Received response with status 200
+
+Performing request to:
+ URL: http://abanopen.tech/store/locales
+ Headers: {
+  "accept": "application/json",
+  "content-type": "application/json",
+  "x-medusa-locale": "en-US",
+  "x-publishable-api-key": "pk_85866e7f8435997f70846af778b718d7e921559f58b043d7de474fd3afefde8b",
+  "authorization": "<REDACTED>"
+}
+
+Performing request to:
+ URL: http://abanopen.tech/store/locales
+ Headers: {
+  "accept": "application/json",
+  "content-type": "application/json",
+  "x-medusa-locale": "en-US",
+  "x-publishable-api-key": "pk_85866e7f8435997f70846af778b718d7e921559f58b043d7de474fd3afefde8b",
+  "authorization": "<REDACTED>"
+}
+
+Performing request to:
+ URL: http://abanopen.tech/store/locales
+ Headers: {
+  "accept": "application/json",
+  "content-type": "application/json",
+  "x-medusa-locale": "en-US",
+  "x-publishable-api-key": "pk_85866e7f8435997f70846af778b718d7e921559f58b043d7de474fd3afefde8b",
+  "authorization": "<REDACTED>"
+}
+
+Performing request to:
+ URL: http://abanopen.tech/store/locales
+ Headers: {
+  "accept": "application/json",
+  "content-type": "application/json",
+  "x-medusa-locale": "en-US",
+  "x-publishable-api-key": "pk_85866e7f8435997f70846af778b718d7e921559f58b043d7de474fd3afefde8b",
+  "authorization": "<REDACTED>"
+}
+
+Received response with status 200
+
+Performing request to:
+ URL: http://abanopen.tech/store/locales
+ Headers: {
+  "accept": "application/json",
+  "content-type": "application/json",
+  "x-medusa-locale": "en-US",
+  "x-publishable-api-key": "pk_85866e7f8435997f70846af778b718d7e921559f58b043d7de474fd3afefde8b",
+  "authorization": "<REDACTED>"
+}
+
+Performing request to:
+ URL: http://abanopen.tech/store/locales
+ Headers: {
+  "accept": "application/json",
+  "content-type": "application/json",
+  "x-medusa-locale": "en-US",
+  "x-publishable-api-key": "pk_85866e7f8435997f70846af778b718d7e921559f58b043d7de474fd3afefde8b",
+  "authorization": "<REDACTED>"
+}
+
+Performing request to:
+ URL: http://abanopen.tech/store/locales
+ Headers: {
+  "accept": "application/json",
+  "content-type": "application/json",
+  "x-medusa-locale": "en-US",
+  "x-publishable-api-key": "pk_85866e7f8435997f70846af778b718d7e921559f58b043d7de474fd3afefde8b",
+  "authorization": "<REDACTED>"
+}
+
+Performing request to:
+ URL: http://abanopen.tech/store/locales
+ Headers: {
+  "accept": "application/json",
+  "content-type": "application/json",
+  "x-medusa-locale": "en-US",
+  "x-publishable-api-key": "pk_85866e7f8435997f70846af778b718d7e921559f58b043d7de474fd3afefde8b",
+  "authorization": "<REDACTED>"
+}
+
+Received response with status 200
+
+Received response with status 200
+
+Received response with status 200
+
+Received response with status 200
+
+Received response with status 200
+
+Fetching Strapi Category Section from: https://abanopencms.tech/api/lila-home-category-section?populate[featuredCategories][populate]=image&locale=en-US
+Received response with status 200
+
+Received response with status 200
+
+Received response with status 200
+
+Received response with status 200
+
+Received response with status 200
+
+Received response with status 200
+
+Fetching Strapi Category Section from: https://abanopencms.tech/api/lila-home-category-section?populate[featuredCategories][populate]=image&locale=en-US
+Received response with status 200
+
+Performing request to:
+ URL: http://abanopen.tech/store/collections?limit=100&offset=0&fields=id%2C%20handle%2C%20title
+ Headers: {
+  "accept": "application/json",
+  "content-type": "application/json",
+  "x-medusa-locale": "en-US",
+  "x-publishable-api-key": "pk_85866e7f8435997f70846af778b718d7e921559f58b043d7de474fd3afefde8b",
+  "authorization": "<REDACTED>"
+}
+
+Performing request to:
+ URL: http://abanopen.tech/store/customers/me?fields=%2Aorders
+ Headers: {
+  "accept": "application/json",
+  "content-type": "application/json",
+  "x-medusa-locale": "en-US",
+  "x-publishable-api-key": "pk_85866e7f8435997f70846af778b718d7e921559f58b043d7de474fd3afefde8b",
+  "authorization": "<REDACTED>"
+}
+
+Received response with status 200
+
+Performing request to:
+ URL: http://abanopen.tech/store/locales
+ Headers: {
+  "accept": "application/json",
+  "content-type": "application/json",
+  "x-medusa-locale": "en-US",
+  "x-publishable-api-key": "pk_85866e7f8435997f70846af778b718d7e921559f58b043d7de474fd3afefde8b",
+  "authorization": "<REDACTED>"
+}
+
+Performing request to:
+ URL: http://abanopen.tech/store/locales
+ Headers: {
+  "accept": "application/json",
+  "content-type": "application/json",
+  "x-medusa-locale": "en-US",
+  "x-publishable-api-key": "pk_85866e7f8435997f70846af778b718d7e921559f58b043d7de474fd3afefde8b",
+  "authorization": "<REDACTED>"
+}
+
+Performing request to:
+ URL: http://abanopen.tech/store/locales
+ Headers: {
+  "accept": "application/json",
+  "content-type": "application/json",
+  "x-medusa-locale": "en-US",
+  "x-publishable-api-key": "pk_85866e7f8435997f70846af778b718d7e921559f58b043d7de474fd3afefde8b",
+  "authorization": "<REDACTED>"
+}
+
+Performing request to:
+ URL: http://abanopen.tech/store/locales
+ Headers: {
+  "accept": "application/json",
+  "content-type": "application/json",
+  "x-medusa-locale": "en-US",
+  "x-publishable-api-key": "pk_85866e7f8435997f70846af778b718d7e921559f58b043d7de474fd3afefde8b",
+  "authorization": "<REDACTED>"
+}
+
+Received response with status 401
+
+Performing request to:
+ URL: http://abanopen.tech/store/locales
+ Headers: {
+  "accept": "application/json",
+  "content-type": "application/json",
+  "x-medusa-locale": "en-US",
+  "x-publishable-api-key": "pk_85866e7f8435997f70846af778b718d7e921559f58b043d7de474fd3afefde8b",
+  "authorization": "<REDACTED>"
+}
+
+Performing request to:
+ URL: http://abanopen.tech/store/regions
+ Headers: {
+  "accept": "application/json",
+  "content-type": "application/json",
+  "x-medusa-locale": "en-US",
+  "x-publishable-api-key": "pk_85866e7f8435997f70846af778b718d7e921559f58b043d7de474fd3afefde8b",
+  "authorization": "<REDACTED>"
+}
+
+Performing request to:
+ URL: http://abanopen.tech/store/locales
+ Headers: {
+  "accept": "application/json",
+  "content-type": "application/json",
+  "x-medusa-locale": "en-US",
+  "x-publishable-api-key": "pk_85866e7f8435997f70846af778b718d7e921559f58b043d7de474fd3afefde8b",
+  "authorization": "<REDACTED>"
+}
+
+Received response with status 200
+
+Received response with status 200
+
+Received response with status 200
+
+Received response with status 200
+
+Received response with status 200
+
+Received response with status 200
+
+Received response with status 200
+
+Fetching Strapi Category Section from: https://abanopencms.tech/api/lila-home-category-section?populate[featuredCategories][populate]=image&locale=en-US
+Performing request to:
+ URL: http://abanopen.tech/store/collections?handle=new-arrivals&limit=1
+ Headers: {
+  "accept": "application/json",
+  "content-type": "application/json",
+  "x-medusa-locale": "en-US",
+  "x-publishable-api-key": "pk_85866e7f8435997f70846af778b718d7e921559f58b043d7de474fd3afefde8b",
+  "authorization": "<REDACTED>"
+}
+
+Performing request to:
+ URL: http://abanopen.tech/store/collections?handle=best-sellers&limit=1
+ Headers: {
+  "accept": "application/json",
+  "content-type": "application/json",
+  "x-medusa-locale": "en-US",
+  "x-publishable-api-key": "pk_85866e7f8435997f70846af778b718d7e921559f58b043d7de474fd3afefde8b",
+  "authorization": "<REDACTED>"
+}
+
+Performing request to:
+ URL: http://abanopen.tech/store/collections?handle=20-29&limit=1
+ Headers: {
+  "accept": "application/json",
+  "content-type": "application/json",
+  "x-medusa-locale": "en-US",
+  "x-publishable-api-key": "pk_85866e7f8435997f70846af778b718d7e921559f58b043d7de474fd3afefde8b",
+  "authorization": "<REDACTED>"
+}
+
+Performing request to:
+ URL: http://abanopen.tech/store/collections?handle=under-20&limit=1
+ Headers: {
+  "accept": "application/json",
+  "content-type": "application/json",
+  "x-medusa-locale": "en-US",
+  "x-publishable-api-key": "pk_85866e7f8435997f70846af778b718d7e921559f58b043d7de474fd3afefde8b",
+  "authorization": "<REDACTED>"
+}
+
+Performing request to:
+ URL: http://abanopen.tech/store/collections?handle=office-casual&limit=1
+ Headers: {
+  "accept": "application/json",
+  "content-type": "application/json",
+  "x-medusa-locale": "en-US",
+  "x-publishable-api-key": "pk_85866e7f8435997f70846af778b718d7e921559f58b043d7de474fd3afefde8b",
+  "authorization": "<REDACTED>"
+}
+
+Performing request to:
+ URL: http://abanopen.tech/store/collections?handle=active-wear&limit=1
+ Headers: {
+  "accept": "application/json",
+  "content-type": "application/json",
+  "x-medusa-locale": "en-US",
+  "x-publishable-api-key": "pk_85866e7f8435997f70846af778b718d7e921559f58b043d7de474fd3afefde8b",
+  "authorization": "<REDACTED>"
+}
+
+Performing request to:
+ URL: http://abanopen.tech/store/collections?handle=trendy-chic&limit=1
+ Headers: {
+  "accept": "application/json",
+  "content-type": "application/json",
+  "x-medusa-locale": "en-US",
+  "x-publishable-api-key": "pk_85866e7f8435997f70846af778b718d7e921559f58b043d7de474fd3afefde8b",
+  "authorization": "<REDACTED>"
+}
+
+Performing request to:
+ URL: http://abanopen.tech/store/collections?handle=minimal-basic&limit=1
+ Headers: {
+  "accept": "application/json",
+  "content-type": "application/json",
+  "x-medusa-locale": "en-US",
+  "x-publishable-api-key": "pk_85866e7f8435997f70846af778b718d7e921559f58b043d7de474fd3afefde8b",
+  "authorization": "<REDACTED>"
+}
+
+Performing request to:
+ URL: http://abanopen.tech/store/collections?handle=new-arrivals&limit=1
+ Headers: {
+  "accept": "application/json",
+  "content-type": "application/json",
+  "x-medusa-locale": "en-US",
+  "x-publishable-api-key": "pk_85866e7f8435997f70846af778b718d7e921559f58b043d7de474fd3afefde8b",
+  "authorization": "<REDACTED>"
+}
+
+Performing request to:
+ URL: http://abanopen.tech/store/collections?handle=best-sellers&limit=1
+ Headers: {
+  "accept": "application/json",
+  "content-type": "application/json",
+  "x-medusa-locale": "en-US",
+  "x-publishable-api-key": "pk_85866e7f8435997f70846af778b718d7e921559f58b043d7de474fd3afefde8b",
+  "authorization": "<REDACTED>"
+}
+
+Performing request to:
+ URL: http://abanopen.tech/store/collections?handle=20-29&limit=1
+ Headers: {
+  "accept": "application/json",
+  "content-type": "application/json",
+  "x-medusa-locale": "en-US",
+  "x-publishable-api-key": "pk_85866e7f8435997f70846af778b718d7e921559f58b043d7de474fd3afefde8b",
+  "authorization": "<REDACTED>"
+}
+
+Performing request to:
+ URL: http://abanopen.tech/store/collections?handle=under-20&limit=1
+ Headers: {
+  "accept": "application/json",
+  "content-type": "application/json",
+  "x-medusa-locale": "en-US",
+  "x-publishable-api-key": "pk_85866e7f8435997f70846af778b718d7e921559f58b043d7de474fd3afefde8b",
+  "authorization": "<REDACTED>"
+}
+
+Performing request to:
+ URL: http://abanopen.tech/store/collections?handle=office-casual&limit=1
+ Headers: {
+  "accept": "application/json",
+  "content-type": "application/json",
+  "x-medusa-locale": "en-US",
+  "x-publishable-api-key": "pk_85866e7f8435997f70846af778b718d7e921559f58b043d7de474fd3afefde8b",
+  "authorization": "<REDACTED>"
+}
+
+Performing request to:
+ URL: http://abanopen.tech/store/collections?handle=active-wear&limit=1
+ Headers: {
+  "accept": "application/json",
+  "content-type": "application/json",
+  "x-medusa-locale": "en-US",
+  "x-publishable-api-key": "pk_85866e7f8435997f70846af778b718d7e921559f58b043d7de474fd3afefde8b",
+  "authorization": "<REDACTED>"
+}
+
+Performing request to:
+ URL: http://abanopen.tech/store/collections?handle=trendy-chic&limit=1
+ Headers: {
+  "accept": "application/json",
+  "content-type": "application/json",
+  "x-medusa-locale": "en-US",
+  "x-publishable-api-key": "pk_85866e7f8435997f70846af778b718d7e921559f58b043d7de474fd3afefde8b",
+  "authorization": "<REDACTED>"
+}
+
+Performing request to:
+ URL: http://abanopen.tech/store/collections?handle=minimal-basic&limit=1
+ Headers: {
+  "accept": "application/json",
+  "content-type": "application/json",
+  "x-medusa-locale": "en-US",
+  "x-publishable-api-key": "pk_85866e7f8435997f70846af778b718d7e921559f58b043d7de474fd3afefde8b",
+  "authorization": "<REDACTED>"
+}
+
+Received response with status 200
+
+Received response with status 200
+
+Received response with status 200
+
+
+Received response with status 200
+
+Received response with status 200
+
+Received response with status 200
+
+Received response with status 200
+
+Received response with status 200
+
+Received response with status 200
+
+Received response with status 200
+
+Received response with status 200
+
+Received response with status 200
+
+Received response with status 200
+
+Performing request to:
+ URL: http://abanopen.tech/store/product-categories?handle=shorts&limit=1
+ Headers: {
+  "accept": "application/json",
+  "content-type": "application/json",
+  "x-medusa-locale": "en-US",
+  "x-publishable-api-key": "pk_85866e7f8435997f70846af778b718d7e921559f58b043d7de474fd3afefde8b",
+  "authorization": "<REDACTED>"
+}
+
+Performing request to:
+ URL: http://abanopen.tech/store/product-categories?handle=clothing&limit=1
+ Headers: {
+  "accept": "application/json",
+  "content-type": "application/json",
+  "x-medusa-locale": "en-US",
+  "x-publishable-api-key": "pk_85866e7f8435997f70846af778b718d7e921559f58b043d7de474fd3afefde8b",
+  "authorization": "<REDACTED>"
+}
+
+Performing request to:
+ URL: http://abanopen.tech/store/product-categories?handle=sets&limit=1
+ Headers: {
+  "accept": "application/json",
+  "content-type": "application/json",
+  "x-medusa-locale": "en-US",
+  "x-publishable-api-key": "pk_85866e7f8435997f70846af778b718d7e921559f58b043d7de474fd3afefde8b",
+  "authorization": "<REDACTED>"
+}
+
+Performing request to:
+ URL: http://abanopen.tech/store/product-categories?handle=active&limit=1
+ Headers: {
+  "accept": "application/json",
+  "content-type": "application/json",
+  "x-medusa-locale": "en-US",
+  "x-publishable-api-key": "pk_85866e7f8435997f70846af778b718d7e921559f58b043d7de474fd3afefde8b",
+  "authorization": "<REDACTED>"
+}
+
+
+Performing request to:
+ URL: http://abanopen.tech/store/product-categories?handle=shorts&limit=1
+ Headers: {
+  "accept": "application/json",
+  "content-type": "application/json",
+  "x-medusa-locale": "en-US",
+  "x-publishable-api-key": "pk_85866e7f8435997f70846af778b718d7e921559f58b043d7de474fd3afefde8b",
+  "authorization": "<REDACTED>"
+}
+
+Performing request to:
+ URL: http://abanopen.tech/store/product-categories?handle=clothing&limit=1
+ Headers: {
+  "accept": "application/json",
+  "content-type": "application/json",
+  "x-medusa-locale": "en-US",
+  "x-publishable-api-key": "pk_85866e7f8435997f70846af778b718d7e921559f58b043d7de474fd3afefde8b",
+  "authorization": "<REDACTED>"
+}
+
+Performing request to:
+ URL: http://abanopen.tech/store/product-categories?handle=sets&limit=1
+ Headers: {
+  "accept": "application/json",
+  "content-type": "application/json",
+  "x-medusa-locale": "en-US",
+  "x-publishable-api-key": "pk_85866e7f8435997f70846af778b718d7e921559f58b043d7de474fd3afefde8b",
+  "authorization": "<REDACTED>"
+}
+
+Performing request to:
+ URL: http://abanopen.tech/store/product-categories?handle=active&limit=1
+ Headers: {
+  "accept": "application/json",
+  "content-type": "application/json",
+  "x-medusa-locale": "en-US",
+  "x-publishable-api-key": "pk_85866e7f8435997f70846af778b718d7e921559f58b043d7de474fd3afefde8b",
+  "authorization": "<REDACTED>"
+}
+
+Initiating Medusa client with default headers:
+ {
+  "accept": "application/json",
+  "content-type": "application/json",
+  "x-publishable-api-key": "pk_85866e7f8435997f70846af778b718d7e921559f58b043d7de474fd3afefde8b",
+  "authorization": "<REDACTED>"
+}
+
+Received response with status 200
+
+Received response with status 200
+
+Received response with status 200
+
+Received response with status 200
+
+Received response with status 200
+
+Received response with status 200
+
+Received response with status 200
+
+Initiating Medusa client with default headers:
+ {
+  "accept": "application/json",
+  "content-type": "application/json",
+  "x-publishable-api-key": "pk_85866e7f8435997f70846af778b718d7e921559f58b043d7de474fd3afefde8b",
+  "authorization": "<REDACTED>"
+}
+
+Received response with status 200
+
+Performing request to:
+ URL: http://abanopen.tech/store/collections?limit=100&offset=0&fields=id%2C%20handle%2C%20title
+ Headers: {
+  "accept": "application/json",
+  "content-type": "application/json",
+  "x-medusa-locale": "en-US",
+  "x-publishable-api-key": "pk_85866e7f8435997f70846af778b718d7e921559f58b043d7de474fd3afefde8b",
+  "authorization": "<REDACTED>"
+}
+
+Received response with status 200
+
+Received response with status 200
+
+Received response with status 200
+
+
+Performing request to:
+ URL: http://abanopen.tech/store/collections?handle=new-arrivals&limit=1
+ Headers: {
+  "accept": "application/json",
+  "content-type": "application/json",
+  "x-medusa-locale": "en-US",
+  "x-publishable-api-key": "pk_85866e7f8435997f70846af778b718d7e921559f58b043d7de474fd3afefde8b",
+  "authorization": "<REDACTED>"
+}
+
+Performing request to:
+ URL: http://abanopen.tech/store/collections?handle=best-sellers&limit=1
+ Headers: {
+  "accept": "application/json",
+  "content-type": "application/json",
+  "x-medusa-locale": "en-US",
+  "x-publishable-api-key": "pk_85866e7f8435997f70846af778b718d7e921559f58b043d7de474fd3afefde8b",
+  "authorization": "<REDACTED>"
+}
+
+Performing request to:
+ URL: http://abanopen.tech/store/collections?handle=20-29&limit=1
+ Headers: {
+  "accept": "application/json",
+  "content-type": "application/json",
+  "x-medusa-locale": "en-US",
+  "x-publishable-api-key": "pk_85866e7f8435997f70846af778b718d7e921559f58b043d7de474fd3afefde8b",
+  "authorization": "<REDACTED>"
+}
+
+Performing request to:
+ URL: http://abanopen.tech/store/collections?handle=under-20&limit=1
+ Headers: {
+  "accept": "application/json",
+  "content-type": "application/json",
+  "x-medusa-locale": "en-US",
+  "x-publishable-api-key": "pk_85866e7f8435997f70846af778b718d7e921559f58b043d7de474fd3afefde8b",
+  "authorization": "<REDACTED>"
+}
+
+Performing request to:
+ URL: http://abanopen.tech/store/collections?handle=office-casual&limit=1
+ Headers: {
+  "accept": "application/json",
+  "content-type": "application/json",
+  "x-medusa-locale": "en-US",
+  "x-publishable-api-key": "pk_85866e7f8435997f70846af778b718d7e921559f58b043d7de474fd3afefde8b",
+  "authorization": "<REDACTED>"
+}
+
+Performing request to:
+ URL: http://abanopen.tech/store/collections?handle=active-wear&limit=1
+ Headers: {
+  "accept": "application/json",
+  "content-type": "application/json",
+  "x-medusa-locale": "en-US",
+  "x-publishable-api-key": "pk_85866e7f8435997f70846af778b718d7e921559f58b043d7de474fd3afefde8b",
+  "authorization": "<REDACTED>"
+}
+
+Performing request to:
+ URL: http://abanopen.tech/store/collections?handle=trendy-chic&limit=1
+ Headers: {
+  "accept": "application/json",
+  "content-type": "application/json",
+  "x-medusa-locale": "en-US",
+  "x-publishable-api-key": "pk_85866e7f8435997f70846af778b718d7e921559f58b043d7de474fd3afefde8b",
+  "authorization": "<REDACTED>"
+}
+
+Performing request to:
+ URL: http://abanopen.tech/store/collections?handle=minimal-basic&limit=1
+ Headers: {
+  "accept": "application/json",
+  "content-type": "application/json",
+  "x-medusa-locale": "en-US",
+  "x-publishable-api-key": "pk_85866e7f8435997f70846af778b718d7e921559f58b043d7de474fd3afefde8b",
+  "authorization": "<REDACTED>"
+}
+
+Performing request to:
+ URL: http://abanopen.tech/store/product-categories?handle=shorts&limit=1
+ Headers: {
+  "accept": "application/json",
+  "content-type": "application/json",
+  "x-medusa-locale": "en-US",
+  "x-publishable-api-key": "pk_85866e7f8435997f70846af778b718d7e921559f58b043d7de474fd3afefde8b",
+  "authorization": "<REDACTED>"
+}
+
+Performing request to:
+ URL: http://abanopen.tech/store/product-categories?handle=clothing&limit=1
+ Headers: {
+  "accept": "application/json",
+  "content-type": "application/json",
+  "x-medusa-locale": "en-US",
+  "x-publishable-api-key": "pk_85866e7f8435997f70846af778b718d7e921559f58b043d7de474fd3afefde8b",
+  "authorization": "<REDACTED>"
+}
+
+Performing request to:
+ URL: http://abanopen.tech/store/product-categories?handle=sets&limit=1
+ Headers: {
+  "accept": "application/json",
+  "content-type": "application/json",
+  "x-medusa-locale": "en-US",
+  "x-publishable-api-key": "pk_85866e7f8435997f70846af778b718d7e921559f58b043d7de474fd3afefde8b",
+  "authorization": "<REDACTED>"
+}
+
+Performing request to:
+ URL: http://abanopen.tech/store/product-categories?handle=active&limit=1
+ Headers: {
+  "accept": "application/json",
+  "content-type": "application/json",
+  "x-medusa-locale": "en-US",
+  "x-publishable-api-key": "pk_85866e7f8435997f70846af778b718d7e921559f58b043d7de474fd3afefde8b",
+  "authorization": "<REDACTED>"
+}
+
+Received response with status 200
+
+Received response with status 200
+
+Received response with status 200
+
+Received response with status 200
+
+Received response with status 200
+
+Received response with status 200
+
+Received response with status 200
+
+Received response with status 200
+
+Received response with status 200
+
+Received response with status 200
+
+Received response with status 200
+
+Received response with status 200
+
+Received response with status 200
+
+ GET /us 200 in 3821ms
+ │ GET http://abanopen.tech/store/collections?limit=100&offset=0&fields=id%2C%20handle%2C%20title 200 in 2ms (cache hit)
+ │ GET http://abanopen.tech/store/customers/me?fields=%2Aorders 401 in 289ms (cache skip)
+ │ │ Cache skipped reason: (cache-control: no-cache (hard refresh))
+ │ GET http://abanopen.tech/store/regions 200 in 2ms (cache hit)
+ │ GET http://abanopen.tech/store/locales 200 in 1ms (cache hit)
+ │ GET http://abanopen.tech/store/locales 200 in 311ms (cache skip)
+ │ │ Cache skipped reason: (auto no cache)
+ │ GET http://abanopen.tech/store/locales 200 in 310ms (cache skip)
+ │ │ Cache skipped reason: (auto no cache)
+ │ GET http://abanopen.tech/store/locales 200 in 308ms (cache skip)
+ │ │ Cache skipped reason: (auto no cache)
+ │ GET http://abanopen.tech/store/locales 200 in 306ms (cache skip)
+ │ │ Cache skipped reason: (auto no cache)
+ │ GET http://abanopen.tech/store/locales 200 in 13ms (cache skip)
+ │ │ Cache skipped reason: (auto no cache)
+ │ GET https://abanopencms.tech/api/lila-announcements?filters[is_active][$eq]=true 200 in 360ms (cache skip)
+ │ │ Cache skipped reason: (cache-control: no-cache (hard refresh))
+ │ GET https://abanopencms.tech/api/lila-global-seo-setting?populate=*&locale=en-US 200 in 327ms (cache skip)
+ │ │ Cache skipped reason: (cache-control: no-cache (hard refresh))
+ │ GET https://abanopencms.tech/api/lila-seo-extensions?filters[handle][$eq]=home&locale=en-US&populate[seo][populate]=shareImage 200 in 643ms (cache skip)
+ │ │ Cache skipped reason: (cache-control: no-cache (hard refresh))
+ │ GET https://abanopencms.tech/api/lila-menuitems?locale=en-US&populate=*&sort=order:asc&pagination[page]=1&pagination[pageSize]=100 200 in 984ms (cache skip)
+ │ │ Cache skipped reason: (cache: no-store)
+ │ GET https://abanopencms.tech/api/lila-header?locale=en-US&populate=%2A 200 in 1184ms (cache skip)
+ │ │ Cache skipped reason: (auto no cache)
+ │ GET https://abanopencms.tech/api/lila-blog-posts?populate=*&locale=en-US&sort[0]=publishedAt:desc&pagination[pageSize]=1 200 in 1217ms (cache skip)
+ │ │ Cache skipped reason: (cache-control: no-cache (hard refresh))
+ │ GET https://abanopencms.tech/api/lila-footer?populate[nav_columns][populate][links][populate]=*&populate[value_props][populate]=*&populate[payment_icons][populate]=*&locale=en-US 200 in 1690ms (cache skip)
+ │ │ Cache skipped reason: (cache-control: no-cache (hard refresh))
+ │ GET http://abanopen.tech/store/collections?limit=100&offset=0&fields=id%2C%20handle%2C%20title 200 in 0ms (cache hit)
+ │ GET https://abanopencms.tech/api/lila-home-category-section?populate[featuredCategories][populate]=image&locale=en-US 200 in 2004ms (cache skip)
+ │ │ Cache skipped reason: (cache-control: no-cache (hard refresh))
+ │ GET https://abanopencms.tech/api/footer-bottom-setting?populate[socialMediaLinks][populate][medialogo][populate]=*&populate[paymentIcons][populate]=*&locale=en-US 200 in 318ms (cache skip)
+ │ │ Cache skipped reason: (cache-control: no-cache (hard refresh))
+ │ GET https://abanopencms.tech/api/lila-home-collections?populate=*&locale=en-US&sort=sort_order:asc 200 in 2149ms (cache skip)
+ │ │ Cache skipped reason: (cache-control: no-cache (hard refresh))
+ │ GET http://abanopen.tech/store/collections?handle=best-sellers&limit=1 200 in 296ms (cache skip)
+ │ │ Cache skipped reason: (cache: no-store)
+ │ GET http://abanopen.tech/store/collections?handle=new-arrivals&limit=1 200 in 310ms (cache skip)
+ │ │ Cache skipped reason: (cache: no-store)
+ │ GET http://abanopen.tech/store/collections?handle=20-29&limit=1 200 in 313ms (cache skip)
+ │ │ Cache skipped reason: (cache: no-store)
+ │ GET http://abanopen.tech/store/collections?handle=active-wear&limit=1 200 in 318ms (cache skip)
+ │ │ Cache skipped reason: (cache: no-store)
+ │ GET http://abanopen.tech/store/collections?handle=office-casual&limit=1 200 in 330ms (cache skip)
+ │ │ Cache skipped reason: (cache: no-store)
+ │ GET http://abanopen.tech/store/collections?handle=minimal-basic&limit=1 200 in 332ms (cache skip)
+ │ │ Cache skipped reason: (cache: no-store)
+ │ GET http://abanopen.tech/store/product-categories?handle=shorts&limit=1 200 in 298ms (cache skip)
+ │ │ Cache skipped reason: (cache: no-store)
+ │ GET http://abanopen.tech/store/product-categories?handle=sets&limit=1 200 in 299ms (cache skip)
+ │ │ Cache skipped reason: (cache: no-store)
+ │ GET http://abanopen.tech/store/product-categories?handle=active&limit=1 200 in 316ms (cache skip)
+ │ │ Cache skipped reason: (cache: no-store)
+ │ GET http://abanopen.tech/store/collections?handle=under-20&limit=1 200 in 1037ms (cache skip)
+ │ │ Cache skipped reason: (cache: no-store)
+ │ GET http://abanopen.tech/store/collections?handle=trendy-chic&limit=1 200 in 1039ms (cache skip)
+ │ │ Cache skipped reason: (cache: no-store)
+ │ GET https://abanopencms.tech/api/lila-blog-module-setting?populate=*&locale=en-US 200 in 3255ms (cache skip)
+ │ │ Cache skipped reason: (cache-control: no-cache (hard refresh))
+ │ GET https://abanopencms.tech/api/lila-home-hero?populate=*&locale=en-US 200 in 3315ms (cache skip)
+ │ │ Cache skipped reason: (cache-control: no-cache (hard refresh))
+ │ GET http://abanopen.tech/store/product-categories?handle=clothing&limit=1 200 in 1094ms (cache skip)
+ │ │ Cache skipped reason: (cache: no-store)
+Performing request to:
+ URL: http://abanopen.tech/store/collections?limit=100&offset=0&fields=id%2C%20handle%2C%20title
+ Headers: {
+  "accept": "application/json",
+  "content-type": "application/json",
+  "x-medusa-locale": "en-US",
+  "x-publishable-api-key": "pk_85866e7f8435997f70846af778b718d7e921559f58b043d7de474fd3afefde8b",
+  "authorization": "<REDACTED>"
+}
+
+Received response with status 200
+
+Performing request to:
+ URL: http://abanopen.tech/store/collections?limit=100&offset=0&fields=id%2C%20handle%2C%20title
+ Headers: {
+  "accept": "application/json",
+  "content-type": "application/json",
+  "x-medusa-locale": "en-US",
+  "x-publishable-api-key": "pk_85866e7f8435997f70846af778b718d7e921559f58b043d7de474fd3afefde8b",
+  "authorization": "<REDACTED>"
+}
+
+Received response with status 200
+
+Performing request to:
+ URL: http://abanopen.tech/store/collections?limit=100&offset=0&fields=id%2C%20handle%2C%20title
+ Headers: {
+  "accept": "application/json",
+  "content-type": "application/json",
+  "x-medusa-locale": "en-US",
+  "x-publishable-api-key": "pk_85866e7f8435997f70846af778b718d7e921559f58b043d7de474fd3afefde8b",
+  "authorization": "<REDACTED>"
+}
+
+Performing request to:
+ URL: http://abanopen.tech/store/customers/me?fields=%2Aorders
+ Headers: {
+  "accept": "application/json",
+  "content-type": "application/json",
+  "x-medusa-locale": "en-US",
+  "x-publishable-api-key": "pk_85866e7f8435997f70846af778b718d7e921559f58b043d7de474fd3afefde8b",
+  "authorization": "<REDACTED>"
+}
+
+Received response with status 200
+
+Performing request to:
+ URL: http://abanopen.tech/store/locales
+ Headers: {
+  "accept": "application/json",
+  "content-type": "application/json",
+  "x-medusa-locale": "en-US",
+  "x-publishable-api-key": "pk_85866e7f8435997f70846af778b718d7e921559f58b043d7de474fd3afefde8b",
+  "authorization": "<REDACTED>"
+}
+
+Performing request to:
+ URL: http://abanopen.tech/store/locales
+ Headers: {
+  "accept": "application/json",
+  "content-type": "application/json",
+  "x-medusa-locale": "en-US",
+  "x-publishable-api-key": "pk_85866e7f8435997f70846af778b718d7e921559f58b043d7de474fd3afefde8b",
+  "authorization": "<REDACTED>"
+}
+
+Performing request to:
+ URL: http://abanopen.tech/store/locales
+ Headers: {
+  "accept": "application/json",
+  "content-type": "application/json",
+  "x-medusa-locale": "en-US",
+  "x-publishable-api-key": "pk_85866e7f8435997f70846af778b718d7e921559f58b043d7de474fd3afefde8b",
+  "authorization": "<REDACTED>"
+}
+
+Performing request to:
+ URL: http://abanopen.tech/store/locales
+ Headers: {
+  "accept": "application/json",
+  "content-type": "application/json",
+  "x-medusa-locale": "en-US",
+  "x-publishable-api-key": "pk_85866e7f8435997f70846af778b718d7e921559f58b043d7de474fd3afefde8b",
+  "authorization": "<REDACTED>"
+}
+
+Initiating Medusa client with default headers:
+ {
+  "accept": "application/json",
+  "content-type": "application/json",
+  "x-publishable-api-key": "pk_85866e7f8435997f70846af778b718d7e921559f58b043d7de474fd3afefde8b",
+  "authorization": "<REDACTED>"
+}
+
+Received response with status 200
+
+Received response with status 200
+
+Received response with status 200
+
+Received response with status 200
+
+Fetching Strapi Category Section from: https://abanopencms.tech/api/lila-home-category-section?populate[featuredCategories][populate]=image&locale=en-US
+
+Performing request to:
+ URL: http://abanopen.tech/store/product-categories?handle=shorts&limit=1
+ Headers: {
+  "accept": "application/json",
+  "content-type": "application/json",
+  "x-medusa-locale": "en-US",
+  "x-publishable-api-key": "pk_85866e7f8435997f70846af778b718d7e921559f58b043d7de474fd3afefde8b",
+  "authorization": "<REDACTED>"
+}
+
+Performing request to:
+ URL: http://abanopen.tech/store/product-categories?handle=clothing&limit=1
+ Headers: {
+  "accept": "application/json",
+  "content-type": "application/json",
+  "x-medusa-locale": "en-US",
+  "x-publishable-api-key": "pk_85866e7f8435997f70846af778b718d7e921559f58b043d7de474fd3afefde8b",
+  "authorization": "<REDACTED>"
+}
+
+Performing request to:
+ URL: http://abanopen.tech/store/product-categories?handle=sets&limit=1
+ Headers: {
+  "accept": "application/json",
+  "content-type": "application/json",
+  "x-medusa-locale": "en-US",
+  "x-publishable-api-key": "pk_85866e7f8435997f70846af778b718d7e921559f58b043d7de474fd3afefde8b",
+  "authorization": "<REDACTED>"
+}
+
+Performing request to:
+ URL: http://abanopen.tech/store/product-categories?handle=active&limit=1
+ Headers: {
+  "accept": "application/json",
+  "content-type": "application/json",
+  "x-medusa-locale": "en-US",
+  "x-publishable-api-key": "pk_85866e7f8435997f70846af778b718d7e921559f58b043d7de474fd3afefde8b",
+  "authorization": "<REDACTED>"
+}
+
+Performing request to:
+ URL: http://abanopen.tech/store/collections?handle=new-arrivals&limit=1
+ Headers: {
+  "accept": "application/json",
+  "content-type": "application/json",
+  "x-medusa-locale": "en-US",
+  "x-publishable-api-key": "pk_85866e7f8435997f70846af778b718d7e921559f58b043d7de474fd3afefde8b",
+  "authorization": "<REDACTED>"
+}
+
+Performing request to:
+ URL: http://abanopen.tech/store/collections?handle=best-sellers&limit=1
+ Headers: {
+  "accept": "application/json",
+  "content-type": "application/json",
+  "x-medusa-locale": "en-US",
+  "x-publishable-api-key": "pk_85866e7f8435997f70846af778b718d7e921559f58b043d7de474fd3afefde8b",
+  "authorization": "<REDACTED>"
+}
+
+Performing request to:
+ URL: http://abanopen.tech/store/collections?handle=20-29&limit=1
+ Headers: {
+  "accept": "application/json",
+  "content-type": "application/json",
+  "x-medusa-locale": "en-US",
+  "x-publishable-api-key": "pk_85866e7f8435997f70846af778b718d7e921559f58b043d7de474fd3afefde8b",
+  "authorization": "<REDACTED>"
+}
+
+Performing request to:
+ URL: http://abanopen.tech/store/collections?handle=under-20&limit=1
+ Headers: {
+  "accept": "application/json",
+  "content-type": "application/json",
+  "x-medusa-locale": "en-US",
+  "x-publishable-api-key": "pk_85866e7f8435997f70846af778b718d7e921559f58b043d7de474fd3afefde8b",
+  "authorization": "<REDACTED>"
+}
+
+Performing request to:
+ URL: http://abanopen.tech/store/collections?handle=office-casual&limit=1
+ Headers: {
+  "accept": "application/json",
+  "content-type": "application/json",
+  "x-medusa-locale": "en-US",
+  "x-publishable-api-key": "pk_85866e7f8435997f70846af778b718d7e921559f58b043d7de474fd3afefde8b",
+  "authorization": "<REDACTED>"
+}
+
+Performing request to:
+ URL: http://abanopen.tech/store/collections?handle=active-wear&limit=1
+ Headers: {
+  "accept": "application/json",
+  "content-type": "application/json",
+  "x-medusa-locale": "en-US",
+  "x-publishable-api-key": "pk_85866e7f8435997f70846af778b718d7e921559f58b043d7de474fd3afefde8b",
+  "authorization": "<REDACTED>"
+}
+
+Performing request to:
+ URL: http://abanopen.tech/store/collections?handle=trendy-chic&limit=1
+ Headers: {
+  "accept": "application/json",
+  "content-type": "application/json",
+  "x-medusa-locale": "en-US",
+  "x-publishable-api-key": "pk_85866e7f8435997f70846af778b718d7e921559f58b043d7de474fd3afefde8b",
+  "authorization": "<REDACTED>"
+}
+
+Performing request to:
+ URL: http://abanopen.tech/store/collections?handle=minimal-basic&limit=1
+ Headers: {
+  "accept": "application/json",
+  "content-type": "application/json",
+  "x-medusa-locale": "en-US",
+  "x-publishable-api-key": "pk_85866e7f8435997f70846af778b718d7e921559f58b043d7de474fd3afefde8b",
+  "authorization": "<REDACTED>"
+}
+
+Received response with status 401
+
+Performing request to:
+ URL: http://abanopen.tech/store/locales
+ Headers: {
+  "accept": "application/json",
+  "content-type": "application/json",
+  "x-medusa-locale": "en-US",
+  "x-publishable-api-key": "pk_85866e7f8435997f70846af778b718d7e921559f58b043d7de474fd3afefde8b",
+  "authorization": "<REDACTED>"
+}
+
+Performing request to:
+ URL: http://abanopen.tech/store/regions
+ Headers: {
+  "accept": "application/json",
+  "content-type": "application/json",
+  "x-medusa-locale": "en-US",
+  "x-publishable-api-key": "pk_85866e7f8435997f70846af778b718d7e921559f58b043d7de474fd3afefde8b",
+  "authorization": "<REDACTED>"
+}
+
+Performing request to:
+ URL: http://abanopen.tech/store/locales
+ Headers: {
+  "accept": "application/json",
+  "content-type": "application/json",
+  "x-medusa-locale": "en-US",
+  "x-publishable-api-key": "pk_85866e7f8435997f70846af778b718d7e921559f58b043d7de474fd3afefde8b",
+  "authorization": "<REDACTED>"
+}
+
+Received response with status 200
+
+Received response with status 200
+
+Received response with status 200
+
+Performing request to:
+ URL: http://abanopen.tech/store/collections?limit=100&offset=0&fields=id%2C%20handle%2C%20title
+ Headers: {
+  "accept": "application/json",
+  "content-type": "application/json",
+  "x-medusa-locale": "en-US",
+  "x-publishable-api-key": "pk_85866e7f8435997f70846af778b718d7e921559f58b043d7de474fd3afefde8b",
+  "authorization": "<REDACTED>"
+}
+
+Received response with status 200
+
+Received response with status 200
+
+Received response with status 200
+
+Received response with status 200
+
+Received response with status 200
+
+Received response with status 200
+
+Received response with status 200
+
+Received response with status 200
+
+Received response with status 200
+
+Received response with status 200
+
+Received response with status 200
+
+Received response with status 200
+
+Received response with status 200
+
+ GET /us 200 in 3636ms
+ │ GET https://abanopencms.tech/api/lila-announcements?filters[is_active][$eq]=true 200 in 12ms (cache hit)
+ │ GET http://abanopen.tech/store/collections?limit=100&offset=0&fields=id%2C%20handle%2C%20title 200 in 2ms (cache hit)
+ │ GET https://abanopencms.tech/api/lila-global-seo-setting?populate=*&locale=en-US 200 in 1ms (cache hit)
+ │ GET https://abanopencms.tech/api/lila-seo-extensions?filters[handle][$eq]=home&locale=en-US&populate[seo][populate]=shareImage 200 in 0ms (cache hit)
+ │ GET http://abanopen.tech/store/locales 200 in 1313ms (cache skip)
+ │ │ Cache skipped reason: (auto no cache)
+ │ GET http://abanopen.tech/store/locales 200 in 1312ms (cache skip)
+ │ │ Cache skipped reason: (auto no cache)
+ │ GET http://abanopen.tech/store/locales 200 in 1312ms (cache skip)
+ │ │ Cache skipped reason: (auto no cache)
+ │ GET http://abanopen.tech/store/locales 200 in 1311ms (cache skip)
+ │ │ Cache skipped reason: (auto no cache)
+ │ GET https://abanopencms.tech/api/lila-home-hero?populate=*&locale=en-US 200 in 2ms (cache hit)
+ │ GET https://abanopencms.tech/api/lila-home-collections?populate=*&locale=en-US&sort=sort_order:asc 200 in 2ms (cache hit)
+ │ GET https://abanopencms.tech/api/lila-home-category-section?populate[featuredCategories][populate]=image&locale=en-US 200 in 1ms (cache hit)
+ │ GET https://abanopencms.tech/api/lila-blog-module-setting?populate=*&locale=en-US 200 in 1ms (cache hit)
+ │ GET https://abanopencms.tech/api/lila-blog-posts?populate=*&locale=en-US&sort[0]=publishedAt:desc&pagination[pageSize]=1 200 in 1ms (cache hit)
+ │ GET http://abanopen.tech/store/customers/me?fields=%2Aorders 401 in 1573ms (cache skip)
+ │ │ Cache skipped reason: (cache-control: no-cache (hard refresh))
+ │ GET http://abanopen.tech/store/locales 200 in 4ms (cache skip)
+ │ │ Cache skipped reason: (auto no cache)
+ │ GET http://abanopen.tech/store/regions 200 in 2ms (cache hit)
+ │ GET http://abanopen.tech/store/locales 200 in 1ms (cache hit)
+ │ GET https://abanopencms.tech/api/lila-footer?populate[nav_columns][populate][links][populate]=*&populate[value_props][populate]=*&populate[payment_icons][populate]=*&locale=en-US 200 in 0ms (cache hit)
+ │ GET http://abanopen.tech/store/collections?limit=100&offset=0&fields=id%2C%20handle%2C%20title 200 in 1ms (cache hit)
+ │ GET https://abanopencms.tech/api/footer-bottom-setting?populate[socialMediaLinks][populate][medialogo][populate]=*&populate[paymentIcons][populate]=*&locale=en-US 200 in 1ms (cache hit)
+ │ GET http://abanopen.tech/store/collections?handle=new-arrivals&limit=1 200 in 301ms (cache skip)
+ │ │ Cache skipped reason: (cache: no-store)
+ │ GET http://abanopen.tech/store/product-categories?handle=shorts&limit=1 200 in 598ms (cache skip)
+ │ │ Cache skipped reason: (cache: no-store)
+ │ GET http://abanopen.tech/store/collections?handle=office-casual&limit=1 200 in 583ms (cache skip)
+ │ │ Cache skipped reason: (cache: no-store)
+ │ GET http://abanopen.tech/store/product-categories?handle=clothing&limit=1 200 in 612ms (cache skip)
+ │ │ Cache skipped reason: (cache: no-store)
+ │ GET http://abanopen.tech/store/collections?handle=minimal-basic&limit=1 200 in 591ms (cache skip)
+ │ │ Cache skipped reason: (cache: no-store)
+ │ GET http://abanopen.tech/store/product-categories?handle=sets&limit=1 200 in 618ms (cache skip)
+ │ │ Cache skipped reason: (cache: no-store)
+ │ GET http://abanopen.tech/store/collections?handle=active-wear&limit=1 200 in 607ms (cache skip)
+ │ │ Cache skipped reason: (cache: no-store)
+ │ GET https://abanopencms.tech/api/lila-menuitems?locale=en-US&populate=*&sort=order:asc&pagination[page]=1&pagination[pageSize]=100 200 in 889ms (cache skip)
+ │ │ Cache skipped reason: (cache: no-store)
+ │ GET http://abanopen.tech/store/collections?handle=best-sellers&limit=1 200 in 1577ms (cache skip)
+ │ │ Cache skipped reason: (cache: no-store)
+ │ GET http://abanopen.tech/store/collections?handle=trendy-chic&limit=1 200 in 1579ms (cache skip)
+ │ │ Cache skipped reason: (cache: no-store)
+ │ GET http://abanopen.tech/store/collections?handle=20-29&limit=1 200 in 1592ms (cache skip)
+ │ │ Cache skipped reason: (cache: no-store)
+ │ GET http://abanopen.tech/store/collections?handle=under-20&limit=1 200 in 1594ms (cache skip)
+ │ │ Cache skipped reason: (cache: no-store)
+ │ GET http://abanopen.tech/store/product-categories?handle=active&limit=1 200 in 1614ms (cache skip)
+ │ │ Cache skipped reason: (cache: no-store)
+ │ GET https://abanopencms.tech/api/lila-header?locale=en-US&populate=%2A 200 in 1855ms (cache skip)
+ │ │ Cache skipped reason: (auto no cache)

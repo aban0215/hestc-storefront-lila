@@ -1,6 +1,7 @@
 import { getLatestBlogPost, getBlogModuleSettings } from '../../../lib/strapi/blog-data'
 import { getSelectedLocale } from '@lib/data/locales'
 import LocalizedClientLink from '@modules/common/components/localized-client-link'
+import FadeUpOnScroll from "@modules/common/components/fade-up-on-scroll"
 
 export default async function BlogShowcase() {
     const localecode = (await getSelectedLocale()) || 'en-US'
@@ -22,21 +23,24 @@ export default async function BlogShowcase() {
     return (
         <section className="bg-white pt-16 border-t border-gray-50 overflow-hidden">
             {/* 1. 顶部标题区域 - 独立出来，保持居中 */}
-            <div className="w-full mb-12 md:mb-16 px-6 text-center">
-                <h2 className="text-[13px] md:text-[14px] font-bold text-gray-900 tracking-[0.4em] uppercase">
-                    {settings.moduleTitle}
-                </h2>
-                <div className="mt-4 h-[1px] w-8 bg-gray-200 mx-auto"></div>
-            </div>
+            <FadeUpOnScroll duration={800}>
+                <div className="w-full mb-12 md:mb-16 px-6 text-center">
+                    <h2 className="text-[13px] md:text-[14px] font-bold text-gray-900 tracking-[0.4em] uppercase">
+                        {settings.moduleTitle}
+                    </h2>
+                    <div className="mt-4 h-[1px] w-8 bg-gray-200 mx-auto"></div>
+                </div>
+            </FadeUpOnScroll>
 
             {/* 2. 核心内容区域：左图右文 */}
             {/* 使用 grid-cols-[1.2fr_0.8fr] 让图片略宽于文字区，视觉更平衡 */}
             <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_0.8fr] w-full min-h-[500px] lg:min-h-[650px]">
 
                 {/* 左侧：图片完全靠左铺满 */}
+                <FadeUpOnScroll delay={0} duration={800} className="w-full h-[450px] lg:h-full">
                 <LocalizedClientLink
                     href={targetHref}
-                    className="relative w-full h-[450px] lg:h-full overflow-hidden bg-gray-100 group shadow-sm"
+                    className="relative w-full h-full overflow-hidden bg-gray-100 group shadow-sm block"
                 >
                     {mediaUrl && (
                         isVideo ? (
@@ -54,9 +58,10 @@ export default async function BlogShowcase() {
                         )
                     )}
                 </LocalizedClientLink>
+                </FadeUpOnScroll>
 
                 {/* 右侧：文字在右侧剩余空间内垂直居中 */}
-                <div className="flex items-center justify-center bg-white px-10 py-16 lg:px-20 lg:py-24">
+                <FadeUpOnScroll delay={150} duration={800} className="flex items-center justify-center bg-white px-10 py-16 lg:px-20 lg:py-24">
                     {/* 控制文字块的最大宽度，防止在宽屏下显得太散 */}
                     <div className="max-w-md w-full flex flex-col items-center lg:items-start text-center lg:text-left">
 
@@ -98,7 +103,7 @@ export default async function BlogShowcase() {
                             </LocalizedClientLink>
                         </div>
                     </div>
-                </div>
+                </FadeUpOnScroll>
             </div>
         </section>
     )

@@ -6,17 +6,7 @@ import LocalizedClientLink from "@modules/common/components/localized-client-lin
 import { usePathname, useRouter } from "next/navigation"
 import { updateRegion } from "@lib/data/cart"
 import { updateLocale } from "@lib/data/locale-actions"
-
-const getMenuHref = (linkType: string, slug: string) => {
-    if (!slug) return "/"
-    const cleanSlug = slug.trim().toLowerCase().replace(/\s+/g, "-").replace(/^\//, "")
-    switch (linkType) {
-        case "category": return `/categories/${cleanSlug}`
-        case "collection": return `/collections/${cleanSlug}`
-        case "blog": return `/blog`
-        default: return `/${cleanSlug}`
-    }
-}
+import { getMenuHref } from "@lib/menu-utils"
 
 export default function MobileMenu({
                                        menuTree,
@@ -131,7 +121,7 @@ export default function MobileMenu({
                                     <div key={item.id} className="group mb-2">
                                         <div className="flex items-center justify-between border-b border-gray-50">
                                             <LocalizedClientLink
-                                                href={getMenuHref(item.link_type, item.slug)}
+                                                href={getMenuHref(item.link_type, item.slug, item.medusaHandle)}
                                                 className="flex-1 py-5 text-[16px] font-medium tracking-[0.15em] uppercase text-gray-900"
                                             >
                                                 {item.title}
@@ -150,45 +140,82 @@ export default function MobileMenu({
                                         </div>
 
                                         {hasChildren && (
-                                            <div className={`overflow-hidden transition-all duration-500 ease-in-out ${isSubOpen ? "max-h-[2000px] opacity-100 mt-2" : "max-h-0 opacity-0"}`}>
-                                                {item.children.map((child: any) => {
+                                            <div
+                                                className={`overflow-hidden transition-all duration-[400ms]`}
+                                                style={{
+                                                    maxHeight: isSubOpen ? "2000px" : "0px",
+                                                    opacity: isSubOpen ? 1 : 0,
+                                                    transitionTimingFunction: "cubic-bezier(0.22, 0.61, 0.36, 1)",
+                                                }}
+                                            >
+                                                <div className="ml-4 mt-2 mb-2 border-l-2 border-pink-100 pl-4">
+                                                {item.children.map((child: any, ci: number) => {
                                                     const hasGrandChildren = child.children && child.children.length > 0;
                                                     const isGrandOpen = openGrandChildMenu === child.id;
 
                                                     return (
-                                                        <div key={child.id} className="flex flex-col ml-4">
-                                                            <div className="flex items-center justify-between border-b border-gray-50/50">
+                                                        <div
+                                                            key={child.id}
+                                                            className="flex flex-col"
+                                                            style={{
+                                                                opacity: isSubOpen ? 1 : 0,
+                                                                transform: isSubOpen ? "translateX(0)" : "translateX(-8px)",
+                                                                transition: "all 350ms cubic-bezier(0.22, 0.61, 0.36, 1)",
+                                                                transitionDelay: isSubOpen ? `${ci * 40}ms` : "0ms",
+                                                            }}
+                                                        >
+                                                            <div className="flex items-center justify-between border-b border-gray-50/30">
                                                                 <LocalizedClientLink
-                                                                    href={getMenuHref(child.link_type, child.slug)}
-                                                                    className={`block py-4 text-[13px] tracking-widest uppercase ${isGrandOpen ? "text-black font-bold" : "text-gray-500"}`}
+                                                                    href={getMenuHref(child.link_type, child.slug, child.medusaHandle)}
+                                                                    className={`block py-3.5 text-[13px] tracking-widest uppercase transition-colors duration-200 ${
+                                                                        isGrandOpen ? "text-pink-600 font-semibold" : "text-gray-600 font-medium hover:text-pink-600"
+                                                                    }`}
                                                                 >
                                                                     {child.title}
                                                                 </LocalizedClientLink>
                                                                 {hasGrandChildren && (
                                                                     <button
                                                                         onClick={() => setOpenGrandChildMenu(isGrandOpen ? null : child.id)}
-                                                                        className="w-10 h-12 flex justify-end items-center"
+                                                                        className="w-10 h-10 flex justify-end items-center"
                                                                     >
-                                                                        <ChevronRight size={14} className={`transition-transform duration-300 ${isGrandOpen ? 'rotate-90 text-black' : 'text-gray-300'}`} />
+                                                                        <ChevronRight size={14} className={`transition-transform duration-300 ${isGrandOpen ? 'rotate-90 text-pink-500' : 'text-gray-300'}`} />
                                                                     </button>
                                                                 )}
                                                             </div>
                                                             {hasGrandChildren && (
-                                                                <div className={`overflow-hidden transition-all duration-300 bg-gray-50/50 rounded-lg px-4 ${isGrandOpen ? "max-h-[1000px] opacity-100 my-2" : "max-h-0 opacity-0"}`}>
-                                                                    {child.children.map((grandChild: any) => (
+                                                                <div
+                                                                    className={`overflow-hidden transition-all duration-[350ms] bg-gray-50/50 rounded-lg px-3`}
+                                                                    style={{
+                                                                        maxHeight: isGrandOpen ? "600px" : "0px",
+                                                                        opacity: isGrandOpen ? 1 : 0,
+                                                                        marginTop: isGrandOpen ? 4 : 0,
+                                                                        marginBottom: isGrandOpen ? 4 : 0,
+                                                                        transitionTimingFunction: "cubic-bezier(0.22, 0.61, 0.36, 1)",
+                                                                    }}
+                                                                >
+                                                                    <div className="py-1">
+                                                                    {child.children.map((grandChild: any, gi: number) => (
                                                                         <LocalizedClientLink
                                                                             key={grandChild.id}
-                                                                            href={getMenuHref(grandChild.link_type, grandChild.slug)}
-                                                                            className="block py-3 text-[11px] tracking-[0.15em] text-gray-400 uppercase hover:text-black transition-colors"
+                                                                            href={getMenuHref(grandChild.link_type, grandChild.slug, grandChild.medusaHandle)}
+                                                                            className="block py-2.5 text-[11px] tracking-[0.1em] text-gray-400 uppercase hover:text-pink-500 transition-all duration-200"
+                                                                            style={{
+                                                                                opacity: isGrandOpen ? 1 : 0,
+                                                                                transform: isGrandOpen ? "translateX(0)" : "translateX(-6px)",
+                                                                                transition: "all 300ms cubic-bezier(0.22, 0.61, 0.36, 1)",
+                                                                                transitionDelay: isGrandOpen ? `${gi * 40}ms` : "0ms",
+                                                                            }}
                                                                         >
                                                                             {grandChild.title}
                                                                         </LocalizedClientLink>
                                                                     ))}
+                                                                    </div>
                                                                 </div>
                                                             )}
                                                         </div>
                                                     );
                                                 })}
+                                                </div>
                                             </div>
                                         )}
                                     </div>

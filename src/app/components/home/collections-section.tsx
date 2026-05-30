@@ -3,9 +3,10 @@ import { getProductsByCollectionHandle } from '../../../lib/medusa/products'
 import { getSelectedLocale } from "@lib/data/locales"
 import { HttpTypes } from "@medusajs/types"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
+import FadeUpOnScroll from "@modules/common/components/fade-up-on-scroll"
 import ProductCarousel from "./product-carousel"
 
-async function CollectionBlock({ entry, region }: { entry: HomeCollectionEntry; region: HttpTypes.StoreRegion }) {
+async function CollectionBlock({ entry, region, index = 0 }: { entry: HomeCollectionEntry; region: HttpTypes.StoreRegion; index?: number }) {
     const handle = entry.medusa_handle
     const products = handle
         ? await getProductsByCollectionHandle(handle, region.id, region.currency_code, entry.displayCount * 3)
@@ -29,7 +30,7 @@ async function CollectionBlock({ entry, region }: { entry: HomeCollectionEntry; 
     const mobileMedia = entry.mobileImage || desktopMedia
 
     return (
-        <section className="relative w-full bg-white pb-0 overflow-hidden">
+        <FadeUpOnScroll as="section" delay={index * 120} className="relative w-full bg-white pb-0 overflow-hidden">
             {/* 标题区域 */}
             <div className="w-full pt-12 pb-8 px-10 flex flex-col items-center justify-center text-center">
                 <h2 className="text-[14px] md:text-[16px] font-bold text-gray-900 tracking-[0.3em] uppercase">
@@ -77,7 +78,7 @@ async function CollectionBlock({ entry, region }: { entry: HomeCollectionEntry; 
                     title={entry.title}
                 />
             )}
-        </section>
+        </FadeUpOnScroll>
     )
 }
 
@@ -89,8 +90,8 @@ export default async function CollectionsSection({ region }: { region: HttpTypes
 
     return (
         <>
-            {entries.map((entry) => (
-                <CollectionBlock key={entry.id} entry={entry} region={region} />
+            {entries.map((entry, index) => (
+                <CollectionBlock key={entry.id} entry={entry} region={region} index={index} />
             ))}
         </>
     )

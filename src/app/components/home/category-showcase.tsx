@@ -3,6 +3,7 @@ import LocalizedClientLink from '@modules/common/components/localized-client-lin
 import { getSelectedLocale } from "@lib/data/locales";
 import { getProductsByCollectionHandle, getProductsByCategoryHandle } from '../../../lib/medusa/products'
 import { HttpTypes } from "@medusajs/types"
+import FadeUpOnScroll from "@modules/common/components/fade-up-on-scroll"
 
 export default async function CategoryShowcase({ region }: { region: HttpTypes.StoreRegion }) {
     const localecode = (await getSelectedLocale()) || 'en-US';
@@ -50,12 +51,14 @@ export default async function CategoryShowcase({ region }: { region: HttpTypes.S
     return (
         <section className="bg-white overflow-hidden">
             {/* 1. 标题区域 */}
-            <div className="w-full pt-16 pb-20 px-4 text-center animate-in fade-in slide-in-from-bottom-4 duration-1000">
-                <h2 className="text-[14px] md:text-[18px] font-bold text-gray-900 tracking-[0.6em] uppercase">
-                    {sectionData.title || "Shop by Category"}
-                </h2>
-                <div className="mt-4 h-[1px] w-12 bg-black mx-auto transform transition-all duration-700 hover:w-24"></div>
-            </div>
+            <FadeUpOnScroll duration={900}>
+                <div className="w-full pt-16 pb-20 px-4 text-center">
+                    <h2 className="text-[14px] md:text-[18px] font-bold text-gray-900 tracking-[0.6em] uppercase">
+                        {sectionData.title || "Shop by Category"}
+                    </h2>
+                    <div className="mt-4 h-[1px] w-12 bg-black mx-auto transform transition-all duration-700 hover:w-24"></div>
+                </div>
+            </FadeUpOnScroll>
 
             <div className="flex flex-col">
                 {categoriesWithProducts.map((item, index) => {
@@ -63,7 +66,7 @@ export default async function CategoryShowcase({ region }: { region: HttpTypes.S
                     const isEven = index % 2 === 0;
 
                     return (
-                        <div key={item.id} className="grid grid-cols-1 md:grid-cols-2 border-b border-gray-100 overflow-hidden">
+                        <FadeUpOnScroll key={item.id} delay={index * 150} duration={900} className="grid grid-cols-1 md:grid-cols-2 border-b border-gray-100 overflow-hidden">
 
                             {/* --- 左图入口 --- */}
                             <LocalizedClientLink
@@ -95,11 +98,16 @@ export default async function CategoryShowcase({ region }: { region: HttpTypes.S
                             <div className={`grid grid-cols-2 grid-rows-2 h-[100vh] md:h-[130vh] gap-[1px] bg-gray-100 ${
                                 isEven ? "md:order-2" : "md:order-1"
                             }`}>
-                                {item.products.slice(0, 4).map((product: any) => (
-                                    <LocalizedClientLink
+                                {item.products.slice(0, 4).map((product: any, pi: number) => (
+                                    <FadeUpOnScroll
                                         key={product.handle}
-                                        href={`/products/${product.handle}`}
+                                        delay={pi * 100}
+                                        duration={600}
                                         className="relative flex flex-col bg-white group/item overflow-hidden"
+                                    >
+                                    <LocalizedClientLink
+                                        href={`/products/${product.handle}`}
+                                        className="relative flex flex-col bg-white group/item overflow-hidden h-full"
                                     >
                                         {/* 图片区域比例：flex-[6] 压榨文字空间给图片 */}
                                         <div className="relative flex-[6] overflow-hidden">
@@ -120,9 +128,10 @@ export default async function CategoryShowcase({ region }: { region: HttpTypes.S
                                             </p>
                                         </div>
                                     </LocalizedClientLink>
+                                    </FadeUpOnScroll>
                                 ))}
                             </div>
-                        </div>
+                        </FadeUpOnScroll>
                     )
                 })}
             </div>

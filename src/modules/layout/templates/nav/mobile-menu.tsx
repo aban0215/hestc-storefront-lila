@@ -1,7 +1,7 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { Menu, X, ChevronRight, Globe } from "lucide-react"
+import { useState, useEffect, useRef } from "react"
+import { Menu, X, ChevronRight, Globe, ChevronDown } from "lucide-react"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import { usePathname, useRouter } from "next/navigation"
 import { updateRegion } from "@lib/data/cart"
@@ -9,287 +9,284 @@ import { updateLocale } from "@lib/data/locale-actions"
 import { getMenuHref } from "@lib/menu-utils"
 
 export default function MobileMenu({
-                                       menuTree,
-                                       brandData,
-                                       regions,
-                                       locales,
-                                       currentLocale,
-                                       isDesktop = false
-                                   }: {
-    menuTree: any[],
-    brandData: any,
-    regions: any,
-    locales: any,
-    currentLocale: string,
+    menuTree,
+    brandData,
+    regions,
+    locales,
+    currentLocale,
+    isDesktop = false,
+}: {
+    menuTree: any[]
+    brandData: any
+    regions: any
+    locales: any
+    currentLocale: string
     isDesktop?: boolean
 }) {
     const [isOpen, setIsOpen] = useState(false)
-    const [openSubMenu, setOpenSubMenu] = useState<number | string | null>(null)
-    const [openGrandChildMenu, setOpenGrandChildMenu] = useState<number | string | null>(null)
-    const [isMounted, setIsMounted] = useState(false)
+    const [openL1, setOpenL1] = useState<number | null>(null)
+    const [openL2, setOpenL2] = useState<number | null>(null)
+    const [showCountries, setShowCountries] = useState(false)
+    const [showLangs, setShowLangs] = useState(false)
+    const [mounted, setMounted] = useState(false)
 
     const pathname = usePathname()
     const router = useRouter()
+    const drawerRef = useRef<HTMLDivElement>(null)
 
-    useEffect(() => { setIsMounted(true) }, [])
-    useEffect(() => { setIsOpen(false); setOpenSubMenu(null); }, [pathname])
+    useEffect(() => { setMounted(true) }, [])
+    useEffect(() => { setIsOpen(false) }, [pathname])
 
+    // 锁定 body 滚动
     useEffect(() => {
-        if (isOpen) {
-            document.body.style.overflow = 'hidden'
-        } else {
-            document.body.style.overflow = 'unset'
-        }
-        return () => { document.body.style.overflow = 'unset' }
+        document.body.style.overflow = isOpen ? "hidden" : ""
+        return () => { document.body.style.overflow = "" }
+    }, [isOpen])
+
+    // ESC 关闭
+    useEffect(() => {
+        if (!isOpen) return
+        const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setIsOpen(false) }
+        window.addEventListener("keydown", onKey)
+        return () => window.removeEventListener("keydown", onKey)
     }, [isOpen])
 
     const handleRegionChange = async (countryCode: string) => {
         try {
-            const pathParts = pathname.split("/")
-            if (pathParts.length > 1) pathParts.splice(1, 1)
-            const restOfPath = pathParts.join("/") || "/"
-            await updateRegion(countryCode, restOfPath)
+            const parts = pathname.split("/")
+            if (parts.length > 1) parts.splice(1, 1)
+            await updateRegion(countryCode, parts.join("/") || "/")
             setIsOpen(false)
-        } catch (error) { console.error(error) }
+        } catch { /* ignore */ }
     }
 
-    const handleLocaleChange = async (localeCode: string) => {
+    const handleLocaleChange = async (code: string) => {
         try {
-            await updateLocale(localeCode)
+            await updateLocale(code)
             setIsOpen(false)
             router.refresh()
-        } catch (error) { console.error(error) }
+        } catch { /* ignore */ }
     }
 
-    if (!isMounted) return <button className="p-2 -ml-2 text-gray-800"><Menu size={24} strokeWidth={1.5} /></button>
+    if (!mounted) {
+        return (
+            <button className="p-2 -ml-2 text-gray-800">
+                <Menu size={22} strokeWidth={1.5} />
+            </button>
+        )
+    }
 
-    const currentCountryCode = pathname.split("/")[1]
-    const currentCountryName = regions?.flatMap((r: any) => r.countries).find((c: any) => c.iso_2 === currentCountryCode)?.display_name || "Select"
-    const currentLanguageName = locales?.find((l: any) => l.code === currentLocale)?.name || "English"
-
-    const underlineBase = "relative inline-block after:content-[''] after:absolute after:w-full after:h-[1px] after:bg-current after:bottom-0 after:left-0 after:scale-x-0 after:origin-left after:transition-transform after:duration-300"
+    const countryCode = pathname.split("/")[1]
+    const allCountries = regions?.flatMap((r: any) => r.countries).sort((a: any, b: any) => a.display_name.localeCompare(b.display_name)) || []
+    const currentCountry = allCountries.find((c: any) => c.iso_2 === countryCode)?.display_name || "United States"
+    const currentLang = locales?.find((l: any) => l.code === currentLocale)?.name || "English"
 
     return (
         <>
+            {/* ── 汉堡按钮 ── */}
             <button
                 onClick={() => setIsOpen(true)}
-                onMouseEnter={() => { if (isDesktop) setIsOpen(true) }}
-                className={`flex items-center text-gray-800 transition-all hover:opacity-70 ${
-                    isDesktop ? "gap-x-2 p-0" : "p-2 -ml-2"
-                } relative z-30`}
+                className="flex items-center gap-x-2 p-2 -ml-2 text-gray-800 hover:text-gray-600 transition-colors"
             >
-                <Menu size={isDesktop ? 20 : 24} strokeWidth={1.5} />
-                {isDesktop && (
-                    <span className="text-[10px] uppercase tracking-[0.2em] font-bold">Menu</span>
-                )}
+                <Menu size={22} strokeWidth={1.5} />
             </button>
 
-            {/* 全屏背景遮罩 - 调快了透明度动画 */}
+            {/* ── 遮罩 ── */}
             <div
-                className={`fixed inset-0 z-[100000] bg-white transition-opacity duration-300 ${
-                    isOpen ? "opacity-100 visible" : "opacity-0 invisible"
+                className={`fixed inset-0 z-[100] bg-black/40 backdrop-blur-sm transition-opacity duration-300 ${
+                    isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
                 }`}
+                onClick={() => setIsOpen(false)}
             />
 
-            {/* 菜单面板 - 改为 w-full 铺满，translate-y 动画更显高级 */}
+            {/* ── 右侧抽屉 ── */}
             <div
-                className={`fixed inset-0 z-[100001] w-full bg-white transform transition-all duration-500 ease-[cubic-bezier(0.25,1,0.5,1)] ${
-                    isOpen ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0 pointer-events-none"
+                ref={drawerRef}
+                className={`fixed top-0 right-0 z-[101] h-full w-[88vw] max-w-[420px] bg-white shadow-2xl transition-transform duration-[400ms] ease-[cubic-bezier(0.25,1,0.5,1)] flex flex-col ${
+                    isOpen ? "translate-x-0" : "translate-x-full"
                 }`}
             >
-                <div className="flex flex-col h-full bg-white">
-                    {/* Header: 这里的高度建议和 Nav 第一行对齐，视觉更统一 */}
-                    <div className="flex justify-between items-center px-6 h-[60px] lg:h-[90px] border-b border-gray-50 flex-shrink-0">
-                        <span className="text-[14px] font-bold tracking-[0.3em] uppercase text-gray-900">
-                            {brandData?.sitename || "MENU"}
-                        </span>
-                        <button
-                            onClick={() => setIsOpen(false)}
-                            className="text-gray-900 p-2 hover:bg-gray-50 rounded-full transition-colors"
-                        >
-                            <X size={24} strokeWidth={1.5} />
-                        </button>
-                    </div>
+                {/* Header */}
+                <div className="flex items-center justify-between px-6 h-14 border-b border-gray-100 shrink-0">
+                    <span className="text-xs font-black tracking-[0.25em] uppercase text-gray-900">
+                        {brandData?.sitename || "Menu"}
+                    </span>
+                    <button
+                        onClick={() => setIsOpen(false)}
+                        className="p-2 -mr-2 text-gray-400 hover:text-gray-900 transition-colors rounded-full hover:bg-gray-50"
+                    >
+                        <X size={20} strokeWidth={1.5} />
+                    </button>
+                </div>
 
-                    <div className="flex-1 overflow-y-auto overscroll-contain bg-white custom-scrollbar pb-20">
-                        <div className="px-8 py-8 bg-white">
-                            {menuTree?.map((item: any, index) => {
-                                const hasChildren = item.children && item.children.length > 0;
-                                const isSubOpen = openSubMenu === item.id;
-
-                                return (
-                                    <div key={item.id} className="group mb-2">
-                                        <div className="flex items-center justify-between border-b border-gray-50">
-                                            <LocalizedClientLink
-                                                href={getMenuHref(item.link_type, item.slug, item.medusaHandle)}
-                                                className="flex-1 py-5 text-[16px] font-medium tracking-[0.15em] uppercase text-gray-900"
-                                            >
-                                                {item.title}
-                                            </LocalizedClientLink>
-                                            {hasChildren && (
-                                                <button
-                                                    onClick={() => {
-                                                        setOpenSubMenu(isSubOpen ? null : item.id);
-                                                        setOpenGrandChildMenu(null);
-                                                    }}
-                                                    className="w-12 h-16 flex justify-end items-center"
-                                                >
-                                                    <ChevronRight size={18} className={`transition-transform duration-300 ${isSubOpen ? 'rotate-90 text-black' : 'text-gray-300'}`} />
-                                                </button>
-                                            )}
-                                        </div>
-
-                                        {hasChildren && (
-                                            <div
-                                                className={`overflow-hidden transition-all duration-[400ms]`}
-                                                style={{
-                                                    maxHeight: isSubOpen ? "2000px" : "0px",
-                                                    opacity: isSubOpen ? 1 : 0,
-                                                    transitionTimingFunction: "cubic-bezier(0.22, 0.61, 0.36, 1)",
+                {/* 菜单内容 */}
+                <div className="flex-1 overflow-y-auto overscroll-contain">
+                    <nav className="px-6 py-4">
+                        {menuTree?.map((item) => {
+                            const hasKids = item.children?.length > 0
+                            const isL1Open = openL1 === item.id
+                            return (
+                                <div key={item.id} className="border-b border-gray-50 last:border-0">
+                                    <div className="flex items-center">
+                                        <LocalizedClientLink
+                                            href={getMenuHref(item.link_type, item.slug, item.medusaHandle)}
+                                            className="flex-1 py-4 text-sm font-semibold uppercase tracking-[0.1em] text-gray-900 hover:text-rose-600 transition-colors"
+                                            onClick={() => setIsOpen(false)}
+                                        >
+                                            {item.title}
+                                        </LocalizedClientLink>
+                                        {hasKids && (
+                                            <button
+                                                onClick={() => {
+                                                    setOpenL1(isL1Open ? null : item.id)
+                                                    setOpenL2(null)
                                                 }}
+                                                className="w-10 h-10 flex items-center justify-center"
                                             >
-                                                <div className="ml-4 mt-2 mb-2 border-l-2 border-pink-100 pl-4">
-                                                {item.children.map((child: any, ci: number) => {
-                                                    const hasGrandChildren = child.children && child.children.length > 0;
-                                                    const isGrandOpen = openGrandChildMenu === child.id;
+                                                <ChevronRight
+                                                    size={16}
+                                                    className={`transition-transform duration-300 ${
+                                                        isL1Open ? "rotate-90 text-rose-500" : "text-gray-300"
+                                                    }`}
+                                                />
+                                            </button>
+                                        )}
+                                    </div>
 
+                                    {/* L2 子菜单 */}
+                                    {hasKids && (
+                                        <div
+                                            className={`overflow-hidden transition-all duration-[400ms] ease-[cubic-bezier(0.25,1,0.5,1)] ${
+                                                isL1Open ? "max-h-[2000px] opacity-100" : "max-h-0 opacity-0"
+                                            }`}
+                                        >
+                                            <div className="ml-3 pl-4 border-l-2 border-rose-100 pb-3">
+                                                {item.children.map((child: any) => {
+                                                    const hasGrand = child.children?.length > 0
+                                                    const isL2Open = openL2 === child.id
                                                     return (
-                                                        <div
-                                                            key={child.id}
-                                                            className="flex flex-col"
-                                                            style={{
-                                                                opacity: isSubOpen ? 1 : 0,
-                                                                transform: isSubOpen ? "translateX(0)" : "translateX(-8px)",
-                                                                transition: "all 350ms cubic-bezier(0.22, 0.61, 0.36, 1)",
-                                                                transitionDelay: isSubOpen ? `${ci * 40}ms` : "0ms",
-                                                            }}
-                                                        >
-                                                            <div className="flex items-center justify-between border-b border-gray-50/30">
+                                                        <div key={child.id}>
+                                                            <div className="flex items-center">
                                                                 <LocalizedClientLink
                                                                     href={getMenuHref(child.link_type, child.slug, child.medusaHandle)}
-                                                                    className={`block py-3.5 text-[13px] tracking-widest uppercase transition-colors duration-200 ${
-                                                                        isGrandOpen ? "text-pink-600 font-semibold" : "text-gray-600 font-medium hover:text-pink-600"
-                                                                    }`}
+                                                                    className="flex-1 py-3 text-[13px] font-semibold uppercase tracking-[0.06em] text-gray-700 hover:text-rose-600 transition-colors"
+                                                                    onClick={() => setIsOpen(false)}
                                                                 >
                                                                     {child.title}
                                                                 </LocalizedClientLink>
-                                                                {hasGrandChildren && (
+                                                                {hasGrand && (
                                                                     <button
-                                                                        onClick={() => setOpenGrandChildMenu(isGrandOpen ? null : child.id)}
-                                                                        className="w-10 h-10 flex justify-end items-center"
+                                                                        onClick={() => setOpenL2(isL2Open ? null : child.id)}
+                                                                        className="w-8 h-8 flex items-center justify-center"
                                                                     >
-                                                                        <ChevronRight size={14} className={`transition-transform duration-300 ${isGrandOpen ? 'rotate-90 text-pink-500' : 'text-gray-300'}`} />
+                                                                        <ChevronRight
+                                                                            size={14}
+                                                                            className={`transition-transform duration-300 ${
+                                                                                isL2Open ? "rotate-90 text-rose-400" : "text-gray-300"
+                                                                            }`}
+                                                                        />
                                                                     </button>
                                                                 )}
                                                             </div>
-                                                            {hasGrandChildren && (
+
+                                                            {/* L3 */}
+                                                            {hasGrand && (
                                                                 <div
-                                                                    className={`overflow-hidden transition-all duration-[350ms] bg-gray-50/50 rounded-lg px-3`}
-                                                                    style={{
-                                                                        maxHeight: isGrandOpen ? "600px" : "0px",
-                                                                        opacity: isGrandOpen ? 1 : 0,
-                                                                        marginTop: isGrandOpen ? 4 : 0,
-                                                                        marginBottom: isGrandOpen ? 4 : 0,
-                                                                        transitionTimingFunction: "cubic-bezier(0.22, 0.61, 0.36, 1)",
-                                                                    }}
+                                                                    className={`overflow-hidden transition-all duration-350 ease-[cubic-bezier(0.25,1,0.5,1)] bg-gray-50 rounded-lg ${
+                                                                        isL2Open ? "max-h-[600px] opacity-100 my-1" : "max-h-0 opacity-0"
+                                                                    }`}
                                                                 >
-                                                                    <div className="py-1">
-                                                                    {child.children.map((grandChild: any, gi: number) => (
-                                                                        <LocalizedClientLink
-                                                                            key={grandChild.id}
-                                                                            href={getMenuHref(grandChild.link_type, grandChild.slug, grandChild.medusaHandle)}
-                                                                            className="block py-2.5 text-[11px] tracking-[0.1em] text-gray-400 uppercase hover:text-pink-500 transition-all duration-200"
-                                                                            style={{
-                                                                                opacity: isGrandOpen ? 1 : 0,
-                                                                                transform: isGrandOpen ? "translateX(0)" : "translateX(-6px)",
-                                                                                transition: "all 300ms cubic-bezier(0.22, 0.61, 0.36, 1)",
-                                                                                transitionDelay: isGrandOpen ? `${gi * 40}ms` : "0ms",
-                                                                            }}
-                                                                        >
-                                                                            {grandChild.title}
-                                                                        </LocalizedClientLink>
-                                                                    ))}
+                                                                    <div className="px-3 py-2">
+                                                                        {child.children.map((gc: any) => (
+                                                                            <LocalizedClientLink
+                                                                                key={gc.id}
+                                                                                href={getMenuHref(gc.link_type, gc.slug, gc.medusaHandle)}
+                                                                                className="block py-2 text-[12px] uppercase tracking-[0.05em] text-gray-500 hover:text-rose-500 transition-colors"
+                                                                                onClick={() => setIsOpen(false)}
+                                                                            >
+                                                                                {gc.title}
+                                                                            </LocalizedClientLink>
+                                                                        ))}
                                                                     </div>
                                                                 </div>
                                                             )}
                                                         </div>
-                                                    );
+                                                    )
                                                 })}
-                                                </div>
                                             </div>
-                                        )}
-                                    </div>
-                                );
-                            })}
+                                        </div>
+                                    )}
+                                </div>
+                            )
+                        })}
+                    </nav>
+
+                    {/* ── 偏好设置 ── */}
+                    <div className="px-6 py-6 border-t border-gray-100 mt-2">
+                        <div className="flex items-center gap-x-2 mb-5 text-gray-500">
+                            <Globe size={16} strokeWidth={1.5} />
+                            <span className="text-[11px] uppercase tracking-[0.2em] font-bold">Preferences</span>
                         </div>
 
-                        {/* Preferences 区域 - 全屏模式下加大间距 */}
-                        <div className="px-8 py-10 bg-white border-t border-gray-100">
-                            <div className="flex items-center gap-x-3 mb-8 text-gray-900">
-                                <Globe size={18} strokeWidth={1.5} />
-                                <span className="text-[12px] uppercase tracking-[0.2em] font-bold">Preferences</span>
+                        {/* 地区 */}
+                        <button
+                            onClick={() => setShowCountries(!showCountries)}
+                            className="w-full flex items-center justify-between py-3 text-left"
+                        >
+                            <span className="text-[11px] uppercase tracking-widest font-medium text-gray-500">Shipping to</span>
+                            <div className="flex items-center gap-x-2">
+                                <span className="text-xs text-gray-900 font-semibold">{currentCountry}</span>
+                                <ChevronDown size={14} className={`transition-transform duration-200 ${showCountries ? "rotate-180" : ""} text-gray-400`} />
                             </div>
-
-                            <div className="grid grid-cols-1 gap-y-4">
+                        </button>
+                        <div className={`overflow-hidden transition-all duration-300 ${showCountries ? "max-h-[40vh] overflow-y-auto bg-gray-50 rounded-xl px-3 py-2 mb-2" : "max-h-0"}`}>
+                            {allCountries.map((c: any) => (
                                 <button
-                                    onClick={() => setOpenSubMenu(openSubMenu === 'country-list' ? null : 'country-list')}
-                                    className="flex items-center justify-between py-4 border-b border-gray-50"
+                                    key={c.iso_2}
+                                    onClick={() => handleRegionChange(c.iso_2)}
+                                    className={`w-full text-left py-2.5 text-[11px] uppercase tracking-[0.05em] border-b border-gray-100 last:border-0 ${
+                                        c.iso_2 === countryCode ? "text-black font-bold" : "text-gray-500"
+                                    }`}
                                 >
-                                    <span className="text-[12px] font-medium tracking-widest uppercase text-gray-900">Shipping To</span>
-                                    <div className="flex items-center gap-x-2">
-                                        <span className="text-[11px] text-gray-500 uppercase">{currentCountryName}</span>
-                                        <ChevronRight size={16} className={`transition-transform duration-300 ${openSubMenu === 'country-list' ? 'rotate-90' : ''}`} />
-                                    </div>
+                                    {c.display_name}
                                 </button>
+                            ))}
+                        </div>
 
-                                <div className={`overflow-hidden transition-all duration-300 ${openSubMenu === 'country-list' ? "max-h-[40vh] opacity-100 overflow-y-auto custom-scrollbar bg-gray-50 rounded-xl px-4" : "max-h-0 opacity-0"}`}>
-                                    {regions?.flatMap((r: any) => r.countries).sort((a: any, b: any) => a.display_name.localeCompare(b.display_name)).map((c: any) => (
-                                        <button
-                                            key={c.iso_2}
-                                            onClick={() => handleRegionChange(c.iso_2)}
-                                            className={`w-full text-left py-4 text-[11px] uppercase tracking-[0.1em] border-b border-white last:border-0 ${c.iso_2 === currentCountryCode ? "text-black font-bold" : "text-gray-500"}`}
-                                        >
-                                            {c.display_name}
-                                        </button>
-                                    ))}
-                                </div>
-
+                        {/* 语言 */}
+                        <button
+                            onClick={() => setShowLangs(!showLangs)}
+                            className="w-full flex items-center justify-between py-3 text-left"
+                        >
+                            <span className="text-[11px] uppercase tracking-widest font-medium text-gray-500">Language</span>
+                            <div className="flex items-center gap-x-2">
+                                <span className="text-xs text-gray-900 font-semibold">{currentLang}</span>
+                                <ChevronDown size={14} className={`transition-transform duration-200 ${showLangs ? "rotate-180" : ""} text-gray-400`} />
+                            </div>
+                        </button>
+                        <div className={`overflow-hidden transition-all duration-300 ${showLangs ? "max-h-[40vh] overflow-y-auto bg-gray-50 rounded-xl px-3 py-2" : "max-h-0"}`}>
+                            {locales?.map((l: any) => (
                                 <button
-                                    onClick={() => setOpenSubMenu(openSubMenu === 'lang-list' ? null : 'lang-list')}
-                                    className="flex items-center justify-between py-4 border-b border-gray-50"
+                                    key={l.code}
+                                    onClick={() => handleLocaleChange(l.code)}
+                                    className={`w-full text-left py-2.5 text-[11px] uppercase tracking-[0.05em] border-b border-gray-100 last:border-0 ${
+                                        l.code === currentLocale ? "text-black font-bold" : "text-gray-500"
+                                    }`}
                                 >
-                                    <span className="text-[12px] font-medium tracking-widest uppercase text-gray-900">Language</span>
-                                    <div className="flex items-center gap-x-2">
-                                        <span className="text-[11px] text-gray-500 uppercase">{currentLanguageName}</span>
-                                        <ChevronRight size={16} className={`transition-transform duration-300 ${openSubMenu === 'lang-list' ? 'rotate-90' : ''}`} />
-                                    </div>
+                                    {l.name}
                                 </button>
-
-                                <div className={`overflow-hidden transition-all duration-300 ${openSubMenu === 'lang-list' ? "max-h-[40vh] opacity-100 overflow-y-auto custom-scrollbar bg-gray-50 rounded-xl px-4" : "max-h-0 opacity-0"}`}>
-                                    {locales?.map((l: any) => (
-                                        <button
-                                            key={l.code}
-                                            onClick={() => handleLocaleChange(l.code)}
-                                            className={`w-full text-left py-4 text-[11px] uppercase tracking-[0.1em] border-b border-white last:border-0 ${l.code === currentLocale ? "text-black font-bold" : "text-gray-500"}`}
-                                        >
-                                            {l.name}
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
-
-                            <div className="mt-20 text-[10px] text-gray-300 uppercase tracking-[0.4em] text-center">
-                                © {new Date().getFullYear()} {brandData?.sitename}
-                            </div>
+                            ))}
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <style jsx global>{`
-                .custom-scrollbar::-webkit-scrollbar { width: 0px; }
-                .custom-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-            `}</style>
+                {/* Footer */}
+                <div className="px-6 py-4 border-t border-gray-100 shrink-0 text-center">
+                    <p className="text-[10px] text-gray-300 uppercase tracking-[0.3em]">
+                        © {new Date().getFullYear()} {brandData?.sitename || "YunJoy"}
+                    </p>
+                </div>
+            </div>
         </>
     )
 }

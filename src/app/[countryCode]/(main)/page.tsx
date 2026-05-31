@@ -9,6 +9,7 @@ import MasonryLatest from '../../components/home/masonry-latest'
 import { getBaseURL } from "@lib/util/env"
 import LotteryModal from "@modules/home/components/lottery-modal"
 import { getSeoExtension } from "@lib/strapi/seo"
+import { retrieveCustomer } from "@lib/data/customer"
 
 type Props = {
   params: Promise<{ countryCode: string }>
@@ -59,13 +60,18 @@ export default async function Home(props: Props) {
     fields: "id, handle, title",
   })
 
+  const customer = await retrieveCustomer()
+
   if (!collections || !region) {
     return null
   }
 
   return (
       <>
-        <LotteryModal />
+        <LotteryModal
+          isLoggedIn={!!customer}
+          customerEmail={customer?.email}
+        />
         <div className="min-h-screen">
           <HeroSection />
           <CollectionsSection region={region} />

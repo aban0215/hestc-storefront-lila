@@ -68,6 +68,30 @@ export default function MobileMenu({
         } catch { /* ignore */ }
     }
 
+    // 递归渲染子级菜单（L3+）
+    function SubLinksMobile({ items, depth }: { items: any[]; depth: number }) {
+        return (
+            <>
+                {items.map((item: any) => (
+                    <div key={item.id}>
+                        <LocalizedClientLink
+                            href={getMenuHref(item.link_type, item.slug, item.medusaHandle)}
+                            className={depth >= 3
+                                ? "block py-1.5 pl-3 text-[11px] uppercase tracking-[0.04em] text-gray-400 hover:text-rose-500 transition-colors border-l border-gray-200"
+                                : "block py-2 text-[12px] uppercase tracking-[0.05em] text-gray-500 hover:text-rose-500 transition-colors"}
+                            onClick={() => setIsOpen(false)}
+                        >
+                            {item.title}
+                        </LocalizedClientLink>
+                        {item.children?.length > 0 && (
+                            <SubLinksMobile items={item.children} depth={depth + 1} />
+                        )}
+                    </div>
+                ))}
+            </>
+        )
+    }
+
     if (!mounted) {
         return (
             <button className="p-2 -ml-2 text-gray-800">
@@ -193,20 +217,11 @@ export default function MobileMenu({
                                                             {hasGrand && (
                                                                 <div
                                                                     className={`overflow-hidden transition-all duration-350 ease-[cubic-bezier(0.25,1,0.5,1)] bg-gray-50 rounded-lg ${
-                                                                        isL2Open ? "max-h-[600px] opacity-100 my-1" : "max-h-0 opacity-0"
+                                                                        isL2Open ? "max-h-[2000px] opacity-100 my-1" : "max-h-0 opacity-0"
                                                                     }`}
                                                                 >
                                                                     <div className="px-3 py-2">
-                                                                        {child.children.map((gc: any) => (
-                                                                            <LocalizedClientLink
-                                                                                key={gc.id}
-                                                                                href={getMenuHref(gc.link_type, gc.slug, gc.medusaHandle)}
-                                                                                className="block py-2 text-[12px] uppercase tracking-[0.05em] text-gray-500 hover:text-rose-500 transition-colors"
-                                                                                onClick={() => setIsOpen(false)}
-                                                                            >
-                                                                                {gc.title}
-                                                                            </LocalizedClientLink>
-                                                                        ))}
+                                                                        <SubLinksMobile items={child.children} depth={2} />
                                                                     </div>
                                                                 </div>
                                                             )}

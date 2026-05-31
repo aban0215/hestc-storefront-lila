@@ -49,6 +49,31 @@ export default function NavLinks({ menuTree }: { menuTree: any[] }) {
 
     if (!menuTree?.length) return null
 
+    // 递归渲染子级菜单链接（L3+）
+    function SubLinks({ items, depth }: { items: any[]; depth: number }) {
+        const isFirstSub = depth === 2
+        return (
+            <ul className={isFirstSub ? "flex flex-col gap-y-1.5" : "ml-3 mt-0.5 flex flex-col gap-y-0.5 border-l border-gray-100 pl-2.5"}>
+                {items.map((item: any) => (
+                    <li key={item.id}>
+                        <LocalizedClientLink
+                            href={getMenuHref(item.link_type, item.slug, item.medusaHandle)}
+                            className={isFirstSub
+                                ? "text-[12px] text-gray-500 hover:text-black uppercase tracking-[0.04em] transition-colors duration-200"
+                                : "text-[11px] text-gray-400 hover:text-black uppercase tracking-[0.04em] transition-colors duration-200"}
+                            onClick={() => setActiveId(null)}
+                        >
+                            {item.title}
+                        </LocalizedClientLink>
+                        {item.children?.length > 0 && (
+                            <SubLinks items={item.children} depth={depth + 1} />
+                        )}
+                    </li>
+                ))}
+            </ul>
+        )
+    }
+
     return (
         <nav ref={navRef} className="hidden lg:flex items-center h-full" onMouseLeave={close}>
             {/* ── L1 横排 ── */}
@@ -127,19 +152,7 @@ export default function NavLinks({ menuTree }: { menuTree: any[] }) {
                                         </LocalizedClientLink>
                                         {/* L3 列表 */}
                                         {child.children?.length > 0 && (
-                                            <ul className="flex flex-col gap-y-1.5">
-                                                {child.children.map((gc: any) => (
-                                                    <li key={gc.id}>
-                                                        <LocalizedClientLink
-                                                            href={getMenuHref(gc.link_type, gc.slug, gc.medusaHandle)}
-                                                            className="text-[12px] text-gray-500 hover:text-black uppercase tracking-[0.04em] transition-colors duration-200"
-                                                            onClick={() => setActiveId(null)}
-                                                        >
-                                                            {gc.title}
-                                                        </LocalizedClientLink>
-                                                    </li>
-                                                ))}
-                                            </ul>
+                                            <SubLinks items={child.children} depth={2} />
                                         )}
                                     </div>
                                 ))}

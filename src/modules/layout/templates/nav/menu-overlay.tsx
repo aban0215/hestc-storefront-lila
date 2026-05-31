@@ -63,6 +63,31 @@ export default function MenuOverlay({ menuTree, brandData, regions, locales, cur
         } catch { /* ignore */ }
     }
 
+    // 递归渲染子级菜单（L3+）
+    function SubLinksOverlay({ items, depth }: { items: any[]; depth: number }) {
+        const isFirstSub = depth === 2
+        return (
+            <div className={isFirstSub ? "flex flex-col gap-y-2.5" : "ml-3 mt-0.5 flex flex-col gap-y-1 border-l border-gray-100 pl-2.5"}>
+                {items.map((item: any) => (
+                    <div key={item.id}>
+                        <LocalizedClientLink
+                            href={getMenuHref(item.link_type, item.slug, item.medusaHandle)}
+                            className={isFirstSub
+                                ? "text-[13px] text-gray-500 hover:text-gray-900 uppercase tracking-[0.04em] transition-colors duration-200"
+                                : "text-[11px] text-gray-400 hover:text-gray-900 uppercase tracking-[0.04em] transition-colors duration-200"}
+                            onClick={() => setIsOpen(false)}
+                        >
+                            {item.title}
+                        </LocalizedClientLink>
+                        {item.children?.length > 0 && (
+                            <SubLinksOverlay items={item.children} depth={depth + 1} />
+                        )}
+                    </div>
+                ))}
+            </div>
+        )
+    }
+
     const activeItem = menuTree?.find((i) => i.id === activeL1)
     const countryCode = pathname.split("/")[1]
     const allCountries = regions?.flatMap((r: any) => r.countries).sort((a: any, b: any) => a.display_name.localeCompare(b.display_name)) || []
@@ -174,18 +199,7 @@ export default function MenuOverlay({ menuTree, brandData, regions, locales, cur
                                             </LocalizedClientLink>
                                             {/* L3 */}
                                             {child.children?.length > 0 && (
-                                                <div className="flex flex-col gap-y-2.5">
-                                                    {child.children.map((gc: any) => (
-                                                        <LocalizedClientLink
-                                                            key={gc.id}
-                                                            href={getMenuHref(gc.link_type, gc.slug, gc.medusaHandle)}
-                                                            className="text-[13px] text-gray-500 hover:text-gray-900 uppercase tracking-[0.04em] transition-colors duration-200"
-                                                            onClick={() => setIsOpen(false)}
-                                                        >
-                                                            {gc.title}
-                                                        </LocalizedClientLink>
-                                                    ))}
-                                                </div>
+                                                <SubLinksOverlay items={child.children} depth={2} />
                                             )}
                                         </div>
                                     ))}
@@ -265,18 +279,7 @@ export default function MenuOverlay({ menuTree, brandData, regions, locales, cur
                                                             {child.title}
                                                         </LocalizedClientLink>
                                                         {child.children?.length > 0 && (
-                                                            <div className="ml-2 pb-2 flex flex-col gap-y-1.5">
-                                                                {child.children.map((gc: any) => (
-                                                                    <LocalizedClientLink
-                                                                        key={gc.id}
-                                                                        href={getMenuHref(gc.link_type, gc.slug, gc.medusaHandle)}
-                                                                        className="block py-1.5 text-[12px] uppercase tracking-[0.05em] text-gray-400"
-                                                                        onClick={() => setIsOpen(false)}
-                                                                    >
-                                                                        {gc.title}
-                                                                    </LocalizedClientLink>
-                                                                ))}
-                                                            </div>
+                                                            <SubLinksOverlay items={child.children} depth={2} />
                                                         )}
                                                     </div>
                                                 ))}

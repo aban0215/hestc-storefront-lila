@@ -1,13 +1,18 @@
-import { getStrapiData, getStrapiSingle } from "../strapi"
 import { BrandData, MenuItem } from "../../types/strapi"
 
+const STRAPI_BASE_URL = process.env.NEXT_PUBLIC_STRAPI_API_URL
+
 /**
- * 获取品牌数据
+ * 获取品牌数据（含 logo）
  */
 export async function getBrandData(locale: string = 'en-US'): Promise<BrandData | null> {
     try {
-        const data = await getStrapiSingle("lila-header", locale)
-        return data as BrandData
+        const res = await fetch(
+            `${STRAPI_BASE_URL}/api/lila-header?locale=${locale}&populate=*`,
+            { next: { revalidate: 3600 } }
+        )
+        const json = await res.json()
+        return json.data as BrandData
     } catch (error) {
         console.error("Failed to fetch brand data:", error)
         return null
@@ -19,7 +24,6 @@ export async function getBrandData(locale: string = 'en-US'): Promise<BrandData 
  */
 export async function getMenuData(locale: string = 'en-US'): Promise<MenuItem[]> {
     try {
-        const STRAPI_BASE_URL = process.env.NEXT_PUBLIC_STRAPI_API_URL
         const allItems: any[] = []
         let page = 1
         while (true) {

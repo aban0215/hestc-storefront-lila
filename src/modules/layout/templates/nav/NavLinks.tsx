@@ -69,7 +69,6 @@ export default function NavLinks({ menuTree }: { menuTree: any[] }) {
                             className={isFirstSub
                                 ? "text-[12px] text-gray-500 hover:text-black uppercase tracking-[0.04em] transition-colors duration-200"
                                 : "text-[11px] text-gray-400 hover:text-black uppercase tracking-[0.04em] transition-colors duration-200"}
-                            onClick={() => setActiveId(null)}
                         >
                             {item.title}
                         </LocalizedClientLink>
@@ -141,7 +140,6 @@ export default function NavLinks({ menuTree }: { menuTree: any[] }) {
                                 <LocalizedClientLink
                                     href={getMenuHref(activeItem.link_type, activeItem.slug, activeItem.medusaHandle)}
                                     className="inline-flex items-center gap-x-2 text-sm font-black uppercase tracking-[0.12em] text-black hover:gap-x-3 transition-all duration-200"
-                                    onClick={() => setActiveId(null)}
                                 >
                                     All {activeItem.title}
                                     <span className="text-lg leading-none">→</span>
@@ -195,7 +193,6 @@ export default function NavLinks({ menuTree }: { menuTree: any[] }) {
                                             <LocalizedClientLink
                                                 href={getMenuHref(activeL2Item.link_type, activeL2Item.slug, activeL2Item.medusaHandle)}
                                                 className="block text-[15px] font-black uppercase tracking-[0.1em] text-black hover:text-gray-600 transition-colors mb-8"
-                                                onClick={() => setActiveId(null)}
                                             >
                                                 {activeL2Item.title}
                                             </LocalizedClientLink>
@@ -207,7 +204,6 @@ export default function NavLinks({ menuTree }: { menuTree: any[] }) {
                                                             <LocalizedClientLink
                                                                 href={getMenuHref(l3.link_type, l3.slug, l3.medusaHandle)}
                                                                 className="block text-[13px] font-semibold uppercase tracking-[0.06em] text-gray-900 hover:text-black transition-colors mb-2.5"
-                                                                onClick={() => setActiveId(null)}
                                                             >
                                                                 {l3.title}
                                                             </LocalizedClientLink>

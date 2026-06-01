@@ -183,6 +183,7 @@ export default function NavLinks({ menuTree }: { menuTree: any[] }) {
                                                 <LocalizedClientLink
                                                     key={child.id}
                                                     href={getMenuHref(child.link_type, child.slug, child.medusaHandle)}
+                                                    onMouseEnter={() => setActiveL2(child.id)}
                                                     className={sharedClass}
                                                 >
                                                     <span className={textClass}>{child.title}</span>
@@ -196,7 +197,7 @@ export default function NavLinks({ menuTree }: { menuTree: any[] }) {
                                 {/* 右侧 L3+ 内容区 */}
                                 <div className="flex-1 py-8 px-10 xl:px-14">
                                     {activeL2Item ? (
-                                        <div key={activeL2Item.id} className="animate-in fade-in slide-in-from-right-2 duration-300">
+                                        <div key={activeL2Item.id} className="transition-all duration-300 ease-out">
                                             {/* L2 标题链接 */}
                                             <LocalizedClientLink
                                                 href={getMenuHref(activeL2Item.link_type, activeL2Item.slug, activeL2Item.medusaHandle)}

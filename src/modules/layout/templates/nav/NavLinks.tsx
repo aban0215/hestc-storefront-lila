@@ -153,33 +153,41 @@ export default function NavLinks({ menuTree }: { menuTree: any[] }) {
                                     <div className="flex flex-col gap-y-0.5">
                                         {activeItem.children.map((child: any) => {
                                             const isActiveL2 = activeL2 === child.id
-                                            return (
+                                            const hasGrand = child.children?.length > 0
+                                            const sharedClass = `group flex items-center justify-between w-full text-left py-3 px-3 rounded-lg transition-all duration-200 ${
+                                                isActiveL2 ? "bg-gray-50" : "hover:bg-gray-50/50"
+                                            }`
+                                            const textClass = `text-[13px] font-semibold uppercase tracking-[0.06em] transition-colors duration-200 ${
+                                                isActiveL2 ? "text-black" : "text-gray-600 group-hover:text-black"
+                                            }`
+                                            const arrow = (
+                                                <svg className={`w-4 h-4 transition-all duration-200 ${
+                                                    isActiveL2 ? "opacity-100 text-black" : "opacity-0 text-gray-300 group-hover:opacity-100"
+                                                }`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 18l6-6-6-6" />
+                                                </svg>
+                                            )
+                                            // 有子项 → 按钮，hover 切换右侧面板
+                                            // 无子项 → 直接跳转链接
+                                            return hasGrand ? (
                                                 <button
                                                     key={child.id}
                                                     onMouseEnter={() => setActiveL2(child.id)}
                                                     onClick={() => setActiveL2(child.id)}
-                                                    className={`group flex items-center justify-between w-full text-left py-3 px-3 rounded-lg transition-all duration-200 ${
-                                                        isActiveL2
-                                                            ? "bg-gray-50"
-                                                            : "hover:bg-gray-50/50"
-                                                    }`}
+                                                    className={sharedClass}
                                                 >
-                                                    <span
-                                                        className={`text-[13px] font-semibold uppercase tracking-[0.06em] transition-colors duration-200 ${
-                                                            isActiveL2 ? "text-black" : "text-gray-600 group-hover:text-black"
-                                                        }`}
-                                                    >
-                                                        {child.title}
-                                                    </span>
-                                                    <svg
-                                                        className={`w-4 h-4 transition-all duration-200 ${
-                                                            isActiveL2 ? "opacity-100 text-black" : "opacity-0 text-gray-300 group-hover:opacity-100"
-                                                        }`}
-                                                        fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                                                    >
-                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 18l6-6-6-6" />
-                                                    </svg>
+                                                    <span className={textClass}>{child.title}</span>
+                                                    {arrow}
                                                 </button>
+                                            ) : (
+                                                <LocalizedClientLink
+                                                    key={child.id}
+                                                    href={getMenuHref(child.link_type, child.slug, child.medusaHandle)}
+                                                    className={sharedClass}
+                                                >
+                                                    <span className={textClass}>{child.title}</span>
+                                                    {arrow}
+                                                </LocalizedClientLink>
                                             )
                                         })}
                                     </div>
@@ -213,9 +221,7 @@ export default function NavLinks({ menuTree }: { menuTree: any[] }) {
                                                         </div>
                                                     ))}
                                                 </div>
-                                            ) : (
-                                                <p className="text-gray-300 text-xs uppercase tracking-[0.2em]">Browse {activeL2Item.title}</p>
-                                            )}
+                                            ) : null}
                                         </div>
                                     ) : null}
                                 </div>

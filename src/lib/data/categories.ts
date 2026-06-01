@@ -8,23 +8,19 @@ export const listCategories = async (query?: Record<string, any>) => {
   }
 
   const limit = query?.limit || 100
+  const fields = query?.fields || "id,name,handle,parent_category_id"
 
   return sdk.client
     .fetch<{ product_categories: HttpTypes.StoreProductCategory[] }>(
       "/store/product-categories",
       {
-        query: {
-          fields:
-            "*category_children, *products, *parent_category, *parent_category.parent_category",
-          limit,
-          ...query,
-        },
+        query: { fields, limit, ...query },
         next,
         cache: "force-cache",
       }
     )
     .then(({ product_categories }) => product_categories)
-    .catch((error) => {
+    .catch((error: any) => {
       console.error("Failed to list categories:", error.message)
       return []
     })
@@ -42,7 +38,7 @@ export const getCategoryByHandle = async (categoryHandle: string[]) => {
       `/store/product-categories`,
       {
         query: {
-          fields: "*category_children, *products, *parent_category, *parent_category.parent_category",
+          fields: "id,name,handle,parent_category_id,description,rank",
           handle,
         },
         next,
@@ -50,7 +46,7 @@ export const getCategoryByHandle = async (categoryHandle: string[]) => {
       }
     )
     .then(({ product_categories }) => product_categories[0])
-    .catch((error) => {
+    .catch((error: any) => {
       console.error(`Failed to fetch category "${handle}":`, error.message)
       return null
     })

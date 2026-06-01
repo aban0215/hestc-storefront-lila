@@ -32,7 +32,7 @@ export default async function CategoryTemplate({
     const pageNumber = page ? parseInt(page) : 1
     const sort = sortBy || "created_at"
 
-    // 1. 获取商品总数用于结果提示（带异常兜底）
+    // 1. 获取商品总数用于结果提示
     let count = 0
     try {
       const result = await listProductsWithSort({
@@ -45,7 +45,7 @@ export default async function CategoryTemplate({
         countryCode,
       })
       count = result.response.count
-    } catch (e) {
+    } catch (e: any) {
       console.error("Failed to count products for category:", category.handle, e)
     }
 

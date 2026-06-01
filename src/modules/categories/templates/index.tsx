@@ -32,19 +32,30 @@ export default async function CategoryTemplate({
     const pageNumber = page ? parseInt(page) : 1
     const sort = sortBy || "created_at"
 
-    // 1. 获取商品总数用于结果提示
-    const { response: { count } } = await listProductsWithSort({
+    // 1. 获取商品总数用于结果提示（带异常兜底）
+    let count = 0
+    try {
+      const result = await listProductsWithSort({
         page: 1,
         queryParams: {
-            limit: 1,
-            category_id: allCategoryIds
+          limit: 1,
+          category_id: allCategoryIds
         },
         sortBy: sort,
         countryCode,
-    })
+      })
+      count = result.response.count
+    } catch (e) {
+      console.error("Failed to count products for category:", category.handle, e)
+    }
 
     // 2. 获取 MeiliSearch 里的动态属性快照
-    const facets = await getFacetSnapshot(category.id)
+    let facets = null
+    try {
+      facets = await getFacetSnapshot(category.id)
+    } catch (e) {
+      console.error("Failed to get facet snapshot:", e)
+    }
 
 
 

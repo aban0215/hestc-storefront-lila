@@ -167,6 +167,14 @@ export const listProducts = async ({
           queryParams,
         }
       })
+      .catch((error) => {
+        console.error("Failed to list products:", error.message)
+        return {
+          response: { products: [], count: 0 },
+          nextPage: null,
+          queryParams,
+        }
+      })
 }
 
 

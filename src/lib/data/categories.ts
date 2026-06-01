@@ -24,6 +24,10 @@ export const listCategories = async (query?: Record<string, any>) => {
       }
     )
     .then(({ product_categories }) => product_categories)
+    .catch((error) => {
+      console.error("Failed to list categories:", error.message)
+      return []
+    })
 }
 
 export const getCategoryByHandle = async (categoryHandle: string[]) => {

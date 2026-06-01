@@ -48,7 +48,7 @@ export default function SearchBarDirect({ variant = "default" }: { variant?: "de
                         />
 
                         {/* 弹窗容器：居中定位 */}
-                        <div className="fixed left-1/2 top-[80px] -translate-x-1/2 w-[90vw] md:w-[450px] bg-white border border-gray-100 shadow-2xl rounded-2xl z-[150] overflow-hidden">
+                        <div className="fixed left-1/2 top-14 -translate-x-1/2 w-[90vw] md:w-[450px] bg-white border border-gray-100 shadow-2xl rounded-2xl z-[150] overflow-hidden">
                             <InstantSearch
                                 searchClient={searchClient}
                                 indexName={process.env.NEXT_PUBLIC_MEILISEARCH_INDEX_NAME || "products"}

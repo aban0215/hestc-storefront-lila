@@ -44,8 +44,8 @@ export default function NavLinks({ menuTree }: { menuTree: any[] }) {
         leaveTimeoutRef.current = setTimeout(() => {
             setActiveId(null)
             setActiveL2(null)
-            setTimeout(() => setVisible(false), 250)
-        }, 100)
+            setTimeout(() => setVisible(false), 400)
+        }, 80)
     }
     const cancelClose = () => {
         if (leaveTimeoutRef.current) clearTimeout(leaveTimeoutRef.current)
@@ -117,18 +117,18 @@ export default function NavLinks({ menuTree }: { menuTree: any[] }) {
                 <div key={activeId}>
                     {/* 遮罩 */}
                     <div
-                        className={`fixed inset-0 bg-black/15 transition-opacity duration-[250ms] ease-out pointer-events-none ${
+                        className={`fixed inset-0 bg-black/15 transition-opacity duration-300 pointer-events-none ${
                             isOpen ? "opacity-100" : "opacity-0"
                         }`}
                         style={{ top: navBottom, zIndex: 40 }}
                     />
 
-                    {/* 下拉面板 */}
+                    {/* 下拉面板 — 从导航栏下滑 */}
                     <div
-                        className={`fixed left-0 right-0 bg-white shadow-[0_35px_60px_-15px_rgba(0,0,0,0.15)] border-t border-gray-100 transition-all duration-[250ms] ease-out ${
+                        className={`fixed left-0 right-0 bg-white shadow-[0_35px_60px_-15px_rgba(0,0,0,0.15)] border-t border-gray-100 transition-all duration-[400ms] ease-[cubic-bezier(0.22,1,0.36,1)] ${
                             isOpen
                                 ? "opacity-100 translate-y-0"
-                                : "opacity-0 -translate-y-1 pointer-events-none"
+                                : "opacity-0 -translate-y-3 pointer-events-none"
                         }`}
                         style={{ top: navBottom, zIndex: 50 }}
                         onMouseEnter={cancelClose}

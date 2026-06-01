@@ -11,7 +11,6 @@ import { User } from "@medusajs/icons"
 import MobileMenu from "@modules/layout/templates/nav/mobile-menu"
 import SearchBarDirect from "@modules/search/components/modal"
 import NavLinks from "@modules/layout/templates/nav/NavLinks"
-import MenuOverlay from "@modules/layout/templates/nav/menu-overlay"
 import { getBrandData, getMenuData } from "@lib/strapi/header-data"
 
 async function getCurrentLocale() {
@@ -40,21 +39,12 @@ export default async function Nav() {
       <div className="mx-auto max-w-[1440px] px-5 lg:px-8">
         <div className="flex items-center h-12 lg:h-14">
 
-          {/* 左：Logo + MENU 按钮 */}
+          {/* 左：Logo */}
           <div className="flex items-center gap-4 shrink-0">
             <Logo logoUrl={logoUrl} sitename={brandData?.sitename} />
-            <div className="hidden lg:block">
-              <MenuOverlay
-                menuTree={menuTree}
-                brandData={brandData}
-                regions={regions}
-                locales={locales}
-                currentLocale={currentLocale}
-              />
-            </div>
           </div>
 
-          {/* 中：PC 分类链接（保留快速访问） */}
+          {/* 中：PC 分类链接 */}
           <div className="hidden lg:flex flex-1 justify-center h-full">
             <NavLinks menuTree={menuTree} />
           </div>

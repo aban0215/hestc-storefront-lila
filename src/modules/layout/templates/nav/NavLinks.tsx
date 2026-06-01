@@ -6,6 +6,7 @@ import { getMenuHref } from "@lib/menu-utils"
 
 export default function NavLinks({ menuTree }: { menuTree: any[] }) {
     const [activeId, setActiveId] = useState<number | null>(null)
+    const [activeL2, setActiveL2] = useState<number | null>(null)
     const [visible, setVisible] = useState(false)
     const [navBottom, setNavBottom] = useState(56) // 默认 h-14 = 56px
     const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -32,11 +33,17 @@ export default function NavLinks({ menuTree }: { menuTree: any[] }) {
         if (timeoutRef.current) clearTimeout(timeoutRef.current)
         if (leaveTimeoutRef.current) clearTimeout(leaveTimeoutRef.current)
         setActiveId(id)
+        // 自动选中第一个 L2
+        const item = menuTree?.find((i) => i.id === id)
+        if (item?.children?.length) {
+            setActiveL2(item.children[0].id)
+        }
         setVisible(true)
     }
     const close = () => {
         leaveTimeoutRef.current = setTimeout(() => {
             setActiveId(null)
+            setActiveL2(null)
             setTimeout(() => setVisible(false), 250)
         }, 100)
     }
@@ -45,6 +52,7 @@ export default function NavLinks({ menuTree }: { menuTree: any[] }) {
     }
 
     const activeItem = menuTree?.find((i) => i.id === activeId)
+    const activeL2Item = activeItem?.children?.find((c: any) => c.id === activeL2)
     const isOpen = !!(activeId && activeItem?.children?.length)
 
     if (!menuTree?.length) return null
@@ -127,35 +135,94 @@ export default function NavLinks({ menuTree }: { menuTree: any[] }) {
                         onMouseEnter={cancelClose}
                         onMouseLeave={close}
                     >
-                        <div className="max-w-[1440px] mx-auto py-10 px-10 xl:px-14">
+                        <div className="max-w-[1440px] mx-auto py-0">
                             {/* "All category" 链接 */}
-                            <LocalizedClientLink
-                                href={getMenuHref(activeItem.link_type, activeItem.slug, activeItem.medusaHandle)}
-                                className="inline-flex items-center gap-x-2 text-sm font-black uppercase tracking-[0.12em] text-black hover:gap-x-3 transition-all duration-200 mb-10"
-                                onClick={() => setActiveId(null)}
-                            >
-                                All {activeItem.title}
-                                <span className="text-lg leading-none">→</span>
-                            </LocalizedClientLink>
+                            <div className="px-10 xl:px-14 pt-10 pb-6 border-b border-gray-50">
+                                <LocalizedClientLink
+                                    href={getMenuHref(activeItem.link_type, activeItem.slug, activeItem.medusaHandle)}
+                                    className="inline-flex items-center gap-x-2 text-sm font-black uppercase tracking-[0.12em] text-black hover:gap-x-3 transition-all duration-200"
+                                    onClick={() => setActiveId(null)}
+                                >
+                                    All {activeItem.title}
+                                    <span className="text-lg leading-none">→</span>
+                                </LocalizedClientLink>
+                            </div>
 
-                            {/* L2 列网格（flex-wrap 自适应） */}
-                            <div className="flex flex-wrap gap-x-14 gap-y-8">
-                                {activeItem.children.map((child: any) => (
-                                    <div key={child.id} className="min-w-[160px] max-w-[220px]">
-                                        {/* L2 标题 */}
-                                        <LocalizedClientLink
-                                            href={getMenuHref(child.link_type, child.slug, child.medusaHandle)}
-                                            className="block text-[13px] font-black uppercase tracking-[0.1em] text-black hover:text-gray-600 transition-colors mb-3"
-                                            onClick={() => setActiveId(null)}
-                                        >
-                                            {child.title}
-                                        </LocalizedClientLink>
-                                        {/* L3 列表 */}
-                                        {child.children?.length > 0 && (
-                                            <SubLinks items={child.children} depth={2} />
-                                        )}
+                            {/* RL 风格双栏布局：左侧 L2 列表 + 右侧 L3+ 内容 */}
+                            <div className="flex">
+                                {/* 左侧 L2 列表 */}
+                                <div className="w-[240px] xl:w-[280px] shrink-0 border-r border-gray-50 py-8 px-8 xl:px-10">
+                                    <div className="flex flex-col gap-y-0.5">
+                                        {activeItem.children.map((child: any) => {
+                                            const isActiveL2 = activeL2 === child.id
+                                            return (
+                                                <button
+                                                    key={child.id}
+                                                    onMouseEnter={() => setActiveL2(child.id)}
+                                                    onClick={() => setActiveL2(child.id)}
+                                                    className={`group flex items-center justify-between w-full text-left py-3 px-3 rounded-lg transition-all duration-200 ${
+                                                        isActiveL2
+                                                            ? "bg-gray-50"
+                                                            : "hover:bg-gray-50/50"
+                                                    }`}
+                                                >
+                                                    <span
+                                                        className={`text-[13px] font-semibold uppercase tracking-[0.06em] transition-colors duration-200 ${
+                                                            isActiveL2 ? "text-black" : "text-gray-600 group-hover:text-black"
+                                                        }`}
+                                                    >
+                                                        {child.title}
+                                                    </span>
+                                                    <svg
+                                                        className={`w-4 h-4 transition-all duration-200 ${
+                                                            isActiveL2 ? "opacity-100 text-black" : "opacity-0 text-gray-300 group-hover:opacity-100"
+                                                        }`}
+                                                        fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                                    >
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 18l6-6-6-6" />
+                                                    </svg>
+                                                </button>
+                                            )
+                                        })}
                                     </div>
-                                ))}
+                                </div>
+
+                                {/* 右侧 L3+ 内容区 */}
+                                <div className="flex-1 py-8 px-10 xl:px-14">
+                                    {activeL2Item ? (
+                                        <div key={activeL2Item.id} className="animate-in fade-in slide-in-from-right-2 duration-300">
+                                            {/* L2 标题链接 */}
+                                            <LocalizedClientLink
+                                                href={getMenuHref(activeL2Item.link_type, activeL2Item.slug, activeL2Item.medusaHandle)}
+                                                className="block text-[15px] font-black uppercase tracking-[0.1em] text-black hover:text-gray-600 transition-colors mb-8"
+                                                onClick={() => setActiveId(null)}
+                                            >
+                                                {activeL2Item.title}
+                                            </LocalizedClientLink>
+                                            {/* L3+ 递归 */}
+                                            {activeL2Item.children?.length > 0 ? (
+                                                <div className="flex flex-wrap gap-x-16 gap-y-8">
+                                                    {activeL2Item.children.map((l3: any) => (
+                                                        <div key={l3.id} className="min-w-[160px] max-w-[220px]">
+                                                            <LocalizedClientLink
+                                                                href={getMenuHref(l3.link_type, l3.slug, l3.medusaHandle)}
+                                                                className="block text-[13px] font-semibold uppercase tracking-[0.06em] text-gray-900 hover:text-black transition-colors mb-2.5"
+                                                                onClick={() => setActiveId(null)}
+                                                            >
+                                                                {l3.title}
+                                                            </LocalizedClientLink>
+                                                            {l3.children?.length > 0 && (
+                                                                <SubLinks items={l3.children} depth={2} />
+                                                            )}
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            ) : (
+                                                <p className="text-gray-300 text-xs uppercase tracking-[0.2em]">Browse {activeL2Item.title}</p>
+                                            )}
+                                        </div>
+                                    ) : null}
+                                </div>
                             </div>
                         </div>
                     </div>

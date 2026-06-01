@@ -35,6 +35,8 @@ const LotteryModal = ({ isLoggedIn, customerEmail }: Props) => {
     const [isSpinning, setIsSpinning] = useState(false)
     const [isRegistering, setIsRegistering] = useState(false)
     const [regError, setRegError] = useState("")
+    const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
+    const [touched, setTouched] = useState<Record<string, boolean>>({})
     const [rotation, setRotation] = useState(0)
     const [prizeIndex, setPrizeIndex] = useState<number | null>(null)
     const [showResult, setShowResult] = useState(false)
@@ -75,33 +77,75 @@ const LotteryModal = ({ isLoggedIn, customerEmail }: Props) => {
         setRegError("")
     }
 
+    // ── 字段级校验 ──
+    const validateEmail = (value: string): string => {
+        const v = value.trim()
+        if (!v) return "Email is required."
+        if (v.length > 254) return "Email is too long."
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/
+        if (!emailRegex.test(v)) return "Please enter a valid email address."
+        return ""
+    }
+
+    const validatePassword = (value: string): string => {
+        if (!value) return "Password is required."
+        if (value.length < 6) return "Password must be at least 6 characters."
+        if (value.length > 128) return "Password is too long."
+        // 至少包含字母+数字或特殊字符
+        if (!/[a-zA-Z]/.test(value)) return "Password must contain at least one letter."
+        if (!/[0-9!@#$%^&*(),.?":{}|<>_\-]/.test(value)) return "Password must contain at least one number or special character."
+        return ""
+    }
+
+    const validateName = (value: string, label: string): string => {
+        const v = value.trim()
+        if (!v) return `${label} is required.`
+        if (v.length < 1) return `${label} is too short.`
+        if (v.length > 50) return `${label} is too long (max 50 characters).`
+        // 只允许字母、空格、连字符、撇号、点（支持国际姓名）
+        if (!/^[a-zA-ZÀ-ɏ\s'\-\.]+$/.test(v)) return `${label} contains invalid characters.`
+        return ""
+    }
+
+    const validateField = (field: string, value: string) => {
+        let error = ""
+        switch (field) {
+            case "email": error = validateEmail(value); break
+            case "password": if (!isLoggedIn) error = validatePassword(value); break
+            case "firstName": if (!isLoggedIn) error = validateName(value, "First name"); break
+            case "lastName": if (!isLoggedIn) error = validateName(value, "Last name"); break
+        }
+        setFieldErrors(prev => error ? { ...prev, [field]: error } : Object.fromEntries(Object.entries(prev).filter(([k]) => k !== field)))
+        return error
+    }
+
+    const handleBlur = (field: string, value: string) => {
+        setTouched(prev => ({ ...prev, [field]: true }))
+        validateField(field, value)
+    }
+
     const startSpin = async () => {
         setRegError("")
+        setFieldErrors({})
+
+        // 标记所有字段为 touched
+        setTouched({ email: true, password: true, firstName: true, lastName: true })
 
         // 标记抽奖已开始，防止 signup 后的 re-render 关闭弹窗
         justSpunRef.current = true
 
-        // 1. 校验
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-        if (!email || !emailRegex.test(email.trim())) {
-            setRegError("Please enter a valid email address.")
-            return
-        }
+        // 1. 字段级校验
+        const emailErr = validateEmail(email)
+        if (emailErr) { setRegError(emailErr); return }
 
         if (isSpinning || isRegistering) return
 
-        // 2. 未登录 → 先注册
         if (!isLoggedIn) {
-            if (!password || password.length < 6) {
-                setRegError("Password must be at least 6 characters.")
-                return
-            }
-            if (!firstName.trim()) {
-                setRegError("Please enter your first name.")
-                return
-            }
-            if (!lastName.trim()) {
-                setRegError("Please enter your last name.")
+            const pwErr = validatePassword(password)
+            const fnErr = validateName(firstName, "First name")
+            const lnErr = validateName(lastName, "Last name")
+            if (pwErr || fnErr || lnErr) {
+                setRegError([pwErr, fnErr, lnErr].filter(Boolean).join(" "))
                 return
             }
 
@@ -251,42 +295,98 @@ const LotteryModal = ({ isLoggedIn, customerEmail }: Props) => {
                                     </header>
 
                                     <div className="space-y-3">
-                                        <input
-                                            type="email"
-                                            placeholder="Email address"
-                                            className="w-full bg-gray-50 rounded-xl py-3.5 px-5 text-sm font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-black/10 transition-all disabled:bg-gray-100 disabled:text-gray-400 placeholder:text-gray-300"
-                                            value={email}
-                                            onChange={(e) => setEmail(e.target.value)}
-                                            disabled={isSpinning || isRegistering || isLoggedIn}
-                                        />
+                                        {/* Email */}
+                                        <div>
+                                            <input
+                                                type="email"
+                                                placeholder="Email address"
+                                                className={`w-full rounded-xl py-3.5 px-5 text-sm font-medium transition-all disabled:bg-gray-100 disabled:text-gray-400 placeholder:text-gray-300 ${
+                                                    touched.email && fieldErrors.email
+                                                        ? "bg-red-50 border-2 border-red-300 focus:ring-red-200"
+                                                        : "bg-gray-50 border-2 border-transparent focus:bg-white focus:ring-2 focus:ring-black/10"
+                                                }`}
+                                                value={email}
+                                                onChange={(e) => {
+                                                    setEmail(e.target.value)
+                                                    if (touched.email) validateField("email", e.target.value)
+                                                }}
+                                                onBlur={() => handleBlur("email", email)}
+                                                disabled={isSpinning || isRegistering || isLoggedIn}
+                                            />
+                                            {touched.email && fieldErrors.email && (
+                                                <p className="text-red-500 text-[10px] font-medium mt-1 ml-2">{fieldErrors.email}</p>
+                                            )}
+                                        </div>
 
                                         {!isLoggedIn && (
                                             <>
-                                                <input
-                                                    type="password"
-                                                    placeholder="Password (6+ characters)"
-                                                    className="w-full bg-gray-50 rounded-xl py-3.5 px-5 text-sm font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-black/10 transition-all placeholder:text-gray-300"
-                                                    value={password}
-                                                    onChange={(e) => setPassword(e.target.value)}
-                                                    disabled={isSpinning || isRegistering}
-                                                />
+                                                {/* Password */}
+                                                <div>
+                                                    <input
+                                                        type="password"
+                                                        placeholder="Password (6+ chars, letters + numbers)"
+                                                        className={`w-full rounded-xl py-3.5 px-5 text-sm font-medium transition-all placeholder:text-gray-300 ${
+                                                            touched.password && fieldErrors.password
+                                                                ? "bg-red-50 border-2 border-red-300 focus:ring-red-200"
+                                                                : "bg-gray-50 border-2 border-transparent focus:bg-white focus:ring-2 focus:ring-black/10"
+                                                        }`}
+                                                        value={password}
+                                                        onChange={(e) => {
+                                                            setPassword(e.target.value)
+                                                            if (touched.password) validateField("password", e.target.value)
+                                                        }}
+                                                        onBlur={() => handleBlur("password", password)}
+                                                        disabled={isSpinning || isRegistering}
+                                                    />
+                                                    {touched.password && fieldErrors.password && (
+                                                        <p className="text-red-500 text-[10px] font-medium mt-1 ml-2">{fieldErrors.password}</p>
+                                                    )}
+                                                </div>
                                                 <div className="flex gap-3">
-                                                    <input
-                                                        type="text"
-                                                        placeholder="First name"
-                                                        className="flex-1 bg-gray-50 rounded-xl py-3.5 px-5 text-sm font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-black/10 transition-all placeholder:text-gray-300"
-                                                        value={firstName}
-                                                        onChange={(e) => setFirstName(e.target.value)}
-                                                        disabled={isSpinning || isRegistering}
-                                                    />
-                                                    <input
-                                                        type="text"
-                                                        placeholder="Last name"
-                                                        className="flex-1 bg-gray-50 rounded-xl py-3.5 px-5 text-sm font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-black/10 transition-all placeholder:text-gray-300"
-                                                        value={lastName}
-                                                        onChange={(e) => setLastName(e.target.value)}
-                                                        disabled={isSpinning || isRegistering}
-                                                    />
+                                                    {/* First Name */}
+                                                    <div className="flex-1">
+                                                        <input
+                                                            type="text"
+                                                            placeholder="First name"
+                                                            className={`w-full rounded-xl py-3.5 px-5 text-sm font-medium transition-all placeholder:text-gray-300 ${
+                                                                touched.firstName && fieldErrors.firstName
+                                                                    ? "bg-red-50 border-2 border-red-300 focus:ring-red-200"
+                                                                    : "bg-gray-50 border-2 border-transparent focus:bg-white focus:ring-2 focus:ring-black/10"
+                                                            }`}
+                                                            value={firstName}
+                                                            onChange={(e) => {
+                                                                setFirstName(e.target.value)
+                                                                if (touched.firstName) validateField("firstName", e.target.value)
+                                                            }}
+                                                            onBlur={() => handleBlur("firstName", firstName)}
+                                                            disabled={isSpinning || isRegistering}
+                                                        />
+                                                        {touched.firstName && fieldErrors.firstName && (
+                                                            <p className="text-red-500 text-[10px] font-medium mt-1 ml-2">{fieldErrors.firstName}</p>
+                                                        )}
+                                                    </div>
+                                                    {/* Last Name */}
+                                                    <div className="flex-1">
+                                                        <input
+                                                            type="text"
+                                                            placeholder="Last name"
+                                                            className={`w-full rounded-xl py-3.5 px-5 text-sm font-medium transition-all placeholder:text-gray-300 ${
+                                                                touched.lastName && fieldErrors.lastName
+                                                                    ? "bg-red-50 border-2 border-red-300 focus:ring-red-200"
+                                                                    : "bg-gray-50 border-2 border-transparent focus:bg-white focus:ring-2 focus:ring-black/10"
+                                                            }`}
+                                                            value={lastName}
+                                                            onChange={(e) => {
+                                                                setLastName(e.target.value)
+                                                                if (touched.lastName) validateField("lastName", e.target.value)
+                                                            }}
+                                                            onBlur={() => handleBlur("lastName", lastName)}
+                                                            disabled={isSpinning || isRegistering}
+                                                        />
+                                                        {touched.lastName && fieldErrors.lastName && (
+                                                            <p className="text-red-500 text-[10px] font-medium mt-1 ml-2">{fieldErrors.lastName}</p>
+                                                        )}
+                                                    </div>
                                                 </div>
                                             </>
                                         )}

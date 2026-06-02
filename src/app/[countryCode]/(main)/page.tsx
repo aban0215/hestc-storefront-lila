@@ -1,3 +1,5 @@
+export const revalidate = 3600
+
 import { Metadata } from "next"
 import { listCollections } from "@lib/data/collections"
 import { getRegion } from "@lib/data/regions"

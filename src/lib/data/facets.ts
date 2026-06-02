@@ -31,7 +31,7 @@ export async function getFacetSnapshot(id: string) {
                 "Content-Type": "application/json",
                 "Accept": "application/json"
             },
-            cache: 'no-store',
+            cache: 'force-cache',
             signal: controller.signal,
         })
 

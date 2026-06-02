@@ -10,7 +10,7 @@ import {getSelectedLocale} from "@lib/data/locales";
 import {getMarketingBySlug} from "@lib/strapi/market";
 import { getSeoExtension } from "@lib/strapi/seo"
 
-export const dynamic = "force-dynamic"
+export const revalidate = 3600
 
 type Props = {
   params: Promise<{ handle: string; countryCode: string }>

@@ -1,3 +1,5 @@
+export const revalidate = 3600
+
 import { Metadata } from "next"
 import { notFound } from "next/navigation"
 import { getCategoryByHandle, listCategories } from "@lib/data/categories"

@@ -108,6 +108,17 @@ export default async function CollectionPage(props: Props) {
     redirect(`/${params.countryCode}/store`)
   }
 
+  // 轻量获取商品计数（不用 *products 展开，避免大响应）
+  let productCount = 0
+  try {
+    const res = await fetch(
+      `${process.env.MEDUSA_BACKEND_URL || "http://localhost:9000"}/store/products?limit=1&collection_id=${collection.id}&fields=id`,
+      { headers: { "x-publishable-api-key": process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY || "" } }
+    )
+    const data = await res.json()
+    productCount = data.count || 0
+  } catch {}
+
   return (
       <CollectionTemplate
           collection={collection}
@@ -117,6 +128,7 @@ export default async function CollectionPage(props: Props) {
           countryCode={params.countryCode}
           marketingData={marketingData}
           searchParams={searchParams}
+          productCount={productCount}
       />
   )
 }

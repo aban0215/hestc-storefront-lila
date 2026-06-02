@@ -19,6 +19,7 @@ export default async function CollectionTemplate({
                                                      countryCode,
                                                      marketingData,
                                                      searchParams,
+                                                     productCount = 0,
                                                  }: {
     sortBy?: SortOptions
     collection: HttpTypes.StoreCollection
@@ -27,6 +28,7 @@ export default async function CollectionTemplate({
     countryCode: string
     marketingData?: any
     searchParams?: any
+    productCount?: number
 }) {
     const pageNumber = page ? parseInt(page) : 1
     const sort = sortBy || "created_at"
@@ -41,7 +43,7 @@ export default async function CollectionTemplate({
                 <div className="mx-auto px-4 md:px-8 py-4">
                     {/* 数量统计 */}
                     <span className="text-[9px] text-gray-400 uppercase tracking-[0.2em] mb-3 block ml-0.5">
-                        {collection.products?.length || 0} {collection.products?.length === 1 ? 'Result' : 'Results'}
+                        {productCount} {productCount === 1 ? 'Result' : 'Results'}
                     </span>
 
                     <div className="flex items-center justify-between w-full">

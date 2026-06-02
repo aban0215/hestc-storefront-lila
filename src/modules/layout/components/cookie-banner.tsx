@@ -10,7 +10,7 @@ const CookieBanner = () => {
             buttonText="Accept All"
             declineButtonText="Decline"
             enableDeclineButton
-            cookieName="mybrand-consent"
+            cookieName="yunjoy-consent"
             // 样式调整为更符合欧美电商的极简感
             style={{
                 background: "rgba(255, 255, 255, 0.98)", // 使用白色背景，更有质感

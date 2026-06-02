@@ -101,7 +101,7 @@ export default async function BlogDetailPage(props: Props) {
                     </h1>
 
                     <div className="flex items-center justify-center gap-4 text-gray-400 text-[11px] uppercase tracking-widest">
-                        <span>{post.author || "MYBRAND"}</span>
+                        <span>{post.author || "YUNJOY"}</span>
                         <span className="w-1 h-1 bg-gray-200 rounded-full"></span>
                         <span>{new Date(post.publishedAt).toLocaleDateString(locale, { dateStyle: 'long' })}</span>
                         {post.readTime && (

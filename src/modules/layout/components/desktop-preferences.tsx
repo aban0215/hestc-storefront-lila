@@ -124,7 +124,7 @@ export default function DesktopPreferences({ regions, locales, currentLocale }: 
                     </div>
 
                     <div className="p-8 border-t border-gray-50 text-center">
-                        <p className="text-[10px] text-gray-300 uppercase tracking-[0.4em]">© {new Date().getFullYear()} MYBRAND</p>
+                        <p className="text-[10px] text-gray-300 uppercase tracking-[0.4em]">© {new Date().getFullYear()} YUNJOY</p>
                     </div>
                 </div>
             </div>

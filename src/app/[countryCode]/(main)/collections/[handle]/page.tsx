@@ -69,8 +69,8 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
   if (!collection) notFound()
 
   const baseUrl = getBaseURL()
-  const title = seoPatch?.metaTitle || `${collection.title} | mybrand`
-  const description = seoPatch?.metaDescription || `Shop the latest ${collection.title} yoga wear at mybrand.`
+  const title = seoPatch?.metaTitle || `${collection.title} | YunJoy`
+  const description = seoPatch?.metaDescription || `Shop the latest ${collection.title} at YunJoy.`
 
   return {
     title: title,

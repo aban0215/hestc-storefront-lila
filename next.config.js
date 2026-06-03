@@ -69,6 +69,12 @@ const nextConfig = {
       },
       {
         protocol: "https",
+        hostname: "cdn.abanopen.tech",
+        port: "",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
         hostname: "abanopencms.tech",
         port: "",
         pathname: "/**",

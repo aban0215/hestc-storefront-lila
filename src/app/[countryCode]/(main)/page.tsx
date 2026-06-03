@@ -1,17 +1,17 @@
 export const revalidate = 3600
 
 import { Metadata } from "next"
-import { listCollections } from "@lib/data/collections"
+import { Suspense } from "react"
 import { getRegion } from "@lib/data/regions"
 import HeroSection from '../../components/home/hero-section'
+import HeroSkeleton from '../../components/home/hero-skeleton'
 import CategoryShowcase from '../../components/home/category-showcase'
 import CollectionsSection from '../../components/home/collections-section'
 import BlogShowcase from '../../components/home/blog-showcase'
 import MasonryLatest from '../../components/home/masonry-latest'
 import { getBaseURL } from "@lib/util/env"
-import LotteryModal from "@modules/home/components/lottery-modal"
+import LotteryModalWrapper from "./lottery-wrapper"
 import { getSeoExtension } from "@lib/strapi/seo"
-import { retrieveCustomer } from "@lib/data/customer"
 
 type Props = {
   params: Promise<{ countryCode: string }>
@@ -21,10 +21,7 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
   const params = await props.params
   const { countryCode } = params
 
-  // 1. 获取 Strapi 中的英文 SEO 补丁
   const seo = await getSeoExtension('home')
-
-  // 2. 锁定 Canonical URL
   const baseUrl = getBaseURL()
   const mainCountry = "us"
   const canonicalUrl = `${baseUrl}/${mainCountry}`
@@ -40,7 +37,6 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
       title: seo?.metaTitle,
       description: seo?.metaDescription,
       url: canonicalUrl,
-      // 适配返回的 shareImage 数组结构
       images: seo?.shareImage?.url ? [seo.shareImage.url] : [],
     },
     twitter: {
@@ -52,35 +48,67 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
   }
 }
 
-export default async function Home(props: Props) {
-  const params = await props.params
-  const { countryCode } = params
-
-  // 1. 获取业务逻辑所需的 Region 和 Collections
-  const region = await getRegion(countryCode)
-  const { collections } = await listCollections({
-    fields: "id, handle, title",
-  })
-
-  const customer = await retrieveCustomer()
-
-  if (!collections || !region) {
-    return null
-  }
-
+export default function Home(props: Props) {
   return (
-      <>
-        <LotteryModal
-          isLoggedIn={!!customer}
-          customerEmail={customer?.email}
-        />
-        <div className="min-h-screen">
+    <>
+      <Suspense fallback={null}>
+        <LotteryModalWrapper />
+      </Suspense>
+
+      <div className="min-h-screen">
+        {/* LCP 关键区块 — 优先渲染 */}
+        <Suspense fallback={<HeroSkeleton />}>
           <HeroSection />
-          <CollectionsSection region={region} />
-          <CategoryShowcase region={region} />
-          <MasonryLatest region={region} />
+        </Suspense>
+
+        {/* 其余区块 — 不阻塞页面，流式加载 */}
+        <Suspense fallback={<SectionSkeleton />}>
+          <CollectionsSectionWrapper params={props.params} />
+        </Suspense>
+
+        <Suspense fallback={<SectionSkeleton />}>
+          <CategoryShowcaseWrapper params={props.params} />
+        </Suspense>
+
+        <Suspense fallback={<SectionSkeleton />}>
+          <MasonryLatestWrapper params={props.params} />
+        </Suspense>
+
+        <Suspense fallback={null}>
           <BlogShowcase />
-        </div>
-      </>
+        </Suspense>
+      </div>
+    </>
+  )
+}
+
+// ── Wrapper components that fetch their own data ──
+
+async function CollectionsSectionWrapper({ params }: { params: Promise<{ countryCode: string }> }) {
+  const { countryCode } = await params
+  const region = await getRegion(countryCode)
+  return <CollectionsSection region={region} />
+}
+
+async function CategoryShowcaseWrapper({ params }: { params: Promise<{ countryCode: string }> }) {
+  const { countryCode } = await params
+  const region = await getRegion(countryCode)
+  return <CategoryShowcase region={region} />
+}
+
+async function MasonryLatestWrapper({ params }: { params: Promise<{ countryCode: string }> }) {
+  const { countryCode } = await params
+  const region = await getRegion(countryCode)
+  return <MasonryLatest region={region} />
+}
+
+function SectionSkeleton() {
+  return (
+    <div className="w-full py-16 flex items-center justify-center">
+      <div className="animate-pulse flex flex-col items-center gap-4">
+        <div className="h-4 bg-gray-200 rounded w-48" />
+        <div className="h-8 bg-gray-200 rounded w-64" />
+      </div>
+    </div>
   )
 }

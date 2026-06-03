@@ -81,7 +81,6 @@ export const listProducts = async ({
           {
             method: "GET",
             query,
-            headers,
             cache: "force-cache",
           }
       )

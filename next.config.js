@@ -27,56 +27,42 @@ const nextConfig = {
   images: {
     unoptimized: false,
     remotePatterns: [
+      // 本地开发
       {
         protocol: "http",
         hostname: "localhost",
       },
+      // Medusa 后端 + CDN
       {
         protocol: "https",
-        hostname: "medusa-public-images.s3.eu-west-1.amazonaws.com",
-      },
-      {
-        protocol: "https",
-        hostname: "medusa-server-testing.s3.amazonaws.com",
-      },
-      {
-        protocol: "https",
-        hostname: "hestc-medusa.oss-us-east-1.aliyuncs.com",
-        port: "",
+        hostname: "abanopen.tech",
         pathname: "/**",
       },
       {
         protocol: "http",
-        hostname: "hestc-medusa.oss-us-east-1.aliyuncs.com",
-        port: "",
-        pathname: "/**",
-      },
-      {
-        protocol: "https",
-        hostname: "medusa-server-testing.s3.us-east-1.amazonaws.com",
-      },
-      {
-        protocol: "https",
-        hostname: "cdn.mybrand.com",
-        port: "",
-        pathname: "/**",
-      },
-      {
-        protocol: "https",
         hostname: "abanopen.tech",
-        port: "",
         pathname: "/**",
       },
       {
         protocol: "https",
         hostname: "cdn.abanopen.tech",
-        port: "",
         pathname: "/**",
       },
+      // Strapi CMS
       {
         protocol: "https",
         hostname: "abanopencms.tech",
-        port: "",
+        pathname: "/**",
+      },
+      // 阿里云 OSS（直接访问）
+      {
+        protocol: "https",
+        hostname: "hestc-medusa.oss-us-east-1.aliyuncs.com",
+        pathname: "/**",
+      },
+      {
+        protocol: "http",
+        hostname: "hestc-medusa.oss-us-east-1.aliyuncs.com",
         pathname: "/**",
       },
       ...(S3_HOSTNAME && S3_PATHNAME

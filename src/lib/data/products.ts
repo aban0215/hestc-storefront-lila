@@ -4,7 +4,7 @@ import { sdk } from "@lib/config"
 import { sortProducts } from "@lib/util/sort-products"
 import { HttpTypes } from "@medusajs/types"
 import { SortOptions } from "@modules/store/components/refinement-list/sort-products"
-import { getAuthHeaders, getCacheOptions } from "./cookies"
+import { getAuthHeaders } from "./cookies"
 import { getRegion, retrieveRegion } from "./regions"
 import { normalizeImageUrl } from "@lib/util/normalize-image-url"
 
@@ -50,19 +50,25 @@ export const listProducts = async ({
 
   if (!region) return { response: { products: [], count: 0 }, nextPage: null }
 
-  // 1. 变量解析
   const limit = queryParams?.limit || 12
   const _pageParam = Math.max(pageParam, 1)
-  const { color, size, material, collection, category_id, order, ...rest } = queryParams || {}
+  const { color, size, material, collection, category_id, order, fields: callerFields, ...rest } = queryParams || {}
 
-  // 2. 构建基础 Query
+  // 是否有客户端过滤条件 → 决定走"大池子"还是"真分页"
+  const hasFilters = !!(color || size || material || collection)
+
   const query: any = {
     ...rest,
-    limit: 96, // 拿足够多数据供前端过滤（8页×12条），避免以前limit=1000导致18MB/6s的查询
+    // 有过滤：拉 96 条池子供客户端过滤；无过滤：按页取，Medusa 服务端分页
+    limit: hasFilters ? 96 : limit,
+    offset: hasFilters ? 0 : (_pageParam - 1) * limit,
     region_id: region?.id,
     order: order,
-    // 确保包含 material 字段
-    fields: "*variants.calculated_price,+variants.inventory_quantity,*variants.images,+metadata,+tags,+material,+variants.options,+variants.options.option,+collection",
+  }
+
+  // 调用方显式传 fields 则遵从；否则不设（Medusa 返回默认全量字段，供 PDP 等场景使用）
+  if (callerFields) {
+    query.fields = callerFields
   }
 
   if (category_id) {
@@ -82,41 +88,34 @@ export const listProducts = async ({
           }
       )
       .then(({ products, count }) => {
-        // 归一化图片 URL：localhost:9000 → abanopen.tech
         products = products.map(normalizeProductImages)
 
-        /**
-         * 核心辅助工具：标准化字符串并进行比对
-         * @param exact 为 true 时执行全等匹配 (用于 Size, Color)
-         * @param exact 为 false 时执行包含匹配 (用于 Material)
-         */
+        // 无过滤 → Medusa 已完成分页，直接返回
+        if (!hasFilters) {
+          return {
+            response: { products, count },
+            nextPage: count > _pageParam * limit ? _pageParam + 1 : null,
+            queryParams,
+          }
+        }
+
+        // ── 有过滤 → 客户端过滤 + 手动分页 ──
+
         const safeMatch = (target: string | string[], value: any, exact = false) => {
           if (!value) return false
           const targets = Array.isArray(target) ? target : [target]
-
           const normalize = (str: string) =>
-              String(str)
-                  .toLowerCase()
-                  .replace(/%25|%2b/g, '')
-                  .replace(/[^a-z0-9]/g, '')
-
+              String(str).toLowerCase().replace(/%25|%2b/g, '').replace(/[^a-z0-9]/g, '')
           return targets.some(t => {
             const normT = normalize(t)
             const normV = normalize(String(value))
-
-            if (exact) {
-              // 全等匹配：解决 XL 包含 L 的问题
-              return normV === normT
-            }
-            // 包含匹配：解决 90% Nylon 包含 Nylon 的问题
+            if (exact) return normV === normT
             return normV.includes(normT) || normT.includes(normV)
           })
         }
 
         let filtered = products
 
-        // --- A. 变体过滤 (Color & Size) ---
-        // 尺码和颜色开启 exact 模式，防止短字符相互干扰
         if (color || size) {
           filtered = filtered.filter(product =>
               product.variants?.some(variant => {
@@ -127,7 +126,6 @@ export const listProducts = async ({
           )
         }
 
-        // --- B. 系列过滤 (Collection) ---
         if (collection) {
           filtered = filtered.filter(p =>
               safeMatch(collection, p.collection?.handle, true) ||
@@ -135,51 +133,40 @@ export const listProducts = async ({
           )
         }
 
-        // --- C. 材质过滤 (Material) ---
         if (material) {
           filtered = filtered.filter(p => {
             const prodMaterialValue = (p as any).material
-            // 材质不需要全等，包含即可匹配
             return safeMatch(material, prodMaterialValue, false)
           })
         }
 
-        // --- 4. 手动处理分页逻辑 ---
         const finalCount = filtered.length
         const manualOffset = (_pageParam - 1) * limit
         const paginatedProducts = filtered.slice(manualOffset, manualOffset + limit)
 
         console.log(`------------------------------------------`)
-        console.log(`[精准过滤报告]`)
-        console.log(`- 原始数据: ${products.length} 条`)
-        console.log(`- 过滤后: ${finalCount} 条 (Size XL 排除 L: 已开启)`)
+        console.log(`[过滤报告] 池子=${products.length} 过滤后=${finalCount} 当前页=${paginatedProducts.length}`)
         console.log(`------------------------------------------`)
 
-        const nextPage = finalCount > manualOffset + limit ? _pageParam + 1 : null
-
         return {
-          response: {
-            products: paginatedProducts,
-            count: finalCount,
-          },
-          nextPage,
+          response: { products: paginatedProducts, count: finalCount },
+          nextPage: finalCount > manualOffset + limit ? _pageParam + 1 : null,
           queryParams,
         }
       })
       .catch((error) => {
         console.error("Failed to list products:", error.message)
-        return {
-          response: { products: [], count: 0 },
-          nextPage: null,
-          queryParams,
-        }
+        return { response: { products: [], count: 0 }, nextPage: null, queryParams }
       })
 }
 
 
+// 列表卡真正需要的字段：thumbnail, title, handle, images + price + 过滤字段
+const LISTING_FIELDS = "*variants.calculated_price,+variants.options,+material,+collection"
+
 /**
- * This will fetch 100 products to the Next.js cache and sort them based on the sortBy parameter.
- * It will then return the paginated products based on the page and limit parameters.
+ * 智能分页：无过滤+created_at排序 → Medusa 服务端分页（真分页）
+ *            有过滤或价格排序 → 拉 96 条池子，客户端排序/过滤后手动分页
  */
 export const listProductsWithSort = async ({
                                              page = 0,
@@ -188,7 +175,7 @@ export const listProductsWithSort = async ({
                                              countryCode,
                                            }: {
   page?: number
-  queryParams?: any // 这里的类型改为 any
+  queryParams?: any
   sortBy?: SortOptions
   countryCode: string
 }): Promise<{
@@ -197,28 +184,39 @@ export const listProductsWithSort = async ({
   queryParams?: any
 }> => {
   const limit = queryParams?.limit || 12
+  const { color, size, material, collection } = queryParams || {}
+  const hasFilters = !!(color || size || material || collection)
+  const needsClientSort = sortBy?.startsWith("price")
 
-  // --- 关键修改：确保 queryParams 里的所有东西（color, size等）都传给 listProducts ---
-  const { response: { products, count } } = await listProducts({
-    pageParam: 0,
-    queryParams: {
-      ...queryParams, // 这里的三个点非常重要！它把 color, size, material 全部透传下去
-      limit: 96,
-    },
+  // 需要客户端池子：价格排序（Medusa 不支持）或有过滤条件
+  const needsPool = needsClientSort || hasFilters
+
+  if (needsPool) {
+    // 池子模式：拉 96 条 → 客户端排序/过滤 → 手动分页
+    // 注入精简 fields，列表卡不需要 inventory_quantity / variants.images / metadata / tags
+    const { response: { products, count } } = await listProducts({
+      pageParam: 0,
+      queryParams: { ...queryParams, limit: 96, fields: LISTING_FIELDS },
+      countryCode,
+    })
+
+    const sortedProducts = sortProducts(products, sortBy)
+    const pageParam = (page - 1) * limit
+    const nextPage = count > pageParam + limit ? pageParam + limit : null
+    const paginatedProducts = sortedProducts.slice(pageParam, pageParam + limit)
+
+    return {
+      response: { products: paginatedProducts, count },
+      nextPage,
+      queryParams,
+    }
+  }
+
+  // 真分页模式：created_at 排序 + 无过滤 → Medusa 服务端 offset/limit
+  // listProducts 内部看到 hasFilters=false，自动走 offset 分页
+  return listProducts({
+    pageParam: page,
+    queryParams: { ...queryParams, order: "-created_at", fields: LISTING_FIELDS },
     countryCode,
   })
-
-  const sortedProducts = sortProducts(products, sortBy)
-  const pageParam = (page - 1) * limit
-  const nextPage = count > pageParam + limit ? pageParam + limit : null
-  const paginatedProducts = sortedProducts.slice(pageParam, pageParam + limit)
-
-  return {
-    response: {
-      products: paginatedProducts,
-      count,
-    },
-    nextPage,
-    queryParams,
-  }
 }

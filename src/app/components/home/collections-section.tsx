@@ -89,9 +89,12 @@ export default async function CollectionsSection({ region }: { region: HttpTypes
 
     if (!entries.length) return null
 
+    // 最多展示 4 个 Collection 区块，减少首页 Medusa 并行查询数
+    const visible = entries.slice(0, 4)
+
     return (
         <>
-            {entries.map((entry, index) => (
+            {visible.map((entry, index) => (
                 <CollectionBlock key={entry.id} entry={entry} region={region} index={index} />
             ))}
         </>

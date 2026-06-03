@@ -1,18 +1,16 @@
 "use server"
 
 import { HttpTypes } from "@medusajs/types"
-import { getCacheOptions } from "./cookies"
+
+// 公共 API，移除 getCacheOptions 以避免 cookies() 禁用 ISR
 
 const MEDUSA_BACKEND = process.env.MEDUSA_BACKEND_URL || "http://localhost:9000"
 const PUBLISHABLE_KEY = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY || ""
 
 export const retrieveCollection = async (id: string) => {
-  const next = { ...(await getCacheOptions("collections")) }
-
   try {
     const res = await fetch(`${MEDUSA_BACKEND}/store/collections/${id}`, {
       headers: { "x-publishable-api-key": PUBLISHABLE_KEY },
-      next,
       cache: "force-cache",
     })
     if (!res.ok) throw new Error(`HTTP ${res.status}`)
@@ -27,8 +25,6 @@ export const retrieveCollection = async (id: string) => {
 export const listCollections = async (
     queryParams: Record<string, any> = {}
 ): Promise<{ collections: HttpTypes.StoreCollection[]; count: number }> => {
-    const next = await getCacheOptions("collections")
-
     const params = new URLSearchParams()
     params.set("limit", String(queryParams.limit || 100))
     params.set("offset", String(queryParams.offset || 0))
@@ -37,7 +33,6 @@ export const listCollections = async (
     try {
       const res = await fetch(`${MEDUSA_BACKEND}/store/collections?${params.toString()}`, {
         headers: { "x-publishable-api-key": PUBLISHABLE_KEY },
-        next,
         cache: "force-cache",
       })
       if (!res.ok) throw new Error(`HTTP ${res.status}`)
@@ -55,17 +50,13 @@ export const listCollections = async (
 export const getCollectionByHandle = async (
   handle: string
 ): Promise<HttpTypes.StoreCollection> => {
-  const next = { ...(await getCacheOptions("collections")) }
-
   const params = new URLSearchParams()
   params.set("handle", handle)
-  // 只用轻量字段，不用 *products 展开（响应太大会超时）
   params.set("fields", "id,title,handle")
 
   try {
     const res = await fetch(`${MEDUSA_BACKEND}/store/collections?${params.toString()}`, {
       headers: { "x-publishable-api-key": PUBLISHABLE_KEY },
-      next,
       cache: "force-cache",
     })
     if (!res.ok) throw new Error(`HTTP ${res.status}`)

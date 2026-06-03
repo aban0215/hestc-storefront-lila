@@ -1,7 +1,6 @@
 export const revalidate = 3600
 
 import { Metadata } from "next"
-import { cache } from "react"
 import { notFound } from "next/navigation"
 import { listProducts } from "@lib/data/products"
 import { getRegion, listRegions } from "@lib/data/regions"
@@ -13,22 +12,13 @@ import { normalizeImageUrl } from "@lib/util/normalize-image-url"
 
 const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_API_URL;
 
+// PDP 需要的全量字段（generateMetadata 和 ProductPage 共用）
+const PDP_FIELDS = "title,handle,subtitle,description,thumbnail,*variants,*variants.images,*images,*type,material,origin_country,weight"
+
 type Props = {
   params: Promise<{ countryCode: string; handle: string }>
   searchParams: Promise<{ v_id?: string }>
 }
-
-/** React cache() — 同一请求内 generateMetadata 和 Page 共享结果，避免重复查询 */
-const getProduct = cache(async (handle: string, countryCode: string) => {
-  const { response } = await listProducts({
-    countryCode,
-    queryParams: {
-      handle,
-      fields: "title,handle,subtitle,description,thumbnail,*variants,*variants.images,*images,*type,material,origin_country,weight"
-    },
-  })
-  return response.products[0] || null
-})
 
 /**
  * 专门为 Metadata 获取 Strapi SEO 数据的函数
@@ -94,9 +84,11 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
   const { handle, countryCode } = params
 
   // 1. 并行获取 Medusa 商品基础信息和 Strapi 英文 SEO 补丁
-  //    用 getProduct（cache）确保与 Page 组件共享同一请求
   const [product, strapiSeo] = await Promise.all([
-    getProduct(handle, countryCode),
+    listProducts({
+      countryCode,
+      queryParams: { handle, fields: PDP_FIELDS },
+    }).then(({ response }) => response.products[0]),
     getProductSeoForMetadata(handle)
   ])
 
@@ -146,9 +138,12 @@ export default async function ProductPage(props: Props) {
     notFound()
   }
 
-  // 2. 获取业务内容（getProduct 被 cache() 包裹，与 generateMetadata 共享同一请求）
+  // 2. 获取业务内容（与 generateMetadata 用相同 fields，Next.js Data Cache 自动去重）
   const [medusaData, strapiContent] = await Promise.all([
-    getProduct(handle, countryCode),
+    listProducts({
+      countryCode,
+      queryParams: { handle, fields: PDP_FIELDS },
+    }).then(({ response }) => response.products[0]),
     getProductStrapiContent(handle)
   ])
   if (!medusaData) {

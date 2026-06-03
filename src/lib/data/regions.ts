@@ -3,17 +3,11 @@
 import { sdk } from "@lib/config"
 import medusaError from "@lib/util/medusa-error"
 import { HttpTypes } from "@medusajs/types"
-import { getCacheOptions } from "./cookies"
-
+// 公共 API，移除 getCacheOptions 以避免 cookies() 禁用 ISR
 export const listRegions = async () => {
-  const next = {
-    ...(await getCacheOptions("regions")),
-  }
-
   return sdk.client
     .fetch<{ regions: HttpTypes.StoreRegion[] }>(`/store/regions`, {
       method: "GET",
-      next,
       cache: "force-cache",
     })
     .then(({ regions }) => regions)
@@ -21,14 +15,9 @@ export const listRegions = async () => {
 }
 
 export const retrieveRegion = async (id: string) => {
-  const next = {
-    ...(await getCacheOptions(["regions", id].join("-"))),
-  }
-
   return sdk.client
     .fetch<{ region: HttpTypes.StoreRegion }>(`/store/regions/${id}`, {
       method: "GET",
-      next,
       cache: "force-cache",
     })
     .then(({ region }) => region)

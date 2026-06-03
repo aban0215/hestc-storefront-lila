@@ -10,7 +10,7 @@ import ProductCarousel from "./product-carousel"
 async function CollectionBlock({ entry, region, index = 0 }: { entry: HomeCollectionEntry; region: HttpTypes.StoreRegion; index?: number }) {
     const handle = entry.medusa_handle
     const products = handle
-        ? await getProductsByCollectionHandle(handle, region.id, region.currency_code, entry.displayCount * 3)
+        ? await getProductsByCollectionHandle(handle, region.id, region.currency_code, 8)
         : []
 
     if (!products.length) return null

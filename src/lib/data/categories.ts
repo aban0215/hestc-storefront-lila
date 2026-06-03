@@ -1,12 +1,9 @@
 import { sdk } from "@lib/config"
 import { HttpTypes } from "@medusajs/types"
-import { getCacheOptions } from "./cookies"
+
+// 公共 API，移除 getCacheOptions 以避免 cookies() 禁用 ISR
 
 export const listCategories = async (query?: Record<string, any>) => {
-  const next = {
-    ...(await getCacheOptions("categories")),
-  }
-
   const limit = query?.limit || 100
   const fields = query?.fields || "id,name,handle,parent_category_id"
 
@@ -15,7 +12,6 @@ export const listCategories = async (query?: Record<string, any>) => {
       "/store/product-categories",
       {
         query: { fields, limit, ...query },
-        next,
         cache: "force-cache",
       }
     )
@@ -29,10 +25,6 @@ export const listCategories = async (query?: Record<string, any>) => {
 export const getCategoryByHandle = async (categoryHandle: string[]) => {
   const handle = `${categoryHandle.join("/")}`
 
-  const next = {
-    ...(await getCacheOptions("categories")),
-  }
-
   return sdk.client
     .fetch<HttpTypes.StoreProductCategoryListResponse>(
       `/store/product-categories`,
@@ -41,7 +33,6 @@ export const getCategoryByHandle = async (categoryHandle: string[]) => {
           fields: "id,name,handle,parent_category_id,description,rank",
           handle,
         },
-        next,
         cache: "force-cache",
       }
     )

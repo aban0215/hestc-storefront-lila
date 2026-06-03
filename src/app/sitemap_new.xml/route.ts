@@ -18,7 +18,7 @@ export async function GET() {
             `/store/products`,
             {
                 method: "GET",
-                query: { limit: 500, region_id: region?.id },
+                query: { limit: 500, region_id: region?.id, fields: "handle" },
                 next: { revalidate: 3600 }
             }
         )

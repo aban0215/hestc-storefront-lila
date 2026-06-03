@@ -1,7 +1,6 @@
 "use server"
 
 import { sdk } from "@lib/config"
-import { sdk } from "@lib/config"
 
 export type Locale = {
   code: string

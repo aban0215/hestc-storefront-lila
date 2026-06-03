@@ -58,8 +58,7 @@ export const listProducts = async ({
   // 2. 构建基础 Query
   const query: any = {
     ...rest,
-    limit: 1000, // 拿回足够多的数据供前端过滤
-    offset: 0,
+    limit: 96, // 拿足够多数据供前端过滤（8页×12条），避免以前limit=1000导致18MB/6s的查询
     region_id: region?.id,
     order: order,
     // 确保包含 material 字段
@@ -204,7 +203,7 @@ export const listProductsWithSort = async ({
     pageParam: 0,
     queryParams: {
       ...queryParams, // 这里的三个点非常重要！它把 color, size, material 全部透传下去
-      limit: 1000,
+      limit: 96,
     },
     countryCode,
   })

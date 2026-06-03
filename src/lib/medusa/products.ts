@@ -193,8 +193,7 @@ export async function getProductsByCollectionHandle(
                 method: "GET",
                 query: { handle: (collectionHandle || '').replace(/^\//, ''), limit: 1 },
                 headers,
-                // 统一缓存策略，确保排序和新商品实时更新
-                cache: "no-store",
+                cache: "force-cache",
             }
         )
 
@@ -216,7 +215,7 @@ export async function getProductsByCollectionHandle(
                     fields: "*variants.calculated_price,+variants.inventory_quantity,*variants.images,+metadata,+tags,+material,+variants.options,+variants.options.option,+collection",
                 },
                 headers,
-                cache: "no-store",
+                cache: "force-cache",
             }
         )
 
@@ -258,7 +257,7 @@ export async function getProductsByCategoryHandle(
 
                 },
                 headers,
-                cache: "no-store",
+                cache: "force-cache",
             }
         )
 
@@ -289,7 +288,7 @@ export async function getProductsByCategoryHandle(
                     fields: "*variants.calculated_price,+variants.inventory_quantity,*variants.images,+metadata,+tags,+material,+variants.options,+variants.options.option,+collection",
                 },
                 headers,
-                cache: "no-store",
+                cache: "force-cache",
             }
         )
 

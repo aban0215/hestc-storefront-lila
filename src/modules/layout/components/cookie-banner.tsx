@@ -19,6 +19,7 @@ const CookieBanner = () => {
                 boxShadow: "0 -4px 10px rgba(0,0,0,0.05)", // 加一点点阴影
                 zIndex: "9999",
                 padding: "15px 40px",
+                paddingBottom: "max(15px, env(safe-area-inset-bottom, 0px))",
                 display: "flex",
                 alignItems: "center"
             }}

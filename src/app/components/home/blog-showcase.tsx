@@ -1,3 +1,4 @@
+import Image from "next/image"
 import { getLatestBlogPost, getBlogModuleSettings } from '../../../lib/strapi/blog-data'
 import { getSelectedLocale } from '@lib/data/locales'
 import LocalizedClientLink from '@modules/common/components/localized-client-link'
@@ -50,10 +51,12 @@ export default async function BlogShowcase() {
                                 className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
                             />
                         ) : (
-                            <img
+                            <Image
                                 src={mediaUrl}
                                 alt={blogPost.title}
-                                className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
+                                fill
+                                sizes="(max-width: 1024px) 100vw, 55vw"
+                                className="object-cover transition-transform duration-1000 group-hover:scale-105"
                             />
                         )
                     )}

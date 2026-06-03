@@ -95,7 +95,7 @@ export default async function CategoryShowcase({ region }: { region: HttpTypes.S
 
                             {/* --- 右侧 4 商品 --- */}
                             {/* 手机端总高度提升到 110vh，确保每个商品有足够纵向空间 */}
-                            <div className={`grid grid-cols-2 grid-rows-2 h-[100vh] md:h-[130vh] gap-[1px] bg-gray-100 ${
+                            <div className={`grid grid-cols-2 grid-rows-2 h-[100dvh] md:h-[130dvh] gap-[1px] bg-gray-100 ${
                                 isEven ? "md:order-2" : "md:order-1"
                             }`}>
                                 {item.products.slice(0, 4).map((product: any, pi: number) => (

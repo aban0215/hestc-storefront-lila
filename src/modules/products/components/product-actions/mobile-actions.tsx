@@ -56,7 +56,8 @@ const MobileActions: React.FC<MobileActionsProps> = ({
                 leaveTo="translate-y-full"
             >
                 {/* 悬浮容器 */}
-                <div className="fixed inset-x-0 bottom-0 z-50 bg-white border-t border-gray-100 p-4 pb-8 shadow-[0_-10px_30px_rgba(0,0,0,0.08)] lg:hidden">
+                <div className="fixed inset-x-0 bottom-0 z-50 bg-white border-t border-gray-100 p-4 shadow-[0_-10px_30px_rgba(0,0,0,0.08)] lg:hidden"
+                     style={{ paddingBottom: "max(2rem, env(safe-area-inset-bottom, 0px))" }}>
                     <div className="flex flex-col gap-y-2.5">
 
                         {/* 第一行：左侧规格选择 + 右侧加购按钮 */}

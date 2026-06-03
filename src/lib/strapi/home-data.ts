@@ -42,7 +42,7 @@ export async function getHomeHero(locale: string): Promise<HomeHeroData | null> 
 
         if (!data || !data.active) return null
 
-        const prefixUrl = (url: string) => url?.startsWith('http') ? url : `${STRAPI_BASE_URL}${url}`
+        const prefixUrl = (url: string) => url?.startsWith('https://') ? url : url?.startsWith('http://') ? url.replace('http://', 'https://') : `${STRAPI_BASE_URL}${url}`
 
         return {
             id: data.id,
@@ -95,7 +95,7 @@ export interface HomeCategorySectionData {
 // 更新getHomeCategorySection函数
 export async function getHomeCategorySection(locale: string): Promise<HomeCategorySectionData | null> {
     try {
-        const prefixUrl = (url: string) => url?.startsWith('http') ? url : `${STRAPI_BASE_URL}${url}`
+        const prefixUrl = (url: string) => url?.startsWith('https://') ? url : url?.startsWith('http://') ? url.replace('http://', 'https://') : `${STRAPI_BASE_URL}${url}`
 
         const apiUrl =`${STRAPI_BASE_URL}/api/lila-home-category-section?populate[featuredCategories][populate]=image&locale=${locale}`;
 
@@ -171,7 +171,7 @@ export interface HomeCollectionEntry {
 
 export async function getHomeCollections(locale: string): Promise<HomeCollectionEntry[]> {
     try {
-        const prefixUrl = (url: string) => url?.startsWith('http') ? url : `${STRAPI_BASE_URL}${url}`
+        const prefixUrl = (url: string) => url?.startsWith('https://') ? url : url?.startsWith('http://') ? url.replace('http://', 'https://') : `${STRAPI_BASE_URL}${url}`
 
         const res = await fetch(
             `${STRAPI_BASE_URL}/api/lila-home-collections?populate=*&locale=${locale}&sort=sort_order:asc`,
@@ -322,7 +322,7 @@ export async function getFooterBottomSettings(): Promise<FooterBottomSettings | 
 
         const { data } = await res.json();
 
-        const prefixUrl = (url: string) => url?.startsWith('http') ? url : `${STRAPI_BASE_URL}${url}`
+        const prefixUrl = (url: string) => url?.startsWith('https://') ? url : url?.startsWith('http://') ? url.replace('http://', 'https://') : `${STRAPI_BASE_URL}${url}`
 
         // 数据转换处理
         const processedData = {

@@ -148,15 +148,15 @@ export default async function CategoryTemplate({
             {marketingData?.maketimg?.url && (
                 <div className="relative w-full h-[55vh] md:h-[75vh] mb-0 overflow-hidden bg-gray-50">
                     <div className="hidden md:block w-full h-full">
-                        {marketingData.maketimg.mime?.includes("video") ? (
+                        {marketingData.image.mime?.includes("video") ? (
                             <video
-                                src={marketingData.maketimg.url}
+                                src={marketingData.image.url}
                                 autoPlay loop muted playsInline
                                 className="absolute inset-0 w-full h-full object-cover"
                             />
                         ) : (
                             <img
-                                src={marketingData.maketimg.url}
+                                src={marketingData.image.url}
                                 className="absolute inset-0 w-full h-full object-cover"
                                 alt={category.name}
                             />
@@ -164,7 +164,7 @@ export default async function CategoryTemplate({
                     </div>
                     <div className="block md:hidden w-full h-full">
                         <img
-                            src={marketingData.mobileImage?.url || marketingData.maketimg.url}
+                            src={marketingData.mobileImage?.url || marketingData.image.url}
                             className="absolute inset-0 w-full h-full object-cover"
                             alt={category.name}
                         />

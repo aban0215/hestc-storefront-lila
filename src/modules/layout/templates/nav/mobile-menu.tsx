@@ -126,7 +126,7 @@ export default function MobileMenu({
             {/* ── 右侧抽屉 ── */}
             <div
                 ref={drawerRef}
-                className={`fixed top-0 right-0 z-[101] h-full w-[88vw] max-w-[420px] bg-white shadow-2xl transition-transform duration-[400ms] ease-[cubic-bezier(0.25,1,0.5,1)] flex flex-col ${
+                className={`fixed top-0 right-0 z-[101] h-full w-[88vw] max-w-[420px] bg-white shadow-2xl transition-transform duration-[400ms] ease-[cubic-bezier(0.25,1,0.5,1)] flex flex-col pt-[env(safe-area-inset-top,0px)] pb-[env(safe-area-inset-bottom,0px)] ${
                     isOpen ? "translate-x-0" : "translate-x-full"
                 }`}
             >

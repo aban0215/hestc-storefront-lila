@@ -1,3 +1,4 @@
+import Image from "next/image"
 import { getHomeHero } from '../../../lib/strapi/home-data'
 import { getSelectedLocale } from "@lib/data/locales"
 import LocalizedClientLink from '@modules/common/components/localized-client-link'
@@ -46,11 +47,13 @@ export default async function HeroSection() {
                             className="w-full h-full object-cover"
                         />
                     ) : (
-                        <img
+                        <Image
                             src={mobileMedia.url}
                             alt={mobileMedia.alternativeText || heroData.title}
-                            className="w-full h-full object-cover"
-                            loading="eager"
+                            fill
+                            sizes="100vw"
+                            priority
+                            className="object-cover"
                         />
                     )}
                 </div>
@@ -67,11 +70,13 @@ export default async function HeroSection() {
                             className="w-full h-full object-cover"
                         />
                     ) : (
-                        <img
+                        <Image
                             src={desktopMedia.url}
                             alt={desktopMedia.alternativeText || heroData.title}
-                            className="w-full h-full object-cover"
-                            loading="eager"
+                            fill
+                            sizes="100vw"
+                            priority
+                            className="object-cover"
                         />
                     )}
                 </div>

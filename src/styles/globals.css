@@ -7,6 +7,17 @@
 html, body {
   overflow-x: visible; /* 恢复默认 */
   width: 100%;
+  -webkit-tap-highlight-color: transparent; /* 移除 iOS 点击高亮 */
+}
+
+/* Safe-area 工具类 */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .pt-safe {
+    padding-top: env(safe-area-inset-top);
+  }
 }
 
 /* 2. 只在最外层 main 容器上加限制 */

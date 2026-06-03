@@ -30,7 +30,11 @@ export default async function Nav() {
   ])
 
   const logoUrl = brandData?.logo?.url
-    ? `${brandData.logo.url.startsWith("http") ? "" : process.env.NEXT_PUBLIC_STRAPI_API_URL}${brandData.logo.url}`
+    ? (brandData.logo.url.startsWith("http://")
+        ? brandData.logo.url.replace("http://", "https://")
+        : brandData.logo.url.startsWith("https://")
+          ? brandData.logo.url
+          : `${process.env.NEXT_PUBLIC_STRAPI_API_URL}${brandData.logo.url}`)
     : null
 
   return (

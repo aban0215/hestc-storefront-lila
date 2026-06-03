@@ -2,7 +2,9 @@ const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_API_URL
 
 function prefixUrl(url: string | undefined): string {
     if (!url) return ''
-    return url.startsWith('http') ? url : `${STRAPI_URL}${url}`
+    if (url.startsWith('http://')) return url.replace('http://', 'https://')
+    if (url.startsWith('https://')) return url
+    return `${STRAPI_URL}${url}`
 }
 
 /**

@@ -1,3 +1,4 @@
+import Image from "next/image"
 import { getHomeCollections, type HomeCollectionEntry } from '../../../lib/strapi/home-data'
 import { getProductsByCollectionHandle } from '../../../lib/medusa/products'
 import { getSelectedLocale } from "@lib/data/locales"
@@ -47,14 +48,14 @@ async function CollectionBlock({ entry, region, index = 0 }: { entry: HomeCollec
             {(desktopMedia || mobileMedia) && (
                 <div className="group relative w-full aspect-[3/2] overflow-hidden bg-gray-100">
                     <div className="absolute inset-0">
-                        <div className="block md:hidden h-full w-full">
+                        <div className="block md:hidden relative h-full w-full">
                             {mobileMedia?.url && (
-                                <img src={mobileMedia.url} alt="" className="w-full h-full object-cover transition-transform duration-[2000ms] group-hover:scale-105" />
+                                <Image src={mobileMedia.url} alt="" fill sizes="100vw" className="object-cover transition-transform duration-[2000ms] group-hover:scale-105" />
                             )}
                         </div>
-                        <div className="hidden md:block h-full w-full">
+                        <div className="hidden md:block relative h-full w-full">
                             {desktopMedia?.url && (
-                                <img src={desktopMedia.url} alt="" className="w-full h-full object-cover transition-transform duration-[2000ms] group-hover:scale-105" />
+                                <Image src={desktopMedia.url} alt="" fill sizes="100vw" className="object-cover transition-transform duration-[2000ms] group-hover:scale-105" />
                             )}
                         </div>
                         <div className="absolute inset-0 bg-black/10 group-hover:bg-black/20 transition-colors duration-500" />

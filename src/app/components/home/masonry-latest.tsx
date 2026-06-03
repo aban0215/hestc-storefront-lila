@@ -1,3 +1,4 @@
+import Image from "next/image"
 import { listProducts } from "@lib/data/products"
 import { HttpTypes } from "@medusajs/types"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
@@ -63,12 +64,13 @@ export default async function MasonryLatest({ region }: { region: HttpTypes.Stor
                                     href={`/products/${product.handle}`}
                                     className="block bg-gray-50 group relative overflow-hidden"
                                 >
-                                    <div className={`${aspect} overflow-hidden`}>
-                                        <img
+                                    <div className={`${aspect} overflow-hidden relative`}>
+                                        <Image
                                             src={product.thumbnail || ""}
                                             alt={product.title || ""}
-                                            loading="lazy"
-                                            className="w-full h-full object-cover transition-transform duration-[1500ms] ease-out group-hover:scale-105"
+                                            fill
+                                            sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, (max-width: 1440px) 25vw, 20vw"
+                                            className="object-cover transition-transform duration-[1500ms] ease-out group-hover:scale-105"
                                         />
                                     </div>
                                     <div className="absolute inset-0 bg-black/0 group-hover:bg-black/15 transition-colors duration-500 flex items-end p-4">

@@ -130,9 +130,9 @@ export default async function CollectionTemplate({
 
                     {/* 桌面端视图 (md 以上显示) */}
                     <div className="hidden md:block w-full h-full">
-                        {marketingData.maketimg.mime?.includes("video") ? (
+                        {marketingData.image.mime?.includes("video") ? (
                             <video
-                                src={marketingData.maketimg.url}
+                                src={marketingData.image.url}
                                 autoPlay
                                 loop
                                 muted
@@ -141,7 +141,7 @@ export default async function CollectionTemplate({
                             />
                         ) : (
                             <img
-                                src={marketingData.maketimg.url}
+                                src={marketingData.image.url}
                                 className="absolute inset-0 w-full h-full object-cover"
                                 alt={collection.name}
                             />
@@ -163,7 +163,7 @@ export default async function CollectionTemplate({
                         ) : (
                             <img
                                 /* 逻辑：有移动端图用移动端图，没有则回退使用桌面端图 */
-                                src={marketingData.mobileImage?.url || marketingData.maketimg.url}
+                                src={marketingData.mobileImage?.url || marketingData.image.url}
                                 className="absolute inset-0 w-full h-full object-cover"
                                 alt={collection.name}
                             />

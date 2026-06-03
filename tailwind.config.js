@@ -46,6 +46,8 @@ module.exports = {
       maxWidth: {
         "8xl": "100rem",
       },
+      // Custom breakpoints extend Tailwind defaults (sm:640px, md:768px, lg:1024px, xl:1280px, 2xl:1536px remain available)
+      // Use custom names for new breakpoints; existing code uses both conventions.
       screens: {
         "2xsmall": "320px",
         xsmall: "512px",

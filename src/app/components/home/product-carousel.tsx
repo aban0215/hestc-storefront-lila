@@ -1,5 +1,6 @@
 "use client"
 import { useState } from "react"
+import Image from "next/image"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import FadeUpOnScroll from "@modules/common/components/fade-up-on-scroll"
 
@@ -58,11 +59,13 @@ export default function ProductCarousel({ products, targetHref, title }) {
                                 href={`/products/${product.handle}`}
                                 className="bg-white group flex flex-col h-full"
                             >
-                                <div className="aspect-[3/4] overflow-hidden">
-                                    <img
+                                <div className="aspect-[3/4] overflow-hidden relative">
+                                    <Image
                                         src={product.thumbnail}
                                         alt={product.title}
-                                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                                        fill
+                                        sizes="20vw"
+                                        className="object-cover transition-transform duration-700 group-hover:scale-105"
                                     />
                                 </div>
                                 <div className="py-6 px-5 text-center flex flex-col justify-between flex-grow">
@@ -101,8 +104,8 @@ export default function ProductCarousel({ products, targetHref, title }) {
                     {products.slice(0, 6).map((product, i) => (
                         <FadeUpOnScroll key={product.handle} delay={i * 50} duration={600} className="bg-white flex flex-col">
                         <LocalizedClientLink href={`/products/${product.handle}`} className="bg-white flex flex-col h-full">
-                            <div className="aspect-[3/4] overflow-hidden">
-                                <img src={product.thumbnail} className="w-full h-full object-cover" alt={product.title} />
+                            <div className="aspect-[3/4] overflow-hidden relative">
+                                <Image src={product.thumbnail} fill sizes="50vw" className="object-cover" alt={product.title} />
                             </div>
                             <div className="py-5 px-3 text-center border-t border-gray-50/50 flex flex-col flex-grow">
                                 {/* 移动端标题 */}

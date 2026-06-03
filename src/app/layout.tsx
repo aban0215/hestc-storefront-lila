@@ -17,6 +17,7 @@ export async function generateMetadata(): Promise<Metadata> {
         metadataBase: new URL(getBaseURL()),
         icons: {
             icon: globalSeo?.favicon || "/favicon.ico",
+            apple: globalSeo?.favicon || "/favicon.ico",
         },
         title: {
             template: `%s | ${globalSeo?.siteName || "YunJoy"}`,
@@ -28,9 +29,30 @@ export async function generateMetadata(): Promise<Metadata> {
             title: globalSeo?.defaultSeo?.metaTitle || "YunJoy",
             description: globalSeo?.defaultSeo?.metaDescription,
             images: globalSeo?.favicon ? [globalSeo.favicon] : [],
-        }
+        },
+        appleWebApp: {
+            capable: true,
+            title: globalSeo?.siteName || "YunJoy",
+            statusBarStyle: "black-translucent",
+        },
+        manifest: "/manifest.json",
+        other: {
+            "mobile-web-app-capable": "yes",
+        },
     };
 }
+
+export const viewport = {
+    width: "device-width",
+    initialScale: 1,
+    maximumScale: 5,
+    userScalable: true,
+    themeColor: [
+        { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+        { media: "(prefers-color-scheme: dark)", color: "#111827" },
+    ],
+    viewportFit: "cover",
+};
 
 export default async function RootLayout(props: { children: React.ReactNode }) {
     const announcements = await getAnnouncements()

@@ -2,7 +2,9 @@ const STRAPI_BASE_URL = process.env.NEXT_PUBLIC_STRAPI_API_URL
 
 function prefixUrl(url: string | undefined): string {
     if (!url) return ''
-    return url.startsWith('http') ? url : `${STRAPI_BASE_URL}${url}`
+    if (url.startsWith('http://')) return url.replace('http://', 'https://')
+    if (url.startsWith('https://')) return url
+    return `${STRAPI_BASE_URL}${url}`
 }
 
 export interface BlogModuleSettings {
@@ -240,8 +242,8 @@ export async function getLatestBlogPost(locale: string): Promise<BlogPostData | 
         if (!data.data || data.data.length === 0) return null
 
         const post = data.data[0]
-        if (post.coverImage?.url && !post.coverImage.url.startsWith('http')) {
-            post.coverImage.url = `${STRAPI_BASE_URL}${post.coverImage.url}`
+        if (post.coverImage?.url) {
+            post.coverImage.url = prefixUrl(post.coverImage.url)
         }
         return post
     } catch (error) {
@@ -263,8 +265,8 @@ export async function getFeaturedBlogPosts(locale: string, limit: number = 2): P
         const data: BlogPostsResponse = await res.json()
         const posts = data.data || []
         for (const post of posts) {
-            if (post.coverImage?.url && !post.coverImage.url.startsWith('http')) {
-                post.coverImage.url = `${STRAPI_BASE_URL}${post.coverImage.url}`
+            if (post.coverImage?.url) {
+                post.coverImage.url = prefixUrl(post.coverImage.url)
             }
         }
         return posts

@@ -12,9 +12,6 @@ import { normalizeImageUrl } from "@lib/util/normalize-image-url"
 
 const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_API_URL;
 
-// PDP 需要的全量字段（generateMetadata 和 ProductPage 共用）
-const PDP_FIELDS = "title,handle,subtitle,description,thumbnail,*variants,*variants.images,*images,*type,material,origin_country,weight"
-
 type Props = {
   params: Promise<{ countryCode: string; handle: string }>
   searchParams: Promise<{ v_id?: string }>
@@ -40,7 +37,6 @@ async function getProductSeoForMetadata(handle: string) {
 export const dynamicParams = true
 
 export async function generateStaticParams() {
-  // 只预生成 US 区的 top 商品，其余按需 ISR（避免构建时调用大量外部 API 超时）
   try {
     const { response } = await listProducts({
       countryCode: "us",
@@ -63,14 +59,12 @@ function getImagesForVariant(
     product: HttpTypes.StoreProduct,
     selectedVariantId?: string
 ) {
-  // 增加对 product.images 的保护
   if (!product.images || !selectedVariantId || !product.variants) {
-    return product.images || [] // 如果 images 也是空的，返回空数组
+    return product.images || []
   }
 
   const variant = product.variants.find((v) => v.id === selectedVariantId)
 
-  // 增加对 variant.images 的保护
   if (!variant || !variant.images || !variant.images.length) {
     return product.images
   }
@@ -83,11 +77,10 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
   const params = await props.params
   const { handle, countryCode } = params
 
-  // 1. 并行获取 Medusa 商品基础信息和 Strapi 英文 SEO 补丁
   const [product, strapiSeo] = await Promise.all([
     listProducts({
-      countryCode,
-      queryParams: { handle, fields: PDP_FIELDS },
+      countryCode: countryCode,
+      queryParams: { handle },
     }).then(({ response }) => response.products[0]),
     getProductSeoForMetadata(handle)
   ])
@@ -96,16 +89,13 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
     notFound()
   }
 
-  // 2. 确定主域名和 Canonical URL (固定指向 US 站)
   const baseUrl = getBaseURL()
   const mainCountry = "us"
   const canonicalUrl = `${baseUrl}/${mainCountry}/products/${handle}`
 
-  // 3. 确定分享图片 (优先使用 Strapi SEO 图片，回退到 Medusa 缩略图)
   const ogImage = strapiSeo?.shareImage?.url || normalizeImageUrl(product.thumbnail)
 
   return {
-    // 这里的 %s 会自动替换到 Root Layout 的 title.template 中
     title: strapiSeo?.metaTitle || product.title,
     description: strapiSeo?.metaDescription || product.description,
     keywords: strapiSeo?.keywords,
@@ -117,7 +107,7 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
       description: strapiSeo?.metaDescription || product.description,
       images: ogImage ? [ogImage] : [],
       url: canonicalUrl,
-      type: "video.other", // 电商商品通常建议用 website 或 article，如果是视频页则用 video
+      type: "video.other",
     },
     twitter: {
       card: "summary_large_image",
@@ -132,17 +122,18 @@ export default async function ProductPage(props: Props) {
   const { handle, countryCode } = params
   const selectedVariantId = searchParams.v_id
 
-  // 1. 获取 Region 信息
   const region = await getRegion(countryCode)
   if (!region) {
     notFound()
   }
 
-  // 2. 获取业务内容（与 generateMetadata 用相同 fields，Next.js Data Cache 自动去重）
   const [medusaData, strapiContent] = await Promise.all([
     listProducts({
-      countryCode,
-      queryParams: { handle, fields: PDP_FIELDS },
+      countryCode: countryCode,
+      queryParams: {
+        handle: handle,
+        fields: "title,handle,subtitle,description,*variants,*variants.images,*images,*type,material,origin_country,weight"
+      },
     }).then(({ response }) => response.products[0]),
     getProductStrapiContent(handle)
   ])
@@ -150,7 +141,6 @@ export default async function ProductPage(props: Props) {
     notFound()
   }
 
-  // 3. 处理变体图片
   const images = getImagesForVariant(medusaData, selectedVariantId)
 
   return (

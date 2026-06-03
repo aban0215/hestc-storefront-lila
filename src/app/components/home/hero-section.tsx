@@ -53,6 +53,7 @@ export default async function HeroSection() {
                             fill
                             sizes="100vw"
                             priority
+                            unoptimized
                             className="object-cover"
                         />
                     )}
@@ -76,6 +77,7 @@ export default async function HeroSection() {
                             fill
                             sizes="100vw"
                             priority
+                            unoptimized
                             className="object-cover"
                         />
                     )}

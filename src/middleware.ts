@@ -14,41 +14,49 @@ async function getRegionMap(cacheId: string) {
   const { regionMap, regionMapUpdated } = regionMapCache
 
   if (!BACKEND_URL) {
-    throw new Error(
-        "Middleware.ts: Error fetching regions. Did you set up regions in your Medusa Admin and define a MEDUSA_BACKEND_URL environment variable?"
-    )
+    console.error("[middleware] MEDUSA_BACKEND_URL not configured")
+    return regionMap.size > 0 ? regionMap : null
   }
 
   if (
       !regionMap.keys().next().value ||
       regionMapUpdated < Date.now() - 3600 * 1000
   ) {
-    const { regions } = await fetch(`${BACKEND_URL}/store/regions`, {
-      headers: {
-        "x-publishable-api-key": PUBLISHABLE_API_KEY!,
-      },
-      next: {
-        revalidate: 3600,
-        tags: [`regions-${cacheId}`],
-      },
-      cache: "force-cache",
-    }).then(async (response) => {
-      const json = await response.json()
-      if (!response.ok) throw new Error(json.message)
-      return json
-    })
-
-    if (!regions?.length) {
-      throw new Error("No regions found. Please set up regions in your Medusa Admin.")
-    }
-
-    regions.forEach((region: HttpTypes.StoreRegion) => {
-      region.countries?.forEach((c) => {
-        regionMapCache.regionMap.set(c.iso_2 ?? "", region)
+    try {
+      const response = await fetch(`${BACKEND_URL}/store/regions`, {
+        headers: {
+          "x-publishable-api-key": PUBLISHABLE_API_KEY!,
+        },
+        next: {
+          revalidate: 3600,
+          tags: [`regions-${cacheId}`],
+        },
+        cache: "force-cache",
       })
-    })
 
-    regionMapCache.regionMapUpdated = Date.now()
+      if (!response.ok) {
+        console.error(`[middleware] fetch regions failed: ${response.status}`)
+        return regionMap.size > 0 ? regionMap : null
+      }
+
+      const { regions } = await response.json()
+
+      if (!regions?.length) {
+        console.error("[middleware] No regions returned from Medusa")
+        return regionMap.size > 0 ? regionMap : null
+      }
+
+      regions.forEach((region: HttpTypes.StoreRegion) => {
+        region.countries?.forEach((c) => {
+          regionMapCache.regionMap.set(c.iso_2 ?? "", region)
+        })
+      })
+
+      regionMapCache.regionMapUpdated = Date.now()
+    } catch (error) {
+      console.error("[middleware] getRegionMap error:", error)
+      return regionMap.size > 0 ? regionMap : null
+    }
   }
 
   return regionMapCache.regionMap
@@ -88,7 +96,11 @@ export async function middleware(request: NextRequest) {
   let cacheIdCookie = request.cookies.get("_medusa_cache_id")
   let cacheId = cacheIdCookie?.value || crypto.randomUUID()
   const regionMap = await getRegionMap(cacheId)
-  const countryCode = regionMap && (await getCountryCode(request, regionMap))
+  if (!regionMap) {
+    // Medusa 后端不可达，放行不重定向
+    return NextResponse.next()
+  }
+  const countryCode = await getCountryCode(request, regionMap)
 
   const urlParts = request.nextUrl.pathname.split("/")
   const urlCountryCode = urlParts[1]?.toLowerCase()

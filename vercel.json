@@ -1,0 +1,22 @@
+{
+  "headers": [
+    {
+      "source": "/us/(store|categories|collections|products)/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=60, stale-while-revalidate=86400"
+        }
+      ]
+    },
+    {
+      "source": "/us/?",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=60, stale-while-revalidate=86400"
+        }
+      ]
+    }
+  ]
+}

@@ -4,7 +4,6 @@ import { sdk } from "@lib/config"
 import { sortProducts } from "@lib/util/sort-products"
 import { HttpTypes } from "@medusajs/types"
 import { SortOptions } from "@modules/store/components/refinement-list/sort-products"
-import { getAuthHeaders } from "./cookies"
 import { getRegion, retrieveRegion } from "./regions"
 import { normalizeImageUrl } from "@lib/util/normalize-image-url"
 
@@ -75,8 +74,7 @@ export const listProducts = async ({
     query["category_id"] = Array.isArray(category_id) ? category_id : [category_id]
   }
 
-  const headers = { ...(await getAuthHeaders()) }
-
+  // 公共 Store API 不需要 auth headers，移除 cookies() 调用以启用 ISR
   return sdk.client
       .fetch<{ products: HttpTypes.StoreProduct[]; count: number }>(
           `/store/products`,

@@ -1,5 +1,5 @@
 import { sdk } from "@lib/config"
-import { getAuthHeaders, getCacheOptions } from "@lib/data/cookies"
+// 公共 Store API 不需要 auth/cache headers；已移除 getAuthHeaders/getCacheOptions 以启用 ISR
 import { HttpTypes } from "@medusajs/types"
 import {
     getCurrencySymbol,
@@ -33,16 +33,7 @@ export async function getProductsByHandles(
             return []
         }
 
-
-        const headers = {
-            ...(await getAuthHeaders()),
-        }
-
-        const next = {
-            ...(await getCacheOptions("products")),
-        }
-
-        // 调用Medusa API批量获取商品
+        // 调用Medusa API批量获取商品（公共API，不需要auth headers）
         const response = await sdk.client.fetch<{ products: HttpTypes.StoreProduct[], count: number }>(
             `/store/products`,
             {
@@ -53,8 +44,6 @@ export async function getProductsByHandles(
                     limit: cleanHandles.length,
                     fields: "*variants.calculated_price,+variants.inventory_quantity,*variants.images,+metadata,+tags",
                 },
-                headers,
-                next,
                 cache: "force-cache",
             }
         )
@@ -184,15 +173,12 @@ export async function getProductsByCollectionHandle(
     limit: number = 6
 ): Promise<SimplifiedProduct[]> {
     try {
-        const headers = { ...(await getAuthHeaders()) };
-
-        // 1. 获取 Collection ID
+        // 1. 获取 Collection ID（公共API，不需要auth headers）
         const collectionRes = await sdk.client.fetch<{ collections: any[] }>(
             `/store/collections`,
             {
                 method: "GET",
                 query: { handle: (collectionHandle || '').replace(/^\//, ''), limit: 1 },
-                headers,
                 cache: "force-cache",
             }
         )
@@ -200,7 +186,7 @@ export async function getProductsByCollectionHandle(
         const collectionId = collectionRes.collections?.[0]?.id
         if (!collectionId) return []
 
-        // 2. 查询商品
+        // 2. 查询商品（公共API）
         const response = await sdk.client.fetch<{ products: HttpTypes.StoreProduct[] }>(
             `/store/products`,
             {
@@ -209,12 +195,9 @@ export async function getProductsByCollectionHandle(
                     collection_id: [collectionId],
                     region_id: regionId,
                     limit: limit,
-                    // 排序对齐：列表页用的是 created_at，这里加上负号确保新货在前
                     order: "-created_at",
-                    // 字段对齐：参考 listProducts 补充了 metadata, tags, material 等
                     fields: "*variants.calculated_price,+variants.inventory_quantity,*variants.images,+metadata,+tags,+material,+variants.options,+variants.options.option,+collection",
                 },
-                headers,
                 cache: "force-cache",
             }
         )
@@ -244,9 +227,7 @@ export async function getProductsByCategoryHandle(
     limit: number = 6
 ): Promise<SimplifiedProduct[]> {
     try {
-        const headers = { ...(await getAuthHeaders()) };
-
-        // 1. 获取 Category 及子分类
+        // 1. 获取 Category 及子分类（公共API）
         const categoryRes = await sdk.client.fetch<{ product_categories: any[] }>(
             `/store/product-categories`,
             {
@@ -254,9 +235,7 @@ export async function getProductsByCategoryHandle(
                 query: {
                     handle: (categoryHandle || '').replace(/^\//, ''),
                     limit: 1,
-
                 },
-                headers,
                 cache: "force-cache",
             }
         )
@@ -275,7 +254,7 @@ export async function getProductsByCategoryHandle(
             }
         }
 
-        // 2. 查询该分类及子分类下的商品
+        // 2. 查询该分类及子分类下的商品（公共API）
         const response = await sdk.client.fetch<{ products: HttpTypes.StoreProduct[] }>(
             `/store/products`,
             {
@@ -287,7 +266,6 @@ export async function getProductsByCategoryHandle(
                     order: "-created_at",
                     fields: "*variants.calculated_price,+variants.inventory_quantity,*variants.images,+metadata,+tags,+material,+variants.options,+variants.options.option,+collection",
                 },
-                headers,
                 cache: "force-cache",
             }
         )

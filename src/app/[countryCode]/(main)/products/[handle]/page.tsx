@@ -1,6 +1,7 @@
 export const revalidate = 3600
 
 import { Metadata } from "next"
+import { cache } from "react"
 import { notFound } from "next/navigation"
 import { listProducts } from "@lib/data/products"
 import { getRegion, listRegions } from "@lib/data/regions"
@@ -17,12 +18,23 @@ type Props = {
   searchParams: Promise<{ v_id?: string }>
 }
 
+/** React cache() — 同一请求内 generateMetadata 和 Page 共享结果，避免重复查询 */
+const getProduct = cache(async (handle: string, countryCode: string) => {
+  const { response } = await listProducts({
+    countryCode,
+    queryParams: {
+      handle,
+      fields: "title,handle,subtitle,description,thumbnail,*variants,*variants.images,*images,*type,material,origin_country,weight"
+    },
+  })
+  return response.products[0] || null
+})
+
 /**
  * 专门为 Metadata 获取 Strapi SEO 数据的函数
  * 强制请求 en-US，确保单中心索引
  */
 async function getProductSeoForMetadata(handle: string) {
-  // 仅请求 SEO 核心字段，减少体积
   const query = `${STRAPI_URL}/api/lila-product-contents?filters[medusa_handle][$eq]=${handle}&locale=en-US&populate=*`
 
   try {
@@ -82,11 +94,9 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
   const { handle, countryCode } = params
 
   // 1. 并行获取 Medusa 商品基础信息和 Strapi 英文 SEO 补丁
+  //    用 getProduct（cache）确保与 Page 组件共享同一请求
   const [product, strapiSeo] = await Promise.all([
-    listProducts({
-      countryCode: countryCode,
-      queryParams: { handle },
-    }).then(({ response }) => response.products[0]),
+    getProduct(handle, countryCode),
     getProductSeoForMetadata(handle)
   ])
 
@@ -136,16 +146,9 @@ export default async function ProductPage(props: Props) {
     notFound()
   }
 
-  // 2. 获取业务内容
+  // 2. 获取业务内容（getProduct 被 cache() 包裹，与 generateMetadata 共享同一请求）
   const [medusaData, strapiContent] = await Promise.all([
-    listProducts({
-      countryCode: countryCode,
-      queryParams: {
-        handle: handle,
-        // 必须包含 *images 和 *variants，否则 getImagesForVariant 会崩溃
-        fields: "title,handle,subtitle,description,*variants,*variants.images,*images,*type,material,origin_country,weight"
-      },
-    }).then(({ response }) => response.products[0]),
+    getProduct(handle, countryCode),
     getProductStrapiContent(handle)
   ])
   if (!medusaData) {

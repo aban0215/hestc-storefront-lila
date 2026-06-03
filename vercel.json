@@ -1,7 +1,7 @@
 {
   "headers": [
     {
-      "source": "/us/(store|categories|collections|products)/(.*)",
+      "source": "/us/store",
       "headers": [
         {
           "key": "Cache-Control",
@@ -10,7 +10,43 @@
       ]
     },
     {
-      "source": "/us/?",
+      "source": "/us/store/:path*",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=60, stale-while-revalidate=86400"
+        }
+      ]
+    },
+    {
+      "source": "/us/categories/:path*",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=60, stale-while-revalidate=86400"
+        }
+      ]
+    },
+    {
+      "source": "/us/collections/:path*",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=60, stale-while-revalidate=86400"
+        }
+      ]
+    },
+    {
+      "source": "/us/products/:path*",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=60, stale-while-revalidate=86400"
+        }
+      ]
+    },
+    {
+      "source": "/us",
       "headers": [
         {
           "key": "Cache-Control",

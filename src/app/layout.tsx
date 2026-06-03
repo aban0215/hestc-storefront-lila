@@ -60,6 +60,11 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
     return (
         <html lang="en" data-mode="light">
         <head>
+            {/* Preconnect: 提前建立与 Strapi/Medusa 的连接，减少 LCP 延迟 */}
+            <link rel="preconnect" href="https://abanopencms.tech" crossOrigin="anonymous" />
+            <link rel="preconnect" href="https://abanopen.tech" crossOrigin="anonymous" />
+            <link rel="dns-prefetch" href="https://abanopencms.tech" />
+            <link rel="dns-prefetch" href="https://abanopen.tech" />
             <script
                 dangerouslySetInnerHTML={{
                     __html: `

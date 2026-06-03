@@ -25,7 +25,7 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
   images: {
-    unoptimized: true,
+    unoptimized: false,
     remotePatterns: [
       {
         protocol: "http",
@@ -58,6 +58,18 @@ const nextConfig = {
       {
         protocol: "https",
         hostname: "cdn.mybrand.com",
+        port: "",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "abanopen.tech",
+        port: "",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "abanopencms.tech",
         port: "",
         pathname: "/**",
       },

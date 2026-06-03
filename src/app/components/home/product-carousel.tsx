@@ -6,6 +6,7 @@ import FadeUpOnScroll from "@modules/common/components/fade-up-on-scroll"
 
 export default function ProductCarousel({ products, targetHref, title }) {
     const [currentIndex, setCurrentIndex] = useState(0)
+    const displayProducts = products.slice(0, 6)
 
     /**
      * 价格转换函数：将类似 "10$" 转换为 "$10.00 USD"
@@ -36,7 +37,7 @@ export default function ProductCarousel({ products, targetHref, title }) {
         return `${symbol}${parsedNumber.toFixed(2)} ${currencyCode}`
     }
 
-    const next = () => currentIndex + 5 < products.length && setCurrentIndex(c => c + 5)
+    const next = () => currentIndex + 5 < displayProducts.length && setCurrentIndex(c => c + 5)
     const prev = () => currentIndex > 0 && setCurrentIndex(c => c - 5)
 
     return (
@@ -48,7 +49,7 @@ export default function ProductCarousel({ products, targetHref, title }) {
                         className="flex transition-transform duration-700 ease-in-out gap-[1px] bg-gray-100 border-y border-gray-100"
                         style={{ transform: `translateX(-${(currentIndex / 5) * 100}%)` }}
                     >
-                        {products.map((product, i) => (
+                        {displayProducts.map((product, i) => (
                             <FadeUpOnScroll
                                 key={product.handle}
                                 delay={i * 50}
@@ -91,7 +92,7 @@ export default function ProductCarousel({ products, targetHref, title }) {
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M15 19l-7-7 7-7"/></svg>
                     </button>
                 )}
-                {currentIndex + 5 < products.length && (
+                {currentIndex + 5 < displayProducts.length && (
                     <button onClick={next} className="absolute right-2 top-[40%] z-10 p-2 bg-white/80 backdrop-blur shadow-sm rounded-full hover:bg-black hover:text-white transition-all">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M9 5l7 7-7 7"/></svg>
                     </button>

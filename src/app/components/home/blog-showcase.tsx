@@ -1,5 +1,5 @@
 import Image from "next/image"
-import { getLatestBlogPost, getBlogModuleSettings } from '../../../lib/strapi/blog-data'
+import { getFeaturedBlogPosts, getBlogModuleSettings } from '../../../lib/strapi/blog-data'
 import { getSelectedLocale } from '@lib/data/locales'
 import LocalizedClientLink from '@modules/common/components/localized-client-link'
 import FadeUpOnScroll from "@modules/common/components/fade-up-on-scroll"
@@ -7,19 +7,14 @@ import FadeUpOnScroll from "@modules/common/components/fade-up-on-scroll"
 export default async function BlogShowcase() {
     const localecode = (await getSelectedLocale()) || 'en-US'
 
-    const [settingsData, blogPost] = await Promise.all([
+    const [settingsData, blogPosts] = await Promise.all([
         getBlogModuleSettings(localecode),
-        getLatestBlogPost(localecode)
+        getFeaturedBlogPosts(localecode, 2)
     ])
 
     const settings = settingsData?.data?.data || settingsData?.data || settingsData;
 
-    if (!settings?.showModule || !blogPost) return null
-
-    const targetHref = `/blog/${blogPost.medusaHandle || blogPost.slug}`;
-    const media = blogPost.coverImage;
-    const mediaUrl = media?.url;
-    const isVideo = media?.mime?.includes('video');
+    if (!settings?.showModule || !blogPosts.length) return null
 
     return (
         <section className="bg-white pt-16 border-t border-gray-50 overflow-hidden">
@@ -33,81 +28,73 @@ export default async function BlogShowcase() {
                 </div>
             </FadeUpOnScroll>
 
-            {/* 2. 核心内容区域：左图右文 */}
-            {/* 使用 grid-cols-[1.2fr_0.8fr] 让图片略宽于文字区，视觉更平衡 */}
-            <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_0.8fr] w-full min-h-[500px] lg:min-h-[650px]">
+            {/* 2. 核心内容区域：2 篇博客左右排布 */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 w-full gap-0">
+                {blogPosts.slice(0, 2).map((post, idx) => {
+                    const href = `/blog/${post.medusaHandle || post.slug}`
+                    const postMedia = post.coverImage
+                    const postMediaUrl = postMedia?.url
+                    const postIsVideo = postMedia?.mime?.includes('video')
 
-                {/* 左侧：图片完全靠左铺满 */}
-                <FadeUpOnScroll delay={0} duration={800} className="w-full h-[450px] lg:h-full">
-                <LocalizedClientLink
-                    href={targetHref}
-                    className="relative w-full h-full overflow-hidden bg-gray-100 group shadow-sm block"
-                >
-                    {mediaUrl && (
-                        isVideo ? (
-                            <video
-                                src={mediaUrl}
-                                autoPlay muted loop playsInline
-                                className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
-                            />
-                        ) : (
-                            <Image
-                                src={mediaUrl}
-                                alt={blogPost.title}
-                                fill
-                                sizes="(max-width: 1024px) 100vw, 55vw"
-                                className="object-cover transition-transform duration-1000 group-hover:scale-105"
-                            />
-                        )
-                    )}
-                </LocalizedClientLink>
-                </FadeUpOnScroll>
-
-                {/* 右侧：文字在右侧剩余空间内垂直居中 */}
-                <FadeUpOnScroll delay={150} duration={800} className="flex items-center justify-center bg-white px-10 py-16 lg:px-20 lg:py-24">
-                    {/* 控制文字块的最大宽度，防止在宽屏下显得太散 */}
-                    <div className="max-w-md w-full flex flex-col items-center lg:items-start text-center lg:text-left">
-
-                        {/* 分类与日期 */}
-                        <div className="flex items-center gap-3 text-[10px] tracking-[0.15em] text-gray-400 uppercase mb-6">
-                            {(settings.showCategory && blogPost.lila_blog_category) && (
-                                <span className="text-gray-900 font-bold">{blogPost.lila_blog_category.name}</span>
-                            )}
-                            <span className="w-1 h-1 bg-gray-200 rounded-full"></span>
-                            <span>{formatDate(blogPost.publishedAt, localecode)}</span>
-                        </div>
-
-                        {/* 文章标题 */}
-                        <LocalizedClientLink href={targetHref} className="group">
-                            <h3 className="text-2xl md:text-3xl lg:text-4xl font-medium text-gray-900 mb-6 tracking-tight leading-[1.2] transition-colors hover:text-gray-600">
-                                {blogPost.title}
-                            </h3>
+                    return (
+                        <FadeUpOnScroll key={post.id || idx} delay={idx * 100} duration={800} className="w-full">
+                        <LocalizedClientLink href={href} className="group block">
+                            {/* 图片 */}
+                            <div className="relative w-full aspect-[4/3] overflow-hidden bg-gray-100">
+                                {postMediaUrl && (
+                                    postIsVideo ? (
+                                        <video
+                                            src={postMediaUrl}
+                                            autoPlay muted loop playsInline
+                                            className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
+                                        />
+                                    ) : (
+                                        <Image
+                                            src={postMediaUrl}
+                                            alt={post.title}
+                                            fill
+                                            sizes="(max-width: 1024px) 100vw, 50vw"
+                                            className="object-cover transition-transform duration-1000 group-hover:scale-105"
+                                        />
+                                    )
+                                )}
+                            </div>
+                            {/* 文字 */}
+                            <div className="px-8 py-8 lg:px-12 lg:py-10 flex flex-col items-center lg:items-start text-center lg:text-left">
+                                <div className="flex items-center gap-3 text-[10px] tracking-[0.15em] text-gray-400 uppercase mb-4">
+                                    {(settings.showCategory && post.lila_blog_category) && (
+                                        <span className="text-gray-900 font-bold">{post.lila_blog_category.name}</span>
+                                    )}
+                                    <span className="w-1 h-1 bg-gray-200 rounded-full"></span>
+                                    <span>{formatDate(post.publishedAt, localecode)}</span>
+                                </div>
+                                <h3 className="text-xl md:text-2xl font-medium text-gray-900 mb-4 tracking-tight leading-[1.2] transition-colors group-hover:text-gray-600">
+                                    {post.title}
+                                </h3>
+                                <p className="text-gray-500 text-sm leading-7 font-light tracking-wide mb-6 line-clamp-3">
+                                    {post.excerpt}
+                                </p>
+                                <span className="inline-block border-b border-black pb-1.5 text-[11px] font-bold tracking-[0.2em] uppercase transition-all group-hover:text-gray-400 group-hover:border-gray-400">
+                                    {settings.readButtonText || 'Read More'}
+                                </span>
+                            </div>
                         </LocalizedClientLink>
-
-                        {/* 摘要 */}
-                        <p className="text-gray-500 text-sm leading-7 font-light tracking-wide mb-10 line-clamp-4">
-                            {blogPost.excerpt}
-                        </p>
-
-                        {/* 交互按钮 */}
-                        <div className="flex flex-col items-center lg:items-start gap-8 w-full">
-                            <LocalizedClientLink
-                                href={targetHref}
-                                className="inline-block border-b border-black pb-1.5 text-[11px] font-bold tracking-[0.2em] uppercase transition-all hover:text-gray-400 hover:border-gray-400"
-                            >
-                                {settings.readButtonText || 'Read More'}
-                            </LocalizedClientLink>
-
-                            <LocalizedClientLink
-                                href="/blog"
-                                className="text-[10px] tracking-[0.2em] text-gray-300 uppercase hover:text-black transition-colors lg:mt-6"
-                            >
-                                — {settings.viewAllButtonText || 'All Stories'} —
-                            </LocalizedClientLink>
-                        </div>
-                    </div>
-                </FadeUpOnScroll>
+                        </FadeUpOnScroll>
+                    )
+                })}
             </div>
+
+            {/* 底部 View All */}
+            <FadeUpOnScroll delay={200} duration={700}>
+                <div className="w-full flex justify-center mt-12 pb-8">
+                    <LocalizedClientLink
+                        href="/blog"
+                        className="text-[10px] tracking-[0.2em] text-gray-300 uppercase hover:text-black transition-colors"
+                    >
+                        — {settings.viewAllButtonText || 'All Stories'} —
+                    </LocalizedClientLink>
+                </div>
+            </FadeUpOnScroll>
         </section>
     )
 }

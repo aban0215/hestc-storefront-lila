@@ -74,7 +74,7 @@ async function CollectionBlock({ entry, region, index = 0 }: { entry: HomeCollec
             {/* 商品展示 */}
             {products.length > 0 && (
                 <ProductCarousel
-                    products={products.slice(0, entry.displayCount * 3)}
+                    products={products.slice(0, 4)}
                     targetHref={targetHref}
                     title={entry.title}
                 />

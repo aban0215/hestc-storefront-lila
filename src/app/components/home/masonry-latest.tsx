@@ -51,7 +51,7 @@ export default async function MasonryLatest({ region }: { region: HttpTypes.Stor
                     @media (min-width: 1440px) { .masonry-container { column-count: 5; } }
                 `}</style>
                 <div className="masonry-container" style={{ columnCount: "inherit", columnGap: "inherit" }}>
-                    {products.map((product, i) => {
+                    {products.slice(0, 4).map((product, i) => {
                         const aspect = ASPECTS[i % ASPECTS.length]
                         return (
                             <FadeUpOnScroll

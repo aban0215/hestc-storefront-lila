@@ -19,7 +19,8 @@ export const retrieveCustomer =
   async (): Promise<HttpTypes.StoreCustomer | null> => {
     const authHeaders = await getAuthHeaders()
 
-    if (!authHeaders) return null
+    // !{} === false in JS, 必须检查 authorization 字段而非对象本身
+    if (!authHeaders || !("authorization" in authHeaders)) return null
 
     const headers = {
       ...authHeaders,

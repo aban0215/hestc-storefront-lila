@@ -3,7 +3,6 @@
 import { Suspense } from "react"
 import { listRegions } from "@lib/data/regions"
 import { listLocales } from "@lib/data/locales"
-import { getLocale } from "@lib/data/locale-actions"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import CartButton from "@modules/layout/components/cart-button"
 import DesktopPreferences from "@modules/layout/components/desktop-preferences"
@@ -13,15 +12,16 @@ import SearchBarDirect from "@modules/search/components/modal"
 import NavLinks from "@modules/layout/templates/nav/NavLinks"
 import { getBrandData, getMenuData } from "@lib/strapi/header-data"
 
-async function getCurrentLocale() {
-  try {
-    const locale = await getLocale()
-    return locale || "en-US"
-  } catch { return "en-US" }
+/**
+ * 从 countryCode 推导 Strapi locale（不读 cookie，避免禁用 ISR）
+ */
+function localeFromCountry(countryCode: string): string {
+  // 目前仅 US 市场，始终返回 en-US
+  return "en-US"
 }
 
-export default async function Nav() {
-  const currentLocale = await getCurrentLocale()
+export default async function Nav({ countryCode }: { countryCode: string }) {
+  const currentLocale = localeFromCountry(countryCode)
   const [regions, locales, brandData, menuTree] = await Promise.all([
     listRegions(),
     listLocales(),

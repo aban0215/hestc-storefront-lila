@@ -1,5 +1,3 @@
-import { getLocale } from "@lib/data/locale-actions"
-
 
 
 const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_API_URL
@@ -54,8 +52,10 @@ export interface StrapiProductResponse {
 /**
  * 根据 Medusa 的 handle 获取 Strapi 中的增强内容
  */
-export async function getProductStrapiContent(handle: string): Promise<LilaProductContent | null> {
-    const locale = await getLocale()
+export async function getProductStrapiContent(
+  handle: string,
+  locale: string = "en-US"
+): Promise<LilaProductContent | null> {
     try {
         const response = await fetch(
             `${STRAPI_URL}/api/lila-product-contents?filters[medusa_handle][$eq]=${handle}&locale=${locale}&populate=*`,
@@ -83,7 +83,7 @@ export async function getProductStrapiContent(handle: string): Promise<LilaProdu
  * 强制使用 locale=en-US 以实现单中心索引
  */
 export async function getProductSeo(handle: string) {
-    const query = `${STRAPI_URL}/api/lila-product-contents?filters[medusa_handle][$eq]=${handle}&locale=en-US&populate[productSeo][populate]=shareImage`;
+    const query = `${STRAPI_URL}/api/lila-product-contents?filters[medusa_handle][$eq]=${handle}&locale=en-US&populate=*`;
 
     try {
         const res = await fetch(query, { next: { revalidate: 3600 } });

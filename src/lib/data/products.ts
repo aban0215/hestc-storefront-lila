@@ -59,8 +59,8 @@ export const listProducts = async ({
 
   const query: any = {
     ...rest,
-    // 有过滤：拉 96 条池子供客户端过滤；无过滤：按页取，Medusa 服务端分页
-    limit: hasFilters ? 96 : limit,
+    // 有过滤：拉 24 条池子供客户端过滤；无过滤：按页取，Medusa 服务端分页
+    limit: hasFilters ? 24 : limit,
     offset: hasFilters ? 0 : (_pageParam - 1) * limit,
     region_id: region?.id,
     order: order,
@@ -166,7 +166,7 @@ const LISTING_FIELDS = "*variants.calculated_price,+variants.options,+material,+
 
 /**
  * 智能分页：无过滤+created_at排序 → Medusa 服务端分页（真分页）
- *            有过滤或价格排序 → 拉 96 条池子，客户端排序/过滤后手动分页
+ *            有过滤或价格排序 → 拉 24 条池子，客户端排序/过滤后手动分页
  */
 export const listProductsWithSort = async ({
                                              page = 0,
@@ -192,11 +192,11 @@ export const listProductsWithSort = async ({
   const needsPool = needsClientSort || hasFilters
 
   if (needsPool) {
-    // 池子模式：拉 96 条 → 客户端排序/过滤 → 手动分页
+    // 池子模式：拉 24 条 → 客户端排序/过滤 → 手动分页
     // 注入精简 fields，列表卡不需要 inventory_quantity / variants.images / metadata / tags
     const { response: { products, count } } = await listProducts({
       pageParam: 0,
-      queryParams: { ...queryParams, limit: 96, fields: LISTING_FIELDS },
+      queryParams: { ...queryParams, limit: 24, fields: LISTING_FIELDS },
       countryCode,
     })
 

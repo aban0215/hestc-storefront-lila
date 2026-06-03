@@ -23,7 +23,7 @@ type Props = {
  */
 async function getProductSeoForMetadata(handle: string) {
   // 仅请求 SEO 核心字段，减少体积
-  const query = `${STRAPI_URL}/api/lila-product-contents?filters[medusa_handle][$eq]=${handle}&locale=en-US&populate[productSeo][populate]=shareImage`
+  const query = `${STRAPI_URL}/api/lila-product-contents?filters[medusa_handle][$eq]=${handle}&locale=en-US&populate=*`
 
   try {
     const res = await fetch(query, { next: { revalidate: 3600 } })

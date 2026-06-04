@@ -29,9 +29,9 @@ export interface HomeHeroData {
 export async function getHomeHero(locale: string): Promise<HomeHeroData | null> {
     try {
         const res = await fetch(
-            `${STRAPI_BASE_URL}/api/lila-home-hero?populate=*&locale=${locale}`,
+            `${STRAPI_BASE_URL}/api/lila-home-hero?populate=*&locale=${locale}&v=2`,
             {
-                next: { revalidate: 3600 }
+                next: { revalidate: 3600, tags: ["hero"] }
             }
         )
 

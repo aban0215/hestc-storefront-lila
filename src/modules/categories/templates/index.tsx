@@ -145,7 +145,7 @@ export default async function CategoryTemplate({
             </div>
 
             {/* 2. 营销图片/视频区域 */}
-            {marketingData?.maketimg?.url && (
+            {marketingData?.image?.url && (
                 <div className="relative w-full h-[55vh] md:h-[75vh] mb-0 overflow-hidden bg-gray-50">
                     <div className="hidden md:block w-full h-full">
                         {marketingData.image.mime?.includes("video") ? (

@@ -125,7 +125,7 @@ export default async function CollectionTemplate({
             </div>
 
             {/* 2. Marketing Banner */}
-            {marketingData?.maketimg?.url && (
+            {marketingData?.image?.url && (
                 <div className="relative w-full h-[55vh] md:h-[75vh] mb-0 overflow-hidden bg-gray-50">
 
                     {/* 桌面端视图 (md 以上显示) */}

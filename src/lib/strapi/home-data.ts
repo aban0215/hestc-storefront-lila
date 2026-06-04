@@ -29,9 +29,9 @@ export interface HomeHeroData {
 export async function getHomeHero(locale: string): Promise<HomeHeroData | null> {
     try {
         const res = await fetch(
-            `${STRAPI_BASE_URL}/api/lila-home-hero?populate=*&locale=${locale}`,
+            `${STRAPI_BASE_URL}/api/lila-home-hero?populate=*&locale=${locale}&_t=${Date.now()}`,
             {
-                next: { revalidate: 3600 }
+                cache: "no-store"
             }
         )
 

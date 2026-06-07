@@ -152,28 +152,34 @@ export default function MobileMenu({
                             return (
                                 <div key={item.id} className="border-b border-gray-50 last:border-0">
                                     <div className="flex items-center">
-                                        <LocalizedClientLink
-                                            href={getMenuHref(item.link_type, item.slug, item.medusaHandle)}
-                                            className="flex-1 py-4 text-sm font-semibold uppercase tracking-[0.1em] text-gray-900 hover:text-rose-600 transition-colors"
-                                            onClick={() => setIsOpen(false)}
-                                        >
-                                            {item.title}
-                                        </LocalizedClientLink>
-                                        {hasKids && (
+                                        {hasKids ? (
+                                            /* 有子菜单：点击标题展开下钻 */
                                             <button
                                                 onClick={() => {
                                                     setOpenL1(isL1Open ? null : item.id)
                                                     setOpenL2(null)
                                                 }}
-                                                className="w-10 h-10 flex items-center justify-center"
+                                                className="flex-1 flex items-center justify-between py-4 text-left"
                                             >
+                                                <span className="text-sm font-semibold uppercase tracking-[0.1em] text-gray-900 hover:text-rose-600 transition-colors">
+                                                    {item.title}
+                                                </span>
                                                 <ChevronRight
                                                     size={16}
-                                                    className={`transition-transform duration-300 ${
+                                                    className={`transition-transform duration-300 shrink-0 ${
                                                         isL1Open ? "rotate-90 text-rose-500" : "text-gray-300"
                                                     }`}
                                                 />
                                             </button>
+                                        ) : (
+                                            /* 无子菜单：直接跳转 */
+                                            <LocalizedClientLink
+                                                href={getMenuHref(item.link_type, item.slug, item.medusaHandle)}
+                                                className="flex-1 py-4 text-sm font-semibold uppercase tracking-[0.1em] text-gray-900 hover:text-rose-600 transition-colors"
+                                                onClick={() => setIsOpen(false)}
+                                            >
+                                                {item.title}
+                                            </LocalizedClientLink>
                                         )}
                                     </div>
 
@@ -191,25 +197,31 @@ export default function MobileMenu({
                                                     return (
                                                         <div key={child.id}>
                                                             <div className="flex items-center">
-                                                                <LocalizedClientLink
-                                                                    href={getMenuHref(child.link_type, child.slug, child.medusaHandle)}
-                                                                    className="flex-1 py-3 text-[13px] font-semibold uppercase tracking-[0.06em] text-gray-700 hover:text-rose-600 transition-colors"
-                                                                    onClick={() => setIsOpen(false)}
-                                                                >
-                                                                    {child.title}
-                                                                </LocalizedClientLink>
-                                                                {hasGrand && (
+                                                                {hasGrand ? (
+                                                                    /* 有孙菜单：点击标题展开下钻 */
                                                                     <button
                                                                         onClick={() => setOpenL2(isL2Open ? null : child.id)}
-                                                                        className="w-8 h-8 flex items-center justify-center"
+                                                                        className="flex-1 flex items-center justify-between py-3 text-left"
                                                                     >
+                                                                        <span className="text-[13px] font-semibold uppercase tracking-[0.06em] text-gray-700 hover:text-rose-600 transition-colors">
+                                                                            {child.title}
+                                                                        </span>
                                                                         <ChevronRight
                                                                             size={14}
-                                                                            className={`transition-transform duration-300 ${
+                                                                            className={`transition-transform duration-300 shrink-0 ${
                                                                                 isL2Open ? "rotate-90 text-rose-400" : "text-gray-300"
                                                                             }`}
                                                                         />
                                                                     </button>
+                                                                ) : (
+                                                                    /* 无子菜单：直接跳转 */
+                                                                    <LocalizedClientLink
+                                                                        href={getMenuHref(child.link_type, child.slug, child.medusaHandle)}
+                                                                        className="flex-1 py-3 text-[13px] font-semibold uppercase tracking-[0.06em] text-gray-700 hover:text-rose-600 transition-colors"
+                                                                        onClick={() => setIsOpen(false)}
+                                                                    >
+                                                                        {child.title}
+                                                                    </LocalizedClientLink>
                                                                 )}
                                                             </div>
 

@@ -33,7 +33,7 @@ export default function SearchBarDirect({ variant = "default" }: { variant?: "de
             <div className="relative" ref={containerRef}>
                 <button
                     onClick={() => setIsFocused(!isFocused)}
-                    className="text-gray-700 hover:text-black w-10 h-10 md:w-9 md:h-9 flex items-center justify-center rounded-full hover:bg-gray-50 transition-all"
+                    className="text-gray-700 hover:text-black w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-50 transition-all"
                     aria-label="Search"
                 >
                     <MagnifyingGlass size={22} />

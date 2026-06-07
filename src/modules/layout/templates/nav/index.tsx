@@ -1,5 +1,3 @@
-"use server"
-
 import { Suspense } from "react"
 import { listRegions } from "@lib/data/regions"
 import { listLocales } from "@lib/data/locales"
@@ -41,7 +39,7 @@ export default async function Nav({ countryCode }: { countryCode: string }) {
     <header className="sticky top-0 z-50 w-full bg-white border-b border-gray-100">
       {/* ── 顶栏 ── */}
       <div className="mx-auto max-w-[1440px] px-5 lg:px-8">
-        <div className="flex items-center h-12 lg:h-14">
+        <div className="flex items-center justify-between h-12 lg:h-14">
 
           {/* 左：Logo */}
           <div className="flex items-center gap-4 shrink-0">

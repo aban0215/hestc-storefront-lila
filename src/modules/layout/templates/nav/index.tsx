@@ -59,7 +59,7 @@ export default async function Nav({ countryCode }: { countryCode: string }) {
             </div>
             <LocalizedClientLink
               href="/account"
-              className="hidden lg:flex text-gray-700 hover:text-black w-9 h-9 items-center justify-center rounded-full hover:bg-gray-50 transition-colors"
+              className="flex text-gray-700 hover:text-black w-9 h-9 items-center justify-center rounded-full hover:bg-gray-50 transition-colors"
             >
               <User />
             </LocalizedClientLink>
